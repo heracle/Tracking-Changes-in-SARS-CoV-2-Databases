@@ -1,0 +1,6 @@
+[submodule "curlpp"]
+	path = curlpp
+	url = https://github.com/jpbarrette/curlpp
+[submodule "src/external_libraries/curlpp"]
+	path = src/external_libraries/curlpp
+	url = https://github.com/jpbarrette/curlpp
