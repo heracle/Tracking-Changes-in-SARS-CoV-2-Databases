@@ -1,2 +1,8 @@
 build
+data
+sars_cov_dataset
 
+__pycache__
+*.pyc
+
+hdf5-1.13.0*

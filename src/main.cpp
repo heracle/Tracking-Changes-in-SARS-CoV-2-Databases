@@ -15,26 +15,33 @@
 #include "cli/config.hpp"
 #include "common/logger.hpp"
 
-common::Logger logger;
+#include "cli/create.hpp"
+#include "cli/append.hpp"
+#include "cli/stats.hpp"
+#include "cli/query.hpp"
 
 int main(int argc, char *argv[]) {
+    srand(common::SEED);
     auto config = std::make_unique<cli::Config>(argc, argv);
 
-    config->print_module();
+    Logger::trace("Tool started");
 
-    // logger->set_level(common::get_verbose()
-    //                         ? spdlog::level::trace
-    //                         : spdlog::level::info);
+    switch (config->module) {
+        case cli::CREATE:
+            return cli::create(config.get());
 
-    logger.trace("Tool started");
+        case cli::APPEND:
+            return cli::append(config.get());
 
-    // switch (config->identity) {
-    //     case cli::ADD_SNAPSHOT:
-    //         return cli::build_graph(config.get());
+        case cli::STATS:
+            return cli::stats(config.get());
+        
+        case cli::QUERY:
+            return cli::query(config.get());
 
-    //     case cli::NO_MODULE:
-    //         assert(false);
-    // }
+        case cli::NO_MODULE:
+            assert(false);
+    }
 
     return 0;
 }
