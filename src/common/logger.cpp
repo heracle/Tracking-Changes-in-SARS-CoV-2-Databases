@@ -2,10 +2,18 @@
 
 #include <iostream>
 
-namespace common {
+// namespace common {
+
+bool Logger::verbose = false;
 
 void Logger::trace(const std::string &msg) {
-    std::cout << "TRACE -> " << msg << "\n";
+    if (Logger::verbose) {
+        std::cout << "TRACE -> " << msg << "\n";
+    }
+}
+
+void Logger::warn(const std::string &msg) {
+    std::cout << "WARN -> " << msg << "\n";
 }
 
 void Logger::error(const std::string &msg) {
@@ -14,7 +22,7 @@ void Logger::error(const std::string &msg) {
 }
 
 void Logger::set_verbose(const bool vb) {
-    verbose = vb;
+    Logger::verbose = vb;
 }
 
-} // namespace common
+// } // namespace common

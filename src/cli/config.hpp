@@ -8,18 +8,28 @@ namespace cli {
 enum ModuleType {
     NO_MODULE = -1,
     CREATE = 0,
-    ADD = 1,
+    APPEND = 1,
+    STATS = 2,
+    QUERY = 3,
 };
 
 class Config {
-  ModuleType module;
-  std::string indb_filepath;
-  std::string outdb_filepath;
-  std::vector<std::string> fnames;
   public:
+    ModuleType module = ModuleType::NO_MODULE;
+    std::string indb_filepath = "";
+    std::string outdb_filepath = "";
+    std::vector<std::string> fnames;
+    std::string snapshot = "";
+    bool verbosity = false;
+
+    std::string location_prefix = "";
+  
     Config(int argc, char *argv[]);
     void print_helper(const std::string &prog_name, ModuleType module = NO_MODULE);
-    void print_module();
+    /*
+      Run validations on each field of Config object according to the current module.
+    */
+    void validate_config();
 };
 
 } // namespace cli
