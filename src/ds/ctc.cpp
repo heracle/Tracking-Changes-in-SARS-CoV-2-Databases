@@ -83,7 +83,7 @@ void CTC::save_snapshot(const std::string &name) {
     treap_location->save_snapshot(name);
 }
 
-void CTC::export_to_h5(std::ofstream *ostrm, H5::H5File &h5_file) {
+void CTC::export_to_h5(H5::H5File &h5_file) {
     // treap_location->iterate_ordered([&](const common::LocationSorted &x) {std::cerr << x.key << "\n";});
 
     H5::Group location_treap_group = h5_file.createGroup("/location_treap");

@@ -26,15 +26,9 @@ int create(Config *config) {
 
     // Create a new file using the default property lists.
     H5::H5File h5_file(config->outdb_filepath, H5F_ACC_TRUNC);
-
-    std::ofstream ostrm(config->outdb_filepath, std::ios::binary);
-    if (!ostrm.is_open()) {
-        Logger::error("Can't open output file " + config->outdb_filepath);
-    }
-    ctc->export_to_h5(&ostrm, h5_file);
+    ctc->export_to_h5(h5_file);
 
     h5_file.close();
-    ostrm.close();
     return 0;
 }   
 
