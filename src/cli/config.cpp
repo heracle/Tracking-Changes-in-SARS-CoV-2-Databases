@@ -62,7 +62,8 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
 
             fprintf(stderr, "Available options for STATS:\n");
             fprintf(stderr, "\t   TODO fill in\n");
-
+            break;
+            
         default:
             fprintf(stderr, "TODO: implement");
             break;
@@ -144,7 +145,7 @@ void Config::validate_config() {
     */
     if (module == ModuleType::STATS) {
         if (indb_filepath == "") {
-            // "-i" was missed, thus, get the indb_filepath from fnames[0].
+            // "-i" was missed, thus, get the ctc_filepath from fnames[0].
             if (fnames.size() == 0) {
                 Logger::error("STATS cli cmd must receive exactly one indb_filepath in '" + common::DS_FILE_FORMAT + "' format.");
             }
@@ -201,17 +202,6 @@ void Config::validate_config() {
         if (access(filepath.c_str(), F_OK ) == -1) {
             Logger::error("One input file cannot be accessed " + filepath);
         }
-    }
-
-    /*
-     * Validate nextalign binary
-    */
-    struct stat info;
-    if (stat(common::COVID_NEXTALIGN_DATASET.c_str(), &info) != 0) {
-        Logger::error("Can't find the nextalign covid dataset at " + common::COVID_NEXTALIGN_DATASET);
-    }
-    if (stat(common::NEXTALIGN_EXE_PATH.c_str(), &info) != 0) {
-        Logger::error("Can't find the nextalign exe at " + common::NEXTALIGN_EXE_PATH);
     }
 }
 

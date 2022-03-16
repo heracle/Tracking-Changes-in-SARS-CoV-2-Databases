@@ -2,8 +2,6 @@
 
 #include <string>
 
-// namespace common {
-
 class Logger {
     static bool verbose;
   public:
@@ -15,5 +13,3 @@ class Logger {
     static void set_verbose(const bool vb);
 };
 
-
-// } // namespace common

@@ -11,56 +11,79 @@
 #include "../common/constants.hpp"
 #include "../common/h5_helper.hpp"
 
-#include "../ds/treap_representation/static_acc_id.hpp"
+#include "static_types/static_acc_id.hpp"
 
 using namespace treap_types;
 
 namespace ds {
 
-void PS_Treap::split(common::Tnode *&tnode, const BaseSortedTreap &key, common::Tnode *&left, common::Tnode *&right) {
+void PS_Treap::split(Tnode *&tnode, const BaseSortedTreap &key, Tnode *&left, Tnode *&right) {
     if (tnode == NULL) {
         left = right = NULL;
         return;
     }
+    Tnode *old = tnode;
     // create a copy of node for persistency purpose.
-    tnode = new common::Tnode(*tnode);
+    // tnode = new Tnode(*tnode);
+    tnode = copy_specialized_tnode(tnode);
+    old->try_to_suicide();
 
     if (key < *static_data[tnode->data_id]) {
-        common::Tnode *new_left = NULL;
+        Tnode *new_left = NULL;
         split(tnode->l, key, left, new_left);
         tnode->l = new_left;
         right = tnode;
+        if (tnode->l != NULL) {
+            //maybe not needed
+            recompute_tnode_statistics(tnode->l, static_data[tnode->l->data_id].get());
+        }
+        if (right != NULL) {
+            recompute_tnode_statistics(right, static_data[right->data_id].get());
+        }
     } else {
-        common::Tnode *new_right = NULL;
+        Tnode *new_right = NULL;
         split(tnode->r, key, new_right, right);
         tnode->r = new_right;
         left = tnode;
+        if (tnode->r != NULL) {
+            //maybe not needed
+            recompute_tnode_statistics(tnode->r, static_data[tnode->r->data_id].get());
+        }
+        if (left != NULL) {
+            recompute_tnode_statistics(left, static_data[left->data_id].get());
+        }
     }
-    recompute_tnode_statistics(tnode, static_data[tnode->data_id]);
 }
 
-void PS_Treap::merge(common::Tnode *&tnode, common::Tnode *left, common::Tnode *right) {
+void PS_Treap::merge(Tnode *&tnode, Tnode *left, Tnode *right) {
     if (left == NULL || right == NULL) {
         tnode = (left != NULL ? left : right);
         return;
     }
+    Tnode *old;
     if (left->prio > right->prio) {
-        common::Tnode *new_node = NULL;
+        Tnode *new_node = NULL;
         merge(new_node, left->r, right);
-        tnode = new common::Tnode(*left);
+        old = left;
+        // tnode = new Tnode(*left);
+        tnode = copy_specialized_tnode(left);
         tnode->r = new_node;
     } else {
-        common::Tnode *new_node = NULL;
+        Tnode *new_node = NULL;
         merge(new_node, left, right->l);
-        tnode = new common::Tnode(*right);
+        old = right;
+        // tnode = new Tnode(*right);
+        tnode = copy_specialized_tnode(right);
         tnode->l = new_node;
     }
-    recompute_tnode_statistics(tnode, static_data[tnode->data_id]);
+    old->try_to_suicide();
+    recompute_tnode_statistics(tnode, static_data[tnode->data_id].get());
 }
 
 void PS_Treap::insert(std::vector<std::unique_ptr<BaseSortedTreap>> &nodes) {
     for (std::unique_ptr<BaseSortedTreap> &unique_node : nodes) {
-        common::Tnode *new_tnode = new common::Tnode(static_data.size());
+        // Tnode *new_tnode = new Tnode(static_data.size());
+        Tnode *new_tnode = create_new_specialized_tnode(static_data.size());
         static_data.push_back(std::move(unique_node));
         insert_tnode(root, new_tnode);
         assert(root != NULL);
@@ -69,10 +92,10 @@ void PS_Treap::insert(std::vector<std::unique_ptr<BaseSortedTreap>> &nodes) {
     nodes.clear();
 }
 
-void PS_Treap::insert_tnode(common::Tnode *&tnode, common::Tnode *to_add) {
+void PS_Treap::insert_tnode(Tnode *&tnode, Tnode *to_add) {
     if (tnode == NULL) {
         tnode = to_add;
-        recompute_tnode_statistics(tnode, static_data[tnode->data_id]);
+        recompute_tnode_statistics(tnode, static_data[tnode->data_id].get());
         return;
     }
     if (tnode->prio < to_add->prio) {
@@ -80,15 +103,18 @@ void PS_Treap::insert_tnode(common::Tnode *&tnode, common::Tnode *to_add) {
         tnode = to_add;
     } else {
         // create a copy of node for persistency purpose.
-        tnode = new common::Tnode(*tnode);
+        Tnode *old = tnode;
+        // tnode = new Tnode(*tnode);
+        tnode = copy_specialized_tnode(tnode);
+        old->try_to_suicide();
         insert_tnode(*static_data[to_add->data_id] < *static_data[tnode->data_id] ? tnode->l : tnode->r, to_add);
     }
     assert(tnode != NULL);
-    recompute_tnode_statistics(tnode, static_data[tnode->data_id]);
+    recompute_tnode_statistics(tnode, static_data[tnode->data_id].get());
 }
 
-common::Tnode* PS_Treap::find(const BaseSortedTreap &target) {
-    common::Tnode *curr = root;
+Tnode* PS_Treap::find(const BaseSortedTreap &target) {
+    Tnode *curr = root;
     while(curr != NULL) {
         if (*static_data[curr->data_id] < target) {
             curr = curr->r;
@@ -101,26 +127,33 @@ common::Tnode* PS_Treap::find(const BaseSortedTreap &target) {
     return NULL;
 }
 
-void PS_Treap::erase_node(common::Tnode *&tnode, const BaseSortedTreap &to_delete, int &deleted_data_id) {
+void PS_Treap::erase_node(Tnode *&tnode, const BaseSortedTreap &to_delete, int &deleted_data_id) {
     if (tnode == NULL) {
         // The requested tnode does not exist in the treap.
         return;
     }
 
+    Tnode *old;
     if (*static_data[tnode->data_id] < to_delete) {
-        tnode = new common::Tnode(*tnode);
+        old = tnode;
+        // tnode = new Tnode(*tnode);
+        tnode = copy_specialized_tnode(tnode);
         erase_node(tnode->r, to_delete, deleted_data_id);
     } else if (to_delete < *static_data[tnode->data_id]) {
-        tnode = new common::Tnode(*tnode);
+        old = tnode;
+        // tnode = new Tnode(*tnode);
+        tnode = copy_specialized_tnode(tnode);
         erase_node(tnode->l, to_delete, deleted_data_id);
     } else {
+        old = tnode;
         deleted_data_id = tnode->data_id;
-        common::Tnode *new_node = NULL;
+        Tnode *new_node = NULL;
         merge(new_node, tnode->l, tnode->r);
         tnode = new_node;
     }
+    old->try_to_suicide();
     if (tnode != NULL) {
-        recompute_tnode_statistics(tnode, static_data[tnode->data_id]);
+        recompute_tnode_statistics(tnode, static_data[tnode->data_id].get());
     }
 }
 
@@ -135,7 +168,7 @@ void PS_Treap::erase(const std::vector<uint32_t> &nodes_indices) {
     }
 }
 
-void PS_Treap::run_tnode_callback(const common::Tnode *tnode, const std::function<void(const BaseSortedTreap &)> &callback) {
+void PS_Treap::run_tnode_callback(const Tnode *tnode, const std::function<void(const BaseSortedTreap &)> &callback) {
     if (tnode == NULL) {
         return;
     }
@@ -157,9 +190,9 @@ void PS_Treap::iterate_ordered(const std::function<void(const BaseSortedTreap &)
     run_tnode_callback(root_history[it->second], callback);
 }
 
-void PS_Treap::run_treap_query_callback_subtree(common::Tnode *tnode, 
-                                                const std::function<int(common::Tnode *, const BaseSortedTreap *)> &callback_fst,
-                                                const std::function<int(common::Tnode *, const BaseSortedTreap *)> &callback_scd) {
+void PS_Treap::run_treap_query_callback_subtree(Tnode *tnode, 
+                                                const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_fst,
+                                                const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_scd) {
     if (tnode == NULL) {
         return;
     }
@@ -181,8 +214,8 @@ void PS_Treap::run_treap_query_callback_subtree(common::Tnode *tnode,
     }
 }
 
-void PS_Treap::query_callback_subtree(const std::function<int(common::Tnode *, const BaseSortedTreap *)> &callback_fst,
-                                      const std::function<int(common::Tnode *, const BaseSortedTreap *)> &callback_scd,
+void PS_Treap::query_callback_subtree(const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_fst,
+                                      const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_scd,
                                       const std::string &snapshot) {
     if (snapshot == "") {
         run_treap_query_callback_subtree(root, callback_fst, callback_scd);
@@ -196,7 +229,7 @@ void PS_Treap::query_callback_subtree(const std::function<int(common::Tnode *, c
     run_treap_query_callback_subtree(root_history[it->second], callback_fst, callback_scd);
 }
 
-void PS_Treap::delete_subtree(common::Tnode *&node) {
+void PS_Treap::delete_subtree(Tnode *&node) {
     if (node == NULL) {
         return;
     }
@@ -210,15 +243,24 @@ PS_Treap::~PS_Treap() {
     static_data.clear(); // are the unique ptr released?
 }
 
-PS_Treap::PS_Treap(const std::function<void(common::Tnode *, const std::unique_ptr<BaseSortedTreap>&)> &req_recompute_tnode_statistics){
+PS_Treap::PS_Treap(const std::function<void(Tnode *, const BaseSortedTreap*)> &req_recompute_tnode_statistics,
+                   const std::function<Tnode*(const uint32_t)> &req_create_new_specialized_tnode,
+                   const std::function<Tnode*(const Tnode*)> &req_copy_specialized_tnode){
     this->recompute_tnode_statistics = req_recompute_tnode_statistics;
+    this->create_new_specialized_tnode = req_create_new_specialized_tnode;
+    this->copy_specialized_tnode = req_copy_specialized_tnode;
 }
 
 // todo delete this 'treap_data' field.
 PS_Treap::PS_Treap(const H5::Group &treap_group, 
                    std::vector<std::unique_ptr<BaseSortedTreap>> &treap_data,
-                   const std::function<void(common::Tnode *, const std::unique_ptr<BaseSortedTreap>&)> &req_recompute_tnode_statistics) {
+                   const std::function<void(Tnode *, const BaseSortedTreap*)> &req_recompute_tnode_statistics,
+                   const std::function<Tnode*(const uint32_t)> &req_create_new_specialized_tnode,
+                   const std::function<Tnode*(const Tnode*)> &req_copy_specialized_tnode,
+                   const std::function<Tnode*(const uint32_t, const uint64_t, const uint32_t)> &get_h5_tnode) {
     this->recompute_tnode_statistics = req_recompute_tnode_statistics;
+    this->create_new_specialized_tnode = req_create_new_specialized_tnode;
+    this->copy_specialized_tnode = req_copy_specialized_tnode;
 
     // deserialize static_data.
     for (std::unique_ptr<BaseSortedTreap> &unique_data : treap_data) {
@@ -229,32 +271,52 @@ PS_Treap::PS_Treap(const H5::Group &treap_group,
 
     // deserialize tnodes_to_save
     // todo use vector instead of hopscotch_map.
-    tsl::hopscotch_map<uint32_t, common::Tnode*> h5id_to_tnodes;
+    tsl::hopscotch_map<uint32_t, Tnode*> h5id_to_tnodes;
 
-    uint32_t num_tnodes = H5Helper::get_uint32_attr_from(treap_group, "tnodes_size");
-    for (uint32_t i = 0; i < num_tnodes; ++i) {
-        H5::Group group_tnode = H5Gopen(treap_group.getLocId(), ("tnode" + std::to_string(i)).c_str(), H5P_DEFAULT);
-        h5id_to_tnodes[i] = new common::Tnode(group_tnode);
-        group_tnode.close();
+    std::vector<uint32_t> tnode_data_id = H5Helper::read_h5_int_to_dataset<uint32_t>(treap_group, "data_id");
+    std::vector<uint64_t> tnode_prio = H5Helper::read_h5_int_to_dataset<uint64_t>(treap_group, "prio");
+    std::vector<int32_t> tnode_l = H5Helper::read_h5_int_to_dataset<int32_t>(treap_group, "saved_l");
+    std::vector<int32_t> tnode_r = H5Helper::read_h5_int_to_dataset<int32_t>(treap_group, "saved_r");
+    std::vector<uint32_t> tnode_index = H5Helper::read_h5_int_to_dataset<uint32_t>(treap_group, "index_tnode");
+
+    assert(tnode_data_id.size() == tnode_prio.size());
+    assert(tnode_data_id.size() == tnode_l.size());
+    assert(tnode_data_id.size() == tnode_r.size());
+
+    for (uint32_t i = 0; i < tnode_data_id.size(); ++i) {
+        // H5::Group group_tnode = H5Gopen(treap_group.getLocId(), ("tnode" + std::to_string(i)).c_str(), H5P_DEFAULT);
+
+        // uint32_t altered_bp_size = saved_altered_bp[next_altered_bp_index++];
+        // std::vector<std::pair<uint32_t, uint32_t> > curr_altered_bp;
+        // for (uint32_t j = 0; j < altered_bp_size; ++j) {
+        //     std::pair<uint32_t, uint32_t> act = {saved_altered_bp[next_altered_bp_index], saved_altered_bp[next_altered_bp_index + 1]};
+        //     next_altered_bp_index += 2;
+        //     curr_altered_bp.push_back(act);
+        // }
+
+        // h5id_to_tnodes[i] = new Tnode(tnode_data_id[i], tnode_prio[i], curr_altered_bp, tnode_index[i]);
+        h5id_to_tnodes[i] = get_h5_tnode(tnode_data_id[i], tnode_prio[i], tnode_index[i]);
+
+        // group_tnode.close();
     }
 
     // add 'l' and 'r' fields;
-    for (uint32_t i = 0; i < num_tnodes; ++i) {
-        H5::Group group_tnode = H5Gopen(treap_group.getLocId(), ("tnode" + std::to_string(i)).c_str(), H5P_DEFAULT);
-        int32_t l = H5Helper::get_int32_attr_from(group_tnode, "l");
-        int32_t r = H5Helper::get_int32_attr_from(group_tnode, "r");
-        group_tnode.close();
+    for (uint32_t i = 0; i < tnode_data_id.size(); ++i) {
+        // H5::Group group_tnode = H5Gopen(treap_group.getLocId(), ("tnode" + std::to_string(i)).c_str(), H5P_DEFAULT);
+        // int32_t l = H5Helper::get_int32_attr_from(group_tnode, "l");
+        // int32_t r = H5Helper::get_int32_attr_from(group_tnode, "r");
+        // group_tnode.close();
 
-        common::Tnode *t = h5id_to_tnodes.at(i);
-        if (l != -1) {
-            auto it = h5id_to_tnodes.find(l);
+        Tnode *t = h5id_to_tnodes.at(i);
+        if (tnode_l[i] != -1) {
+            auto it = h5id_to_tnodes.find(tnode_l[i]);
             if (it == h5id_to_tnodes.end()) {
                 Logger::error("Broken hdf5 file, could not find a specific linked tnode.");
             }
             t->l = it->second;
         }
-        if (r != -1) {
-            auto it = h5id_to_tnodes.find(r);
+        if (tnode_r[i] != -1) {
+            auto it = h5id_to_tnodes.find(tnode_r[i]);
             if (it == h5id_to_tnodes.end()) {
                 Logger::error("Broken hdf5 file, could not find a specific linked tnode.");
             }
@@ -262,11 +324,15 @@ PS_Treap::PS_Treap(const H5::Group &treap_group,
         }
     }
 
+    // todo recompute all the tnodes in the tree.
+
+    std::vector<uint32_t> saved_root_history = H5Helper::read_h5_int_to_dataset<uint32_t>(treap_group, "root_history");
+
     // deserialize root_history
-    uint32_t root_history_size = H5Helper::get_uint32_attr_from(treap_group, "root_history_size");
-    for (uint32_t i = 0; i < root_history_size; ++i) {
-        uint32_t root_history_id = H5Helper::get_uint32_attr_from(treap_group, ("root_history" + std::to_string(i)).c_str());
-        auto it = h5id_to_tnodes.find(root_history_id);
+    // uint32_t root_history_size = H5Helper::get_uint32_attr_from(treap_group, "root_history_size");
+    for (uint32_t i = 0; i < saved_root_history.size(); ++i) {
+        // uint32_t root_history_id = H5Helper::get_uint32_attr_from(treap_group, ("root_history" + std::to_string(i)).c_str());
+        auto it = h5id_to_tnodes.find(saved_root_history[i]);
         if (it == h5id_to_tnodes.end()) {
             Logger::error("Broken hdf5 file, could not find a specific linked tnode.");
         }
@@ -274,52 +340,81 @@ PS_Treap::PS_Treap(const H5::Group &treap_group,
     }
 
     // serialize date_to_root_idx.
-    uint32_t size_date_to_root = H5Helper::get_uint32_attr_from(treap_group, "date_to_root_size");
+    // uint32_t size_date_to_root = H5Helper::get_uint32_attr_from(treap_group, "date_to_root_size");
 
     // if (treap.date_to_root_idx_key_size() != treap.date_to_root_idx_value_size()) {
     //     Logger::error("Broken hdf5 file, date_to_root_idx 'key' and 'value' have different sizes.");
     // }
     // uint32_t size_date_to_root = treap.date_to_root_idx_key_size();
-    for (uint32_t i = 0; i < size_date_to_root; ++i) {
-        date_to_root_idx[H5Helper::get_string_attr_from(treap_group, "root_idx_key" + std::to_string(i))] =
-                            H5Helper::get_uint64_attr_from(treap_group, "root_idx_value" + std::to_string(i));
+
+    std::vector<std::string> root_idx_key = H5Helper::read_h5_dataset(treap_group, "root_idx_key");
+    std::vector<uint32_t> root_idx_value = H5Helper::read_h5_int_to_dataset<uint32_t>(treap_group, "root_idx_value");
+    assert(root_idx_key.size() == root_idx_value.size());
+
+    for (uint32_t i = 0; i < root_idx_value.size(); ++i) {
+        date_to_root_idx[root_idx_key[i]] = root_idx_value[i];
     }
 
     // set root
     this->root = root_history.back();
 }
 
+PS_Treap::PS_Treap(PS_Treap *source) {
+    this->recompute_tnode_statistics = source->recompute_tnode_statistics;
+    this->create_new_specialized_tnode = source->create_new_specialized_tnode;
+    this->copy_specialized_tnode = source->copy_specialized_tnode;
+
+    for (uint32_t i = 0; i < source->static_data.size(); ++i) {
+        this->static_data.push_back(std::move(source->static_data[i]));
+    }
+
+    this->root = source->root;
+    this->date_to_root_idx = source->date_to_root_idx;
+    this->root_history = source->root_history;
+
+    // delete pointers from source after moving them to this.
+    source->root = NULL;
+    source->root_history.clear();
+}
+
 void PS_Treap::save_snapshot(const std::string &name) {
+    Tnode::first_notsaved_index_tnode = Tnode::next_index_tnode;
     date_to_root_idx[name] = root_history.size();
     root_history.push_back(root); 
 }
 
-void PS_Treap::export_to_hdf5(H5::Group &treap_group, const std::function<void(const std::unique_ptr<BaseSortedTreap> &, H5::Group &)> &h5_append_elem) {    
+void PS_Treap::export_to_hdf5(H5::Group &treap_group, 
+                              const std::function<void(const std::vector<std::unique_ptr<BaseSortedTreap>> &, H5::Group &)> &write_static_data_to_h5,
+                              const std::function<void(Tnode*)> &append_tnode_data) {    
     if (root != root_history.back()) {
         Logger::warn("The last root version was not saved");
     }
-    tsl::hopscotch_set<common::Tnode*> tnodes_to_save;
+    tsl::hopscotch_set<Tnode*> tnodes_to_save;
 
     for (uint32_t i = 0; i < root_history.size(); ++i) {
         save_tnodes_in_subtree(tnodes_to_save, root_history[i]);
     }
 
     // serialize tnodes_to_save
-    tsl::hopscotch_map<common::Tnode*, uint32_t> tnodes_to_h5id;
+    tsl::hopscotch_map<Tnode*, uint32_t> tnodes_to_h5id;
 
     uint32_t counter_saved_size = 0;
-    for (common::Tnode* tnode : tnodes_to_save) {
+    for (Tnode* tnode : tnodes_to_save) {
         tnodes_to_h5id[tnode] = counter_saved_size++;
     }
 
-    H5Helper::set_uint32_hdf5_attr(tnodes_to_save.size(), &treap_group, "tnodes_size");
-    uint32_t cnt = 0;
-    for (common::Tnode* tnode : tnodes_to_save) {
-        H5::Group* group_tnode = new H5::Group(treap_group.createGroup(("tnode" + std::to_string(cnt)).c_str()));
-        cnt++;
+    std::vector<uint32_t> saved_data_id;
+    std::vector<uint64_t> saved_prio;
+    std::vector<int32_t> saved_l;
+    std::vector<int32_t> saved_r;
+    std::vector<uint32_t> saved_tnode_index;
 
-        H5Helper::set_uint32_hdf5_attr(tnode->data_id, group_tnode, "data_id");
-        H5Helper::set_uint64_hdf5_attr(tnode->prio, group_tnode, "prio");
+    for (Tnode* tnode : tnodes_to_save) {
+        saved_data_id.push_back(tnode->data_id);
+        saved_prio.push_back(tnode->prio);
+        saved_tnode_index.push_back(tnode->index_tnode);
+
+        append_tnode_data(tnode);
 
         // Set l and r fields.
         int32_t l_to_set = -1;
@@ -335,37 +430,38 @@ void PS_Treap::export_to_hdf5(H5::Group &treap_group, const std::function<void(c
             r_to_set = tnode_r_it->second;
         } 
 
-        H5Helper::set_int32_hdf5_attr(l_to_set, group_tnode, "l");
-        H5Helper::set_int32_hdf5_attr(r_to_set, group_tnode, "r");
+        saved_l.push_back(l_to_set);
+        saved_r.push_back(r_to_set);
+    }
 
-        group_tnode->close();
-    }
-    H5Helper::set_uint32_hdf5_attr(this->static_data.size(), &treap_group, "static_data_size");
+    H5Helper::write_h5_int_to_dataset(saved_data_id, &treap_group, "data_id");
+    H5Helper::write_h5_int_to_dataset(saved_prio, &treap_group, "prio");
+    H5Helper::write_h5_int_to_dataset(saved_l, &treap_group, "saved_l");
+    H5Helper::write_h5_int_to_dataset(saved_r, &treap_group, "saved_r");
+    H5Helper::write_h5_int_to_dataset(saved_tnode_index, &treap_group, "index_tnode");
+
     // serialize data
-    for (uint32_t i = 0; i < this->static_data.size(); ++i) {
-        // append_elem_data(elem, proto);
-        H5::Group* g1 = new H5::Group(treap_group.createGroup(("static_data" + std::to_string(i)).c_str()));
-        h5_append_elem(this->static_data[i], *g1);
-        g1->close();
-    }
+    write_static_data_to_h5(this->static_data, treap_group);
+
+    std::vector<uint32_t> saved_root_history;
 
     // serialize root_history
-    H5Helper::set_uint32_hdf5_attr(this->root_history.size(), &treap_group, "root_history_size");
     for (uint32_t i = 0; i < root_history.size(); ++i) {
-        H5Helper::set_uint32_hdf5_attr(tnodes_to_h5id[root_history[i]], &treap_group, "root_history" + std::to_string(i));
+        saved_root_history.push_back(tnodes_to_h5id[root_history[i]]);
     }
+    H5Helper::write_h5_int_to_dataset(saved_root_history, &treap_group, "root_history");
 
-    // serialize date_to_root_idx.
-    H5Helper::set_uint32_hdf5_attr(this->date_to_root_idx.size(), &treap_group, "date_to_root_size");
-    cnt = 0;
+    std::vector<std::string> saved_root_idx_key;
+    std::vector<uint32_t> saved_root_idx_values;
     for (const std::pair<std::string, uint32_t> &date_to_root_el : this->date_to_root_idx) {
-        H5Helper::set_string_hdf5_attr(date_to_root_el.first, &treap_group, "root_idx_key" + std::to_string(cnt));
-        H5Helper::set_uint32_hdf5_attr(date_to_root_el.second, &treap_group, "root_idx_value" + std::to_string(cnt));
-        cnt++;
+        saved_root_idx_key.push_back(date_to_root_el.first);
+        saved_root_idx_values.push_back(date_to_root_el.second);
     }
+    H5Helper::write_h5_dataset(saved_root_idx_key, &treap_group, "root_idx_key");
+    H5Helper::write_h5_int_to_dataset(saved_root_idx_values, &treap_group, "root_idx_value");
 }
 
-void PS_Treap::save_tnodes_in_subtree(tsl::hopscotch_set<common::Tnode*> &tnodes_to_save, common::Tnode *node) {
+void PS_Treap::save_tnodes_in_subtree(tsl::hopscotch_set<Tnode*> &tnodes_to_save, Tnode *node) {
     if (node == NULL) {
         return;
     }
@@ -403,7 +499,7 @@ uint32_t PS_Treap::get_data_size() {
     return this->static_data.size();
 }
 
-void PS_Treap::get_next_stack_tnode(std::vector<common::Tnode*> &stack) {
+void PS_Treap::get_next_stack_tnode(std::vector<Tnode*> &stack) {
     assert(stack.size());
     assert(stack.back() != NULL);
     // Case 1 check if children on the right.
@@ -434,8 +530,8 @@ void PS_Treap::get_differences(const PS_Treap *first_treap,
                      std::vector<uint32_t> &insertions_db_ids,
                      std::vector<uint32_t> &deletions_db_ids,
                      std::vector<std::pair<uint32_t, uint32_t>> &updates_db_ids) {
-    std::vector<common::Tnode*> first_tnode_stack;
-    std::vector<common::Tnode*> second_tnode_stack;
+    std::vector<Tnode*> first_tnode_stack;
+    std::vector<Tnode*> second_tnode_stack;
     
     if (first_treap->root == NULL) {
         Logger::error("requested differences for an empty treap");

@@ -4,54 +4,89 @@
 #include "../common/logger.hpp"
 #include "../common/h5_helper.hpp"
 
+#include "tnode_types/tnode_base.hpp"
+
+
 #include <cstdlib>
+#include <iostream>
 
 namespace ds {
 
-void add_db_elem_to_hdf5(const common::SeqElem &elem, H5::Group &elem_group) {
-    H5Helper::set_string_hdf5_attr(elem.covv_accession_id, &elem_group, "covv_accession_id");
-    H5Helper::set_string_hdf5_attr(elem.covv_collection_date, &elem_group, "covv_collection_date");
-    H5Helper::set_string_hdf5_attr(elem.covv_location, &elem_group, "covv_location");
-    H5Helper::set_string_hdf5_attr(elem.sequence, &elem_group, "sequence");
-}
+using namespace common;
 
-common::SeqElem DB::get_element(uint32_t id) {
-    if (id >= data.size()) {
+SeqElem DB::get_element(uint32_t id) const {
+    if (id >= data_size) {
         throw std::runtime_error("ERROR -> requested element in DB with id that doesn't exist.");
     }
-    return data[id];
-}
+    SeqElem answer;
 
-uint32_t DB::insert_element(const common::SeqElem &seq) {
-    data.push_back(seq);
-    return data.size() - 1;
-}
-
-void DB::export_to_hdf5(H5::Group &database_group,
-                        const std::function<void(const common::SeqElem &elem, H5::Group &elem_group)> &h5_append_elem) {
-    // Create new string datatype for attribute
-    H5Helper::set_uint32_hdf5_attr(this->data.size(), &database_group, "data_size");
-
-    // serialize data
-    for (uint32_t i = 0; i < this->data.size(); ++i) {
-        H5::Group* g1 = new H5::Group(database_group.createGroup(std::to_string(i).c_str()));
-        h5_append_elem(this->data[i], *g1);
-        g1->close();
+    for (uint32_t i = 0; i < db_str_fields.size(); ++i) {
+        answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id, group, db_str_fields[i]);
     }
 
+    return answer;
 }
 
-DB::DB(H5::Group &database_group) {
-    uint32_t size_db = H5Helper::get_uint32_attr_from(database_group, "data_size");
-    this->data.resize(size_db);
+uint32_t DB::insert_element(const SeqElem seq) {
+    buff_data.push_back(seq);
 
-    for (uint32_t i = 0; i < size_db; ++i) {
-        H5::Group curr_group = H5Gopen(database_group.getLocId(), std::to_string(i).c_str(), H5P_DEFAULT);
-        this->data[i] = common::SeqElem::get_from_hdf5(curr_group);
-        curr_group.close();
+    if (buff_data.size() == H5_APPEND_SIZE) {
+        write_buff_data();
+    }
+
+    this->data_size++;
+    return this->data_size - 1;
+}
+
+void DB::init() {
+    for (const std::string &elem : SEQ_FIELDS) {
+        db_str_fields.push_back(elem);
     }
 }
 
-DB::DB() {}
+DB::DB(H5::H5File *h5_file)  {
+    init();
+    if (H5Lexists(h5_file->getId(), "/database", H5P_DEFAULT ) > 0) {
+        this->group = H5Gopen(h5_file->getLocId(), "/database", H5P_DEFAULT);
+        this->data_size = H5Helper::get_uint32_attr_from(this->group, "data_size");
+
+        // todo move these variables (next_index_tnode and first_notsaved_index_tnode) to a different place
+        treap_types::Tnode::next_index_tnode = H5Helper::get_uint32_attr_from(this->group, "next_index_tnode");
+        treap_types::Tnode::first_notsaved_index_tnode = H5Helper::get_uint32_attr_from(this->group, "first_notsaved_index_tnode");
+        return;
+    }
+    
+    this->group = h5_file->createGroup("/database");
+    for (const std::string &field : db_str_fields) {
+        H5Helper::create_extendable_h5_dataset(group, field);
+    }
+}
+
+void DB::write_buff_data() {
+    if (buff_data.size() == 0) {
+        return;
+    }
+
+    for (const std::string &field : db_str_fields) {
+        std::vector<std::string> field_data;
+        for (const common::SeqElem &elem : buff_data) {
+            field_data.push_back(elem.covv_data[SEQ_FIELDS_TO_ID.at(field)]);
+        }
+
+        H5Helper::append_extendable_h5_dataset(field_data, group, field);
+    }
+    buff_data.clear();
+}
+
+void DB::clone_db(const ds::DB &source) {
+    for (uint32_t i = 0; i < source.data_size; ++i) {
+        common::SeqElem curr = source.get_element(i);
+        this->insert_element(curr);
+    }
+    write_buff_data();
+    this->data_size = H5Helper::get_uint32_attr_from(source.group, "data_size");
+    treap_types::Tnode::next_index_tnode =  H5Helper::get_uint32_attr_from(source.group, "next_index_tnode");
+    treap_types::Tnode::first_notsaved_index_tnode =  H5Helper::get_uint32_attr_from(source.group, "first_notsaved_index_tnode");
+}
 
 } // namespace ds

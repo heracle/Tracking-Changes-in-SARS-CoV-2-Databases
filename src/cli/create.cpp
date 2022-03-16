@@ -17,17 +17,22 @@ namespace cli {
 int create(Config *config) {
     Logger::trace("Starting 'create' CLI...");
 
-    ds::CTC *ctc = new ds::CTC();
-
-    std::string input_fname = config->fnames[0];
-    std::vector<common::SeqElem> seq_elems = common::get_aligned_seq_elements(input_fname);
-    ctc->insert_and_clear_ram(&seq_elems);
-    ctc->save_snapshot(input_fname);
-
     // Create a new file using the default property lists.
     H5::H5File h5_file(config->outdb_filepath, H5F_ACC_TRUNC);
-    ctc->export_to_h5(h5_file);
+    ds::CTC *ctc = new ds::CTC(&h5_file);
 
+    std::string input_fname = config->fnames[0];
+
+    common::SeqElemReader *seq_reader = new common::SeqElemReader(input_fname);
+
+    while (!seq_reader->end_of_file()) {
+        std::vector<common::SeqElem> seq_elems = seq_reader->get_aligned_seq_elements();
+        ctc->insert_seq(&seq_elems, false);
+    }
+    ctc->save_snapshot(input_fname);
+    ctc->export_to_h5();
+
+    delete ctc;
     h5_file.close();
     return 0;
 }   

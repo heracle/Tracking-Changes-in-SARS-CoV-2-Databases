@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-// namespace common {
-
 bool Logger::verbose = false;
 
 void Logger::trace(const std::string &msg) {
@@ -24,5 +22,3 @@ void Logger::error(const std::string &msg) {
 void Logger::set_verbose(const bool vb) {
     Logger::verbose = vb;
 }
-
-// } // namespace common

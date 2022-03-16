@@ -12,16 +12,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # TODO make sure that we need this '-s'.
 # -Wall -Wextra print all warning at compile time. 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -lcurl -s -Wall -Wextra -lhdf5 -lhdf5_cpp")
+# TODO move back to O3
+set(CMAKE_CXX_FLAGS "-std=c++17 -O0 -lcurl -s -Wall -Wextra -lhdf5 -lhdf5_cpp")
 
 set(CURL_LIBRARY "-lcurl") 
 find_package(CURL REQUIRED)
 
 set(SOURCES 
             src/ds/ps_treap.cpp
-            src/ds/treap_representation/static_base.cpp
-            src/ds/treap_representation/static_acc_id.cpp
-            src/ds/treap_representation/static_location.cpp
+            src/ds/static_types/static_base.cpp
+            src/ds/static_types/static_acc_id.cpp
+            src/ds/static_types/static_location.cpp
+
+            src/ds/tnode_types/tnode_base.cpp
+            src/ds/tnode_types/tnode_location.cpp
+            src/ds/tnode_types/tnode_acc_id.cpp
+
             src/ds/database.cpp
             src/ds/ctc.cpp
 
@@ -31,9 +37,10 @@ set(SOURCES
             src/cli/stats.cpp
             src/cli/query.cpp
 
-            src/common/utils.cpp
+            src/common/json_helper.cpp
             src/common/h5_helper.cpp
             src/common/logger.cpp
+            src/common/constants.cpp
             src/main.cpp)
 
 

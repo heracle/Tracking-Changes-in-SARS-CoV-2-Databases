@@ -6,3 +6,5 @@ __pycache__
 *.pyc
 
 hdf5-1.13.0*
+
+lsf.o*

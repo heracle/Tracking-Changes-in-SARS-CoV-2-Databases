@@ -36,3 +36,14 @@ bsub -W 24:00 -R "rusage[mem=150048]" ~/git/tracking-changes/build/run append -i
 bsub -W 24:00 -R "rusage[mem=150048]" ~/git/tracking-changes/build/run stats second.ctc 
 
 ```
+
+## Align all sequences
+
+```
+bsub -W 4:00 -J "split_provision_json" -R "rusage[mem=180000]" python split_provision_json.py -i /cluster/scratch/rmuntean/gisaid_data/2021-06-27.provision.json -o /cluster/scratch/rmuntean/gisaid_data/tmp/2021-06-27_tmp_align -n 64
+
+bsub -n 64 -W 4:00 -J "align" -w "done(split_provision_json)" -R "rusage[mem=180000]" python align.py -i /cluster/scratch/rmuntean/gisaid_data/tmp/2021-06-27_tmp_align -o /cluster/scratch/rmuntean/gisaid_data/tmp/2021-06-27_aligned -n 64
+
+bsub -W 4:00 -J "merge_aligned" -w "done(align)" -R "rusage[mem=180000]" python merge_aligned_provision_jsons.py -i /cluster/scratch/rmuntean/gisaid_data/tmp/2021-06-27_aligned -o /cluster/scratch/rmuntean/gisaid_data/2021-06-27_aligned -n 64
+
+```

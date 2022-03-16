@@ -8,6 +8,16 @@
 
 #include "../ds/ps_treap.hpp"
 
+Tnode* copy_test_tnode(const treap_types::Tnode* target) {
+    treap_types::Tnode *tnode = new treap_types::Tnode(target);
+    return tnode;
+}
+
+Tnode* create_new_test_tnode(const uint32_t x) {
+    treap_types::Tnode *tnode = new treap_types::Tnode(x);
+    return tnode;
+}
+
 TEST(DsTreap, InsertEraseElementInteger) {
     //add multiple equal elements
 
@@ -95,7 +105,9 @@ TEST(DsTreap, InsertEraseElementInteger) {
     };
 
     for (query_insert_erase_elem test : tests) {
-        ds::PS_Treap *treap = new ds::PS_Treap([&](common::Tnode *, const std::unique_ptr<BaseSortedTreap> &) {});
+        ds::PS_Treap *treap = new ds::PS_Treap([&](Tnode *, const BaseSortedTreap*) {},
+                                                create_new_test_tnode,
+                                                copy_test_tnode);
         EXPECT_EQ(treap->static_data.size(), 0);
         uint32_t id_query = 0;
         for (std::pair<TreapRequest, std::vector<int>> treap_request : test.requests) {
@@ -146,7 +158,9 @@ TEST(DsTreap, InsertEraseElementInteger) {
 }
 
 TEST(DsTreap, InsertEraseElementString) {
-    ds::PS_Treap *treap = new ds::PS_Treap([&](common::Tnode *, const std::unique_ptr<BaseSortedTreap> &) {});
+    ds::PS_Treap *treap = new ds::PS_Treap([&](Tnode *, const BaseSortedTreap*) {},
+                                            create_new_test_tnode,
+                                            copy_test_tnode);
     EXPECT_EQ(treap->static_data.size(), 0);
 
     std::vector<std::unique_ptr<BaseSortedTreap>> init_list;
@@ -188,7 +202,9 @@ TEST(DsTreap, InsertEraseElementString) {
 }
 
 TEST(DsTreap, EraseNonExistentElement) {
-    ds::PS_Treap *treap = new ds::PS_Treap([&](common::Tnode *, const std::unique_ptr<BaseSortedTreap> &) {});
+    ds::PS_Treap *treap = new ds::PS_Treap([&](Tnode *, const BaseSortedTreap*) {},
+                                            create_new_test_tnode,
+                                            copy_test_tnode);
     EXPECT_EQ(treap->static_data.size(), 0);
 
     std::vector<std::unique_ptr<BaseSortedTreap>> init_list;
