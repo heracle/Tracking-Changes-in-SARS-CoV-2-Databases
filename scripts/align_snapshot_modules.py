@@ -1,6 +1,8 @@
+#!/usr/bin/python
+
 # Taken from https://www.tutorialspoint.com/python/python_command_line_arguments.htm
 
-#!/usr/bin/python
+# This script runs nextalign agains each snapshot module.
 
 import sys, getopt, json, os
 import multiprocessing
@@ -8,14 +10,20 @@ import multiprocessing
 NEXTALIGN_EXE_PATH = "../src/external_libraries/nextclade-Linux-x86_64"
 COVID_NEXTALIGN_DATASET = "../sars_cov_dataset"
 
-def run_file(i, inputfile, outputfile):
-    input_fasta = inputfile + str(i) + ".fasta"
-    output_fasta = inputfile + str(i) + ".aligned.fasta"
+def print_helper():
+    print ('align_snapshot_modules.py -d <working_dir> -n <num_files>')
+
+# Run nextalign agains each snapshot module in parallel:
+def run_file(i, w_dir):
+    print("starting thread i=" + str(i))
+    input_fasta = w_dir + str(i) + ".fasta"
+    output_fasta = w_dir + "AL_" + str(i)
 
     nextalign_cmd = NEXTALIGN_EXE_PATH + " run -i " + input_fasta + " --input-dataset " + COVID_NEXTALIGN_DATASET + " --output-basename " + output_fasta;
     os.system(nextalign_cmd)
 
-    input_json = inputfile + str(i) + ".noseq_provision.json"
+    input_json = w_dir + str(i) + ".noseq_provision.json"
+    # raw_json_data is a dictionary where the key is an accession id and the value is the entire json from the snapshot file. 
     raw_json_data = {}
 
     for line in open(input_json, 'r'):
@@ -23,7 +31,7 @@ def run_file(i, inputfile, outputfile):
         raw_json_data[json_seq["covv_accession_id"]] = json_seq
         # print(json_seq["covv_accession_id"])
 
-    output_json = open(outputfile + str(i) + ".provision.json", "w")
+    output_json = open(w_dir + "aligned" + str(i) + ".provision.json", "w")
 
     last_seqid = ""
     curr_sequence = ""
@@ -47,39 +55,38 @@ def run_file(i, inputfile, outputfile):
 
 def main(argv):
     num_files_str = ''
-    inputfile = ''
-    outputfile = ''
+    tmp_dir = ''
     try:
-        opts, args = getopt.getopt(argv,"hi:o:n:",["ifile=", "ofile=", "numfiles="])
+        opts, _ = getopt.getopt(argv,"hd:n:",["wdir=", "numfiles="])
     except getopt.GetoptError:
-        print ('test.py -i <inputfile> -o <outpupath> -n <num_files>')
+        print_helper()
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print ('test.py -i <inputfile> -o <outputfile> -n <num_files>')
+            print_helper()
             sys.exit()
-        elif opt in ("-i", "--ifile"):
-            inputfile = arg
-        elif opt in ("-o", "--ofile"):
-            outputfile = arg
+        elif opt in ("-d", "--wdir"):
+            tmp_dir = arg
         elif opt in ("-n", "--numfiles"):
             num_files_str = arg
 
+    if (not tmp_dir.endswith("/")):
+        tmp_dir = tmp_dir + "/"
+
     if (not num_files_str.isnumeric()):
         print ("Error: received invalid number of output files '", num_files_str, "'")
-        print ('test.py -i <inputfile> -o <outpupath> -n <num_files>')
+        print_helper()
         sys.exit(2)
 
     num_files = int(num_files_str)
 
-    print ('Input file is "', inputfile, '"')
-    print ('Output file is "', outputfile, '"')
+    print ('Workind directory is "', tmp_dir, '"')
     print ('num_files =', num_files)
 
     pool_obj = multiprocessing.Pool(num_files)
     pool_args = []
     for i in range(num_files):
-        curr_args = (i, inputfile, outputfile)
+        curr_args = (i, tmp_dir)
         pool_args.append(curr_args)
 
     pool_obj.starmap(run_file, pool_args)

@@ -1,0 +1,105 @@
+#!/usr/bin/python
+# # Taken from https://www.tutorialspoint.com/python/python_command_line_arguments.htm
+
+# This script merges together all the aligned sequences (via the lookup table of by running NextAlign).
+# It will save the final aligned sequences file to the 'outputpath.provision.json' and the updated lookup table to the 'lookup_outputpath.xz'.
+
+import sys, getopt, json, subprocess, os
+import constants
+import lzma as xz
+
+def print_helper():
+    print ('merge_aligned_modules.py -i <inputdir> -o <outputpath.provision.json> -n <num_files> --lookup_hash_align <lookup_outputpath.xz>')
+
+def main(argv):
+    inputdir = ''
+    outputfile = ''
+    num_files_str = ''
+    lookup_hash_align_filepath = ''
+    try:
+        opts, _ = getopt.getopt(argv,"hi:o:n:",["idir=", "ofile=", "numfiles=", "lookup_hash_align="])
+    except getopt.GetoptError:
+        print_helper()
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print ('test.py -i <inputdir> -o <outputfile> -n <num_files>')
+            sys.exit()
+        elif opt in ("-i", "--idir"):
+            inputdir = arg
+        elif opt in ("-o", "--ofile"):
+            outputfile = arg
+        elif opt in ("-n", "--numfiles"):
+            num_files_str = arg
+        elif opt in "--lookup_hash_align":
+            lookup_hash_align_filepath = arg
+
+    if (not num_files_str.isnumeric()):
+        print ("Error: received invalid number of output files '", num_files_str, "'")
+        print_helper()
+        sys.exit(2)
+
+    num_files = int(num_files_str)
+
+    print ('Input dir is "', inputdir, '"')
+    print ('Output file is "', outputfile, '"')
+    print ('num_files =', num_files)
+
+    if inputdir == "":
+        print ("Error: inputdir cannot be an empty path.")
+        print_helper()
+        sys.exit(2)
+    
+    if outputfile == "":
+        print ("Error: output cannot be an empty path.")
+        print_helper()
+        sys.exit(2)
+
+    if not outputfile.endswith(".provision.json"):
+        # outputfile = outputfile + ".provision.json"
+        print ("Error: filepath to save the output should have a '.provision.json' format.")
+        print_helper()
+        sys.exit(2)
+    
+    if not lookup_hash_align_filepath.endswith(".json.xz"):
+        print ("Error: filepath to save the lookup hash alignment should have a '.json.xz' format.")
+        print_helper()
+        sys.exit(2)
+    
+    if not inputdir.endswith("/"):
+        inputdir = inputdir + "/"
+    
+    print("outputfile:", outputfile)
+    output = open(outputfile, "w")
+
+    # Append the sequences which were aligned via the lookup table.    
+    for line in open(inputdir + "prv_aligned.provision.json", "r"):
+        output.write(line + "\n")
+
+    lookup_align_hashes = constants.get_hash_lookup(inputdir + constants.LOOKUP_ALIGN_BASENAME)
+    
+    for i in range(num_files):
+        cnt_per_file = 0      
+        for line in open(inputdir + "aligned" + str(i) + ".provision.json", "r"):
+            cnt_per_file = cnt_per_file + 1
+            output.write(line + "\n")
+
+            if line == "":
+                continue
+            # update the lookup table
+            json_seq = json.loads(line)
+
+            lookup_align_hashes[json_seq["seq_hash"]] = json_seq["sequence"]
+    
+    new_lookup_file = open(inputdir + "modified_lookup.json", "w")
+    json.dump(lookup_align_hashes, new_lookup_file, indent=2)
+    new_lookup_file.write("\n")
+    new_lookup_file.close()
+    
+    with open(inputdir + "modified_lookup.json", 'rb') as f, open(inputdir + "modified_lookup.json.xz", 'wb') as out:
+        out.write(xz.compress(bytes(f.read())))
+
+    os.system("cp " + inputdir + "modified_lookup.json.xz " + lookup_hash_align_filepath)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
