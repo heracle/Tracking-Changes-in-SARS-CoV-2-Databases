@@ -39,11 +39,24 @@ bsub -W 24:00 -R "rusage[mem=150048]" ~/git/tracking-changes/build/run stats sec
 
 ## Align all sequences
 
+Decompress the snapshot in focus:
+
 ```
-bsub -W 4:00 -J "split_provision_json" -R "rusage[mem=180000]" python split_provision_json.py -i /cluster/scratch/rmuntean/gisaid_data/2021-06-27.provision.json -o /cluster/scratch/rmuntean/gisaid_data/tmp/2021-06-27_tmp_align -n 64
+bsub -J "unxz" unxz 2021-06-27.provision.json.xz
+```
 
-bsub -n 64 -W 4:00 -J "align" -w "done(split_provision_json)" -R "rusage[mem=180000]" python align.py -i /cluster/scratch/rmuntean/gisaid_data/tmp/2021-06-27_tmp_align -o /cluster/scratch/rmuntean/gisaid_data/tmp/2021-06-27_aligned -n 64
+Split the snapshot in 64 modules of equal sizes.
+```
+bsub -W 4:00 -J "split_provision_json" -w "done(unxz)" -R "rusage[mem=180000]" python split_snapshot.py -i /cluster/scratch/rmuntean/gisaid_data/2021-06-27.provision.json -o /cluster/scratch/rmuntean/gisaid_data/2021-06-27_full -n 64 --lookup_hash_align ../data/lookup_seq_hash_to_alignment.json.xz
+```
 
-bsub -W 4:00 -J "merge_aligned" -w "done(align)" -R "rusage[mem=180000]" python merge_aligned_provision_jsons.py -i /cluster/scratch/rmuntean/gisaid_data/tmp/2021-06-27_aligned -o /cluster/scratch/rmuntean/gisaid_data/2021-06-27_aligned -n 64
+Align each snapshot module in parallel:
+```
+bsub -M 300G -n 32 -W 24:00 -J "align" -w "done(split_provision_json)" -R "rusage[mem=8000]" python align_snapshot_modules.py -d /cluster/scratch/rmuntean/gisaid_data/2021-06-27_full -n 64
+```
+
+Merge together the results:
+```
+bsub -W 4:00 -J "merge_aligned" -w "done(align)" -R "rusage[mem=180000]" python merge_aligned_modules.py -i /cluster/scratch/rmuntean/gisaid_data/2021-06-27_full -o /cluster/scratch/rmuntean/gisaid_data/full_2021-06-27_aligned.provision.json -n 64 --lookup_hash_align ../data/lookup_2021-06-27.json.xz 
 
 ```
