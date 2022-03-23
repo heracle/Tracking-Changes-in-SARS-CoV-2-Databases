@@ -1,6 +1,5 @@
 #include "database.hpp"
 
-#include "../common/constants.hpp"
 #include "../common/logger.hpp"
 #include "../common/h5_helper.hpp"
 
@@ -30,11 +29,10 @@ SeqElem DB::get_element(uint32_t id) const {
 uint32_t DB::insert_element(const SeqElem seq) {
     buff_data.push_back(seq);
 
-    if (buff_data.size() == H5_APPEND_SIZE) {
+    this->data_size++;
+    if (buff_data.size() == flush_size) {
         write_buff_data();
     }
-
-    this->data_size++;
     return this->data_size - 1;
 }
 
@@ -44,7 +42,8 @@ void DB::init() {
     }
 }
 
-DB::DB(H5::H5File *h5_file)  {
+DB::DB(H5::H5File *h5_file, const uint32_t req_flush_size)  {
+    flush_size = req_flush_size;
     init();
     if (H5Lexists(h5_file->getId(), "/database", H5P_DEFAULT ) > 0) {
         this->group = H5Gopen(h5_file->getLocId(), "/database", H5P_DEFAULT);
@@ -76,6 +75,10 @@ void DB::write_buff_data() {
         H5Helper::append_extendable_h5_dataset(field_data, group, field);
     }
     buff_data.clear();
+
+    H5Helper::set_uint32_hdf5_attr(this->data_size, &(this->group), "data_size");
+    H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::next_index_tnode, &(this->group), "next_index_tnode");
+    H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::first_notsaved_index_tnode, &(this->group), "first_notsaved_index_tnode");
 }
 
 void DB::clone_db(const ds::DB &source) {
@@ -84,9 +87,6 @@ void DB::clone_db(const ds::DB &source) {
         this->insert_element(curr);
     }
     write_buff_data();
-    this->data_size = H5Helper::get_uint32_attr_from(source.group, "data_size");
-    treap_types::Tnode::next_index_tnode =  H5Helper::get_uint32_attr_from(source.group, "next_index_tnode");
-    treap_types::Tnode::first_notsaved_index_tnode =  H5Helper::get_uint32_attr_from(source.group, "first_notsaved_index_tnode");
 }
 
 } // namespace ds

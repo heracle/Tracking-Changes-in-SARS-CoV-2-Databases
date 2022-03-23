@@ -170,10 +170,10 @@ void CTC::export_to_h5() {
     // TODO create in a different piece of code.
     // H5::Group database_group = h5_file.createGroup("/database");
     // db->export_to_hdf5(database_group);
-    // database_group.close();
-    H5Helper::set_uint32_hdf5_attr(db->data_size, &(db->group), "data_size");
-    H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::next_index_tnode, &(db->group), "next_index_tnode");
-    H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::first_notsaved_index_tnode, &(db->group), "first_notsaved_index_tnode");
+    // // database_group.close();
+    // H5Helper::set_uint32_hdf5_attr(db->data_size, &(db->group), "data_size");
+    // H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::next_index_tnode, &(db->group), "next_index_tnode");
+    // H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::first_notsaved_index_tnode, &(db->group), "first_notsaved_index_tnode");
 }
 
 void CTC::prepare_specific_get_unique_SeqElem(const ds::PS_Treap *accid_base_treap,

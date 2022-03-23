@@ -44,6 +44,9 @@ SeqElemReader::SeqElemReader(const std::string &input_path) {
 
     finished = false;
     last_id_read = -1;
+
+    f >> j_obj; 
+    this->next_elem = get_SeqElem_from_json(j_obj);
 }
 
 bool SeqElemReader::end_of_file() {
@@ -51,20 +54,18 @@ bool SeqElemReader::end_of_file() {
 }
 
 common::SeqElem SeqElemReader::get_next() {
-    while (true) {
-        try {
-            f >> j_obj;
-        }
-        catch (Json::exception& e) {
-            // todo - more precise error catch
-            break;
-        }
-        ++last_id_read;
-        return get_SeqElem_from_json(j_obj);
+    common::SeqElem to_return = this->next_elem;
+    ++last_id_read;
+    try {
+        f >> j_obj;
     }
-    // fout_fasta.close();
-    this->finished = true;
-    return common::SeqElem();
+    catch (Json::exception& e) { // todo - more precise error catch
+        this->finished = true;
+        this->next_elem = SeqElem();
+        return to_return;
+    }
+    this->next_elem = get_SeqElem_from_json(j_obj);
+    return to_return;
 }
 
 common::SeqElem SeqElemReader::get_elem(const int32_t id) {
@@ -78,46 +79,20 @@ common::SeqElem SeqElemReader::get_elem(const int32_t id) {
             return elem;
         }
     }
-    if (last_id_read > id) {
-        Logger::error("Elem reader got end of file before id=" + std::to_string(id));
-    }
+    Logger::error("Elem reader got end of file before id=" + std::to_string(id));
 }
 
-std::vector<common::SeqElem> SeqElemReader::get_aligned_seq_elements() {
+std::vector<common::SeqElem> SeqElemReader::get_aligned_seq_elements(const uint32_t append_size) {
     std::vector<common::SeqElem> seq_elems;
 
-    for (uint32_t i = 0; i < common::H5_APPEND_SIZE; ++i) {
+    for (uint32_t i = 0; i < append_size; ++i) {
         SeqElem seqelem_val = get_next();
+        seq_elems.push_back(seqelem_val);
         if (this->finished) {
             break;
         }
-        seq_elems.push_back(seqelem_val);
     }
     return seq_elems;
-}
-
-std::vector<std::string> get_mutations_from_json_str(const std::string &mutation_str) {
-    std::vector<std::string> answer;
-
-    /* 
-       we need to save the mutations for this current tnode.
-    */
-    std::string curr_mutation = "";
-    // mutation string contains brackets, e.g. "(NSP15_A283V,NSP12_P323L,Spike_D614G)".
-    for (uint32_t i = 1; i < mutation_str.size() - 1; ++i) {
-        if (mutation_str[i] == ',') {
-            answer.push_back(curr_mutation);
-            curr_mutation.clear();
-        } else {
-            curr_mutation.push_back(mutation_str[i]);
-        }
-    }
-    // add last mutation.
-    if (curr_mutation != "") {
-        answer.push_back(curr_mutation);
-    }
-
-    return answer;
 }
 
 } // namespace common

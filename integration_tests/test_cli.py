@@ -8,7 +8,7 @@ import os
 """Test ctc create"""
 
 CTC = './run'
-TEST_DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../integration_tests/data'
+TEST_DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../test_data/'
 
 class TestAnnotate(unittest.TestCase):
     def setUp(self):
@@ -18,7 +18,7 @@ class TestAnnotate(unittest.TestCase):
         create_command = '{exe} create -o {outfile} {input}'.format(
             exe=CTC,
             outfile=self.tempdir.name + '/first',
-            input='../integration_tests/data/0000-01-01.provision.json'
+            input=TEST_DATA_DIR + '0000-01-01.provision.json'
         )
         res = subprocess.run([create_command], shell=True)
         self.assertEqual(res.returncode, 0)
@@ -27,7 +27,7 @@ class TestAnnotate(unittest.TestCase):
             exe=CTC,
             input_h5=self.tempdir.name + '/first.h5',
             output_h5=self.tempdir.name + '/second.h5',
-            snapshots='../integration_tests/data/0000-01-01_with_2_changes.provision.json ../integration_tests/data/0000-01-01_with_4_changes.provision.json ../integration_tests/data/0000-01-01_with_6_changes.provision.json'
+            snapshots=TEST_DATA_DIR + '0000-01-01_with_2_changes.provision.json ' + TEST_DATA_DIR + '0000-01-01_with_4_changes.provision.json ' + TEST_DATA_DIR + '0000-01-01_with_6_changes.provision.json'
         )
         res = subprocess.run([append_command], shell=True)
         self.assertEqual(res.returncode, 0)
@@ -41,9 +41,9 @@ class TestAnnotate(unittest.TestCase):
 
         expected_stdout = """Total number of saved snapshots: 4
 Size of 'data' field:24
-Snapshot '../integration_tests/data/0000-01-01.provision.json' contains 20 treap nodes.
-Snapshot '../integration_tests/data/0000-01-01_with_2_changes.provision.json' contains 20 treap nodes.
-Snapshot '../integration_tests/data/0000-01-01_with_4_changes.provision.json' contains 18 treap nodes.
-Snapshot '../integration_tests/data/0000-01-01_with_6_changes.provision.json' contains 20 treap nodes."""
+Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/0000-01-01.provision.json' contains 20 treap nodes.
+Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/0000-01-01_with_2_changes.provision.json' contains 20 treap nodes.
+Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/0000-01-01_with_4_changes.provision.json' contains 18 treap nodes.
+Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/0000-01-01_with_6_changes.provision.json' contains 20 treap nodes."""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
