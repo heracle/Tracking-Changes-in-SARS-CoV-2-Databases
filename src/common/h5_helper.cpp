@@ -204,13 +204,16 @@ void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name
 }
 
 std::string get_from_extendable_h5_dataset(uint32_t id, const H5::Group &h5, const std::string &dataset_name) {
-    uint32_t RANK = 2;
+    int32_t RANK = 2;
 
     hid_t pos_dset = H5Dopen (h5.getId(), (dataset_name + "_$_pos").c_str(), H5P_DEFAULT);
     hid_t pos_space = H5Dget_space (pos_dset);
 
     hsize_t pos_dimsf[RANK];
-    int ndims = H5Sget_simple_extent_dims (pos_space, pos_dimsf, NULL);   
+    int32_t ndims = H5Sget_simple_extent_dims (pos_space, pos_dimsf, NULL); 
+    if (ndims == -1) {
+        Logger::error("Dataset '" + dataset_name + "' is not properly initialised. Please make sure that you have already created an extendable dataset with this name.");
+    }  
     assert(ndims == RANK);
 
     /*
@@ -325,6 +328,9 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
       saving space dimensions into str_dimsf.
     */
     int32_t ndims = H5Sget_simple_extent_dims (str_space, str_dimsf, NULL);
+    if (ndims == -1) {
+        Logger::error("Dataset '" + dataset_name + "' is not properly initialised. Please make sure that you have already created an extendable dataset with this name.");
+    }
     assert(ndims == RANK);
 
     /* 

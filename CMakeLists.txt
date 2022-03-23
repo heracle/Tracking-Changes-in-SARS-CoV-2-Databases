@@ -18,6 +18,7 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -O0 -lcurl -s -Wall -Wextra -lhdf5 -lhdf5_cpp")
 set(CURL_LIBRARY "-lcurl") 
 find_package(CURL REQUIRED)
 
+# todo replace with a GLOB (similar to the way it is done for the unit tests)
 set(SOURCES 
             src/ds/ps_treap.cpp
             src/ds/static_types/static_base.cpp
@@ -96,7 +97,6 @@ file(GLOB unit_tests_files
   "unit_tests/*/*/*.cpp"
   "unit_tests/*/*/*/*.cpp"
 )
-list(FILTER unit_tests_files EXCLUDE REGEX ".*\\._.*")
 
 link_directories(
   ${CMAKE_BINARY_DIR}

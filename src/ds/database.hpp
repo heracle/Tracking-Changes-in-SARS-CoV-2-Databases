@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 
+#include "../common/constants.hpp"
 #include "../external_libraries/json.hpp"
 #include "../common/json_helper.hpp"
 #include "H5Cpp.h"
@@ -18,6 +19,7 @@ class DB {
     std::vector<common::SeqElem> buff_data;
     std::vector<std::string> db_str_fields;
     void init();
+    uint32_t flush_size;
 
   public:
     //todo make private
@@ -31,11 +33,9 @@ class DB {
     // export_to_hdf5() return a serialization (in hdf5 format) for 'this' object.
     // void export_to_hdf5(H5::Group &database_group);
 
-    DB(H5::H5File *h5_file);
+    DB(H5::H5File *h5_file, const uint32_t req_flush_size = common::H5_APPEND_SIZE);
 
     void clone_db(const ds::DB &source);
 };
-
-void add_db_elem_to_hdf5(const common::SeqElem &elem, H5::Group &elem_group);
 
 } // namespace ds

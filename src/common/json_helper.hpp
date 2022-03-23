@@ -34,11 +34,6 @@ uint64_t get_hash(std::string s, uint64_t hash);
  * get_SeqElem_from_json returns a SeqElem object from json
  */
 SeqElem get_SeqElem_from_json(Json j_obj);
-/*
- * get_mutations_from_json_str parses the given mutation string and returns the mutations as a list of string.
- * e.g. mutation string format: "(NSP15_A283V,NSP12_P323L,Spike_D614G)"
- */
-std::vector<std::string> get_mutations_from_json_str(const std::string &mutation_str);
 
 /*
  * SeqElemReader is a handler for reading the snapshot file.
@@ -50,16 +45,17 @@ class SeqElemReader {
     bool finished;
     int32_t last_id_read;
 
+    // Always keep the next SeqElem in 'next_elem' for being one step ahead in file and keep 'end_of_file()' up to date.
+    SeqElem next_elem;
     SeqElem get_next();
 
   public:
-    std::vector<SeqElem> get_aligned_seq_elements();
+    std::vector<SeqElem> get_aligned_seq_elements(const uint32_t append_size = common::H5_APPEND_SIZE);
     SeqElemReader(const std::string &input_path);
     ~SeqElemReader();
     bool end_of_file();
 
     SeqElem get_elem(const int32_t id);
 };
-
 
 } // namespace common
