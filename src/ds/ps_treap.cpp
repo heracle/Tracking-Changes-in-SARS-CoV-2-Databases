@@ -168,7 +168,7 @@ void PS_Treap::erase(const std::vector<uint32_t> &nodes_indices) {
     }
 }
 
-void PS_Treap::run_tnode_callback(const Tnode *tnode, const std::function<void(const BaseSortedTreap &)> &callback) {
+void PS_Treap::run_tnode_callback(const Tnode *tnode, const std::function<void(const BaseSortedTreap &)> &callback) const{
     if (tnode == NULL) {
         return;
     }
@@ -190,35 +190,30 @@ void PS_Treap::iterate_ordered(const std::function<void(const BaseSortedTreap &)
     run_tnode_callback(root_history[it->second], callback);
 }
 
-void PS_Treap::run_treap_query_callback_subtree(Tnode *tnode, 
-                                                const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_fst,
-                                                const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_scd) {
+void PS_Treap::run_treap_query_callback_subtree(Tnode *tnode, query_ns::BaseQuery *query) const {
     if (tnode == NULL) {
         return;
     }
-    int direction = callback_fst(tnode, static_data[tnode->data_id].get());
-    // direction == -1 -> return
-    // direction == 0 -> go to the left child
-    // direction == 1 -> go directly to the right child
-    if (direction == -1) {
+    query_ns::TreeDirectionToGo direction = query->first_enter_into_node(tnode, static_data[tnode->data_id].get());
+    
+    if (direction == query_ns::NoSubtree) {
         return;
     }
 
-    if (direction == 0) {
-        run_treap_query_callback_subtree(tnode->l, callback_fst, callback_scd);
-        direction = callback_scd(tnode, static_data[tnode->data_id].get()); 
+    if (direction == query_ns::LeftChild) {
+        run_treap_query_callback_subtree(tnode->l, query);
+        direction = query->second_enter_into_node(tnode, static_data[tnode->data_id].get()); 
     }
 
-    if (direction == 1) {
-        run_treap_query_callback_subtree(tnode->r, callback_fst, callback_scd);
+    if (direction == query_ns::RightChild) {
+        run_treap_query_callback_subtree(tnode->r, query);
     }
 }
 
-void PS_Treap::query_callback_subtree(const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_fst,
-                                      const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_scd,
-                                      const std::string &snapshot) {
+void PS_Treap::query_callback_subtree(query_ns::BaseQuery *query,
+                                      const std::string &snapshot) const {
     if (snapshot == "") {
-        run_treap_query_callback_subtree(root, callback_fst, callback_scd);
+        run_treap_query_callback_subtree(root, query);
         return;
     } 
     auto it = date_to_root_idx.find(snapshot);
@@ -226,7 +221,7 @@ void PS_Treap::query_callback_subtree(const std::function<int(Tnode *, const Bas
         // todo test this line.
         throw std::runtime_error("ERROR -> query requested on a snapshot name that was not previously saved '" + snapshot + "'.");
     }
-    run_treap_query_callback_subtree(root_history[it->second], callback_fst, callback_scd);
+    run_treap_query_callback_subtree(root_history[it->second], query);
 }
 
 void PS_Treap::delete_subtree(Tnode *&node) {

@@ -31,7 +31,7 @@ def create_test_suite(filter_pattern="*"):
 
 if __name__ == '__main__':
     try:
-        parser = argparse.ArgumentParser(description='Metagraph integration tests.')
+        parser = argparse.ArgumentParser(description='CTC integration tests.')
         parser.add_argument('--test_filter', dest='filter', type=str, default="*",
                             help='filter test cases (default: run all)')
         args = parser.parse_args()

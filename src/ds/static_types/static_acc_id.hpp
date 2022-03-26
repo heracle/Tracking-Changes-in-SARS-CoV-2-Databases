@@ -25,6 +25,14 @@ class AccessionIdSorted : public BaseSortedTreap {
     ~AccessionIdSorted();
 
     static std::unique_ptr<BaseSortedTreap> get_unique_from_SeqElem(const common::SeqElem &e, const uint32_t req_database_id, const bool reinsert = false);
+    
+    /*
+     TODO FIX: because of this static function we have a problem when defining 2 different AccessionId treaps.
+     We have this usecase in append.cpp where we need 2 AccessionId treaps to compare the old and the new state.
+
+      Currently, all the AccessionId treaps are using the same static fields.
+      We should analyse if any non void definition of 'reset_get_unique_from_SeqElem' can cause overlapping.
+    */
     static void reset_get_unique_from_SeqElem(const ds::PS_Treap *accid_base_treap,
                                               const ds::PS_Treap *accid_snapshot_treap,
                                               const ds::DB *base_db,

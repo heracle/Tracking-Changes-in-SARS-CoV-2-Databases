@@ -57,8 +57,8 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
             break;
 
         case QUERY:
-            fprintf(stderr, "Usage: %s query -i <DB*> --location <location_prefix> \n"
-                            "\t The input DB file must be a '.ctc' file specific for this tool\n", prog_name.c_str());
+            fprintf(stderr, "Usage: %s query -q <query_type> -i <DB*> <location_prefix> \n"
+                            "\t The input DB file must be a '.h5' file specific for this tool\n", prog_name.c_str());
 
             fprintf(stderr, "Available options for STATS:\n");
             fprintf(stderr, "\t   TODO fill in\n");
@@ -119,6 +119,14 @@ Config::Config(int argc, char *argv[]) {
             outdb_filepath = std::string(get_value(i++));
         } else if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--verbose")) {
             verbosity = true;
+        } else if (!strcmp(argv[i], "-q") || !strcmp(argv[i], "--query")) {
+            std::string aux = std::string(get_value(i++));
+            if (aux == "bp_freq") {
+                query_type = QueryType::FREQ_BP;
+            } else {
+                print_helper(argv[0], module);
+                Logger::error("\nERROR: Unknown query type " + aux + "\n\n");
+            }
         } else if (!strcmp(argv[i], "--snapshot")){
             snapshot = std::string(get_value(i++));
         } else if (!strcmp(argv[i], "--location")) {
@@ -155,7 +163,7 @@ void Config::validate_config() {
             indb_filepath = fnames[0];
         }
     }
-    if (module == ModuleType::STATS || module == ModuleType::APPEND) {
+    if (module == ModuleType::STATS || module == ModuleType::APPEND || module == ModuleType::QUERY) {
         if (indb_filepath == "") {
             Logger::error("Missing input db filepath.");
         }
@@ -183,6 +191,14 @@ void Config::validate_config() {
             outdb_filepath += common::DS_FILE_FORMAT;
         }
     }
+    /* ------------------------------------------------------------------------
+     * validate not void query
+    */
+    if (module == ModuleType::QUERY) {
+        if (query_type == QueryType::NO_QUERY) {
+            Logger::error("QUERY cli cmd must specify what query to run (use '-q' flag).");
+        }
+    }
 
     /* ------------------------------------------------------------------------
      * Validate fnames.
@@ -198,11 +214,13 @@ void Config::validate_config() {
         }
     }
 
-    for (const std::string &filepath : fnames) {
-        if (access(filepath.c_str(), F_OK ) == -1) {
-            Logger::error("One input file cannot be accessed " + filepath);
+    if(module != ModuleType::QUERY) {
+        for (const std::string &filepath : fnames) {
+            if (access(filepath.c_str(), F_OK ) == -1) {
+                Logger::error("One input file cannot be accessed " + filepath);
+            }
         }
-    }
+    }    
 }
 
 } // namespace cli
