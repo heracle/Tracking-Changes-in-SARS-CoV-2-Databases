@@ -7,6 +7,8 @@
 #define protected public
 
 #include "../ds/ps_treap.hpp"
+#include "../ds/tnode_types/tnode_acc_id.hpp"
+#include "../ds/static_types/static_acc_id.hpp"
 
 Tnode* copy_test_tnode(const treap_types::Tnode* target) {
     treap_types::Tnode *tnode = new treap_types::Tnode(target);
@@ -222,6 +224,67 @@ TEST(DsTreap, EraseNonExistentElement) {
     EXPECT_TRUE(treap->find(BaseSortedTreap{"p", 0}) == NULL);
 
     delete treap;
+}
+
+TEST(DsTreap, GetDifferences) {
+    ds::PS_Treap *first_treap = new ds::PS_Treap(recompute_acc_id_statistics,
+                                                 treap_types::AccIdTnode::create_new_specialized_tnode,
+                                                 treap_types::AccIdTnode::copy_specialized_tnode);
+    EXPECT_EQ(first_treap->static_data.size(), 0);
+
+    ds::PS_Treap *second_treap = new ds::PS_Treap(recompute_acc_id_statistics,
+                                                  treap_types::AccIdTnode::create_new_specialized_tnode,
+                                                  treap_types::AccIdTnode::copy_specialized_tnode);
+    EXPECT_EQ(second_treap->static_data.size(), 0);
+
+    std::vector<std::unique_ptr<BaseSortedTreap>> first_seq_list;
+    first_seq_list.push_back(std::make_unique<AccessionIdSorted>("aaa", 0, 100, 100));
+    first_seq_list.push_back(std::make_unique<AccessionIdSorted>("aab", 10, 200, 200));
+    first_seq_list.push_back(std::make_unique<AccessionIdSorted>("aac", 20, 300, 300));
+    first_seq_list.push_back(std::make_unique<AccessionIdSorted>("acd", 30, 400, 400));
+    first_seq_list.push_back(std::make_unique<AccessionIdSorted>("db0", 40, 500, 500));
+    uint32_t first_seq_list_sz = first_seq_list.size();
+
+    first_treap->insert(first_seq_list);
+    uint32_t cnt = 0;
+    first_treap->iterate_ordered([&](const BaseSortedTreap &x) {cnt++;});
+    EXPECT_EQ(cnt, first_seq_list_sz);
+
+    std::vector<std::unique_ptr<BaseSortedTreap>> second_seq_list;
+
+    second_seq_list.push_back(std::make_unique<AccessionIdSorted>("aac", 20, 307, 300));
+    second_seq_list.push_back(std::make_unique<AccessionIdSorted>("aaaG", 50, 700, 700));
+    second_seq_list.push_back(std::make_unique<AccessionIdSorted>("acd", 30, 400, 409));
+    second_seq_list.push_back(std::make_unique<AccessionIdSorted>("db0", 40, 510, 510));
+    second_seq_list.push_back(std::make_unique<AccessionIdSorted>("aaa", 0, 100, 100));
+    uint32_t second_seq_list_sz = second_seq_list.size();
+ 
+    second_treap->insert(second_seq_list);
+    cnt = 0;
+    second_treap->iterate_ordered([&](const BaseSortedTreap &x) {cnt++;});
+    EXPECT_EQ(cnt, second_seq_list_sz);
+
+    std::vector<uint32_t> insertions_db_ids;
+    std::vector<uint32_t> deletions_db_ids;
+    std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids;
+    ds::PS_Treap::get_differences(first_treap, second_treap, insertions_db_ids, deletions_db_ids, updates_db_ids);
+
+    EXPECT_EQ(insertions_db_ids.size(), 1);
+    EXPECT_EQ(insertions_db_ids[0], 1);
+
+    EXPECT_EQ(deletions_db_ids.size(), 1);
+    EXPECT_EQ(deletions_db_ids[0], 1);
+
+    EXPECT_EQ(updates_db_ids.size(), 3);
+    EXPECT_EQ(updates_db_ids[0].first, 2);
+    EXPECT_EQ(updates_db_ids[0].second, 0);
+    EXPECT_EQ(updates_db_ids[1].first, 3);
+    EXPECT_EQ(updates_db_ids[1].second, 2);
+    EXPECT_EQ(updates_db_ids[2].first, 4);
+    EXPECT_EQ(updates_db_ids[2].second, 3);
+
+    delete first_treap;
+    delete second_treap;
 }
 
 // // Analyse if there is any issue if we have equal priorities for different nodes.

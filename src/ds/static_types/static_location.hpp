@@ -9,19 +9,20 @@
 namespace treap_types {
 
 class LocationSorted : public BaseSortedTreap {
+  private:
+    static std::vector<std::vector<uint32_t>> alteration_list_SeqElem;
+    static uint32_t next_alteration_SeqElem_id;
   public:
-    std::vector<std::pair<uint32_t, uint32_t>> bp_alterations;
+    std::vector<uint32_t> bp_alterations;
 
     LocationSorted(const std::string &req_key, 
                    const uint32_t req_database_id, 
-                   const std::vector<std::pair<uint32_t, uint32_t>> &req_bp_alterations = std::vector<std::pair<uint32_t, uint32_t> >());
+                   const std::vector<uint32_t> &req_bp_alterations = std::vector<uint32_t>());
     ~LocationSorted();
 
     /*
       * get_unique_from_SeqElem returns an unique ptr for a new LocationSorted object according to the arguments.
     */
-    static std::vector<std::vector<uint32_t>> alteration_list_SeqElem;
-    static uint32_t next_alteration_SeqElem_id;
     static std::unique_ptr<BaseSortedTreap> get_unique_from_SeqElem(const common::SeqElem &e, const uint32_t req_database_id, const bool reinsert);
     static void reset_get_unique_from_SeqElem(const ds::PS_Treap *accid_base_treap,
                                               const ds::PS_Treap *accid_snapshot_treap,
@@ -30,6 +31,11 @@ class LocationSorted : public BaseSortedTreap {
                                               const std::vector<uint32_t> &insertions_db_ids, 
                                               const std::vector<uint32_t> &deletions_db_ids, 
                                               std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids);
+
+    static std::vector<uint64_t> alteration_sizes;
+    static std::vector<uint32_t> merged_alterations;
+    static uint32_t next_node_id;
+    static uint32_t next_merged_id;
 
     static std::unique_ptr<BaseSortedTreap> get_new_BaseSortedTreap(const std::string &key, const uint32_t database_id);
     static void reset_get_new_BaseSortedTreap(const H5::Group &group);

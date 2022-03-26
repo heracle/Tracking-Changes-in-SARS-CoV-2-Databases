@@ -13,9 +13,15 @@ enum ModuleType {
     QUERY = 3,
 };
 
+enum QueryType {
+    NO_QUERY = -1,
+    FREQ_BP = 0,
+};
+
 class Config {
   public:
     ModuleType module = ModuleType::NO_MODULE;
+    QueryType query_type = QueryType::NO_QUERY;
     std::string indb_filepath = "";
     std::string outdb_filepath = "";
     std::vector<std::string> fnames;

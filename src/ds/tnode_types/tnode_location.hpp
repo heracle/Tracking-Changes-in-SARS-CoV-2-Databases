@@ -9,19 +9,17 @@
 namespace treap_types {
 
 class LocationTnode : public Tnode {
-  public:    
-    // todo, check if we can use uint16_t instead
-    std::vector<std::pair<uint32_t, uint32_t>> altered_bp;
-
-    LocationTnode(const std::vector<std::pair<uint32_t, uint32_t> > &rc_altered_bp, const uint32_t rc_data_id, const uint64_t rc_prio, const uint32_t rc_index_tnode);
-    // This constructor is not initializing 'r' and 'l' fields!
-    // LocationTnode(const H5::Group &tnode_group);
+  public:
+    LocationTnode(//const std::vector<std::pair<uint32_t, uint32_t> > &rc_altered_bp, 
+                  const uint32_t rc_data_id, 
+                  const uint64_t rc_prio, 
+                  const uint32_t rc_index_tnode);
     LocationTnode(const LocationTnode *oth);
     LocationTnode(const uint32_t index);
 
-    static std::vector<uint32_t> saved_altered_bp;
+    // static std::vector<uint32_t> saved_altered_bp;
 
-    static uint32_t next_altered_bp_index;
+    // static uint32_t next_altered_bp_index;
     static Tnode* get_h5_tnode(const uint32_t req_data_id, const unsigned long long req_prio, const uint32_t req_index);
     static void reset_get_h5_tnode(const H5::Group &group);
 

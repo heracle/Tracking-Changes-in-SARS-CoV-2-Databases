@@ -6,6 +6,7 @@
 #include "../external_libraries/hopscotch-map/include/tsl/hopscotch_map.h"
 #include "../external_libraries/hopscotch-map/include/tsl/hopscotch_set.h"
 #include "../common/json_helper.hpp"
+#include "../queries/base_query.hpp"
 
 #include "tnode_types/tnode_base.hpp"
 #include "static_types/static_base.hpp"
@@ -42,10 +43,8 @@ class PS_Treap {
     void merge(Tnode *&tnode, Tnode *left, Tnode *right);
     void insert_tnode(Tnode *&tnode, Tnode *to_add);
     void erase_node(Tnode *&node, const BaseSortedTreap &to_delete, int &deleted_key_index);
-    void run_tnode_callback(const Tnode *tnode, const std::function<void(const BaseSortedTreap &)> &callback);
-    void run_treap_query_callback_subtree(Tnode *tnode, 
-                                          const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_fst,
-                                          const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_scd);
+    void run_tnode_callback(const Tnode *tnode, const std::function<void(const BaseSortedTreap &)> &callback) const;
+    void run_treap_query_callback_subtree(Tnode *tnode, query_ns::BaseQuery *query) const;
     void delete_subtree(Tnode *&node);
     void save_tnodes_in_subtree(tsl::hopscotch_set<Tnode*> &tnodes_to_save, Tnode *node);
     static void get_next_stack_tnode(std::vector<Tnode*> &stack);
@@ -86,9 +85,8 @@ class PS_Treap {
     void iterate_ordered(const std::function<void(const BaseSortedTreap &)> &callback, const std::string &snapshot = "");
 
     // delete iterate_ordered and replace with 'query_callback_subtree'
-    void query_callback_subtree(const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_fst,
-                                const std::function<int(Tnode *, const BaseSortedTreap *)> &callback_scd,
-                                const std::string &snapshot = "");
+    void query_callback_subtree(query_ns::BaseQuery *query,
+                                const std::string &snapshot = "") const;
 
     static void get_differences(const PS_Treap *first_treap,
                                 const PS_Treap *second_treap,

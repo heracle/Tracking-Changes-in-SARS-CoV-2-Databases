@@ -10,7 +10,7 @@ import os
 CTC = './run'
 TEST_DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../test_data/'
 
-class TestAnnotate(unittest.TestCase):
+class TestCli(unittest.TestCase):
     def setUp(self):
         self.tempdir = TemporaryDirectory()
 
