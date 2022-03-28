@@ -10,10 +10,9 @@ project(SequenceComparison)
 set(CMAKE_CXX_STANDARD 17 )
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-# TODO make sure that we need this '-s'.
 # -Wall -Wextra print all warning at compile time. 
 # TODO move back to O3
-set(CMAKE_CXX_FLAGS "-std=c++17 -O0 -lcurl -s -Wall -Wextra -lhdf5 -lhdf5_cpp")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O0 -lcurl -Wall -Wextra -lhdf5 -lhdf5_cpp")
 
 set(CURL_LIBRARY "-lcurl") 
 find_package(CURL REQUIRED)
@@ -111,6 +110,10 @@ target_link_libraries(unit_tests gtest_main gtest gmock seqcmp-core)
 
 target_compile_options(unit_tests PRIVATE -Wno-undefined-var-template ${DEATH_TEST_FLAG})
 
+# Profile with gprof
+set(CMAKE_CXX_FLAGS_PROFILE "-pg -DNDEBUG -O2 -g")
+set(CMAKE_EXE_LINKER_FLAGS_PROFILE "-pg -g")
+set(CMAKE_SHARED_LINKER_FLAGS_PROFILE "-pg -g")
 
 #-------------------
 # Integration Tests
