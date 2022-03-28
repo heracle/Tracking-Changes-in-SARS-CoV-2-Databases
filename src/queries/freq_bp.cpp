@@ -102,6 +102,18 @@ void FreqBpQuery::print_results() {
     for (const auto &pr : altered_bp) {
         std::cout << pr.first << "\t" << pr.second << std::endl;
     }
+
+    std::sort(altered_bp.begin(), altered_bp.end(), [](const std::pair<uint32_t, uint32_t> &a, const std::pair<uint32_t, uint32_t> &b){
+        if (a.second != b.second) {
+            return a.second > b.second;
+        }
+        return a.first > b.first;
+    });
+
+    std::cout << "\n\n top 50 bp:\n";
+    for (uint32_t i = 0; i < altered_bp.size() && i < 50; ++i) {
+        std::cout << altered_bp[i].first << "\t" << altered_bp[i].second << std::endl;
+    }
 }
 
 } // namespace query_ns

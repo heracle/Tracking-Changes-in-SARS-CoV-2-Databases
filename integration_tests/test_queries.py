@@ -44,6 +44,12 @@ class TestQueries(unittest.TestCase):
  answer_altered_bp size=3
 112	1
 157	1
-177	1"""
+177	1
+
+
+ top 50 bp:
+177\t1
+157\t1
+112\t1"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
