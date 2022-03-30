@@ -48,6 +48,9 @@ set(SOURCES
 
 include_directories(src/external_libraries)
 
+# include rapid_json
+include_directories(src/external_libraries/rapid_json/include/rapidjson/)
+
 #------------------
 # Print all variables
 #------------------

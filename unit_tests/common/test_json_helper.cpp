@@ -49,11 +49,13 @@ TEST(JsonHelper, GetHash) {
 }
 
 TEST(JsonHelper, GetSeqElemFromJson) {
-    Json j_obj;
-    std::ifstream f(PROVISION_TEST_FILEPATH, std::ifstream::binary);
-    f >> j_obj;
+    rapidjson::Document document;
+    std::ifstream f(PROVISION_TEST_FILEPATH);
+    std::string json_line;
+    std::getline(f, json_line);
+    document.Parse(json_line.c_str());
 
-    common::SeqElem seq_elem = common::get_SeqElem_from_json(j_obj);
+    common::SeqElem seq_elem = common::get_SeqElem_from_json(document);
     EXPECT_EQ(validate_SeqElem(seq_elem, 0), true);
 }
 

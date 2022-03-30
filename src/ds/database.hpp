@@ -4,11 +4,8 @@
 #include <string>
 
 #include "../common/constants.hpp"
-#include "../external_libraries/json.hpp"
 #include "../common/json_helper.hpp"
 #include "H5Cpp.h"
-
-using Json = nlohmann::json;
 
 namespace ds {
 

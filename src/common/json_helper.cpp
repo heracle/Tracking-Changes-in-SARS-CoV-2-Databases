@@ -7,8 +7,7 @@
 #include "../common/logger.hpp"
 #include "../common/h5_helper.hpp"
 
-#include "../external_libraries/json.hpp"
-using Json = nlohmann::json;
+#include "../external_libraries/rapid_json/include/rapidjson/document.h"
 
 namespace common {
 
@@ -26,10 +25,10 @@ uint64_t get_hash(std::string s, uint64_t hash) {
     return hash;
 }
 
-SeqElem get_SeqElem_from_json(Json j_obj) {
+SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj) {
     SeqElem answer;
     for (uint32_t i = 0; i < SEQ_FIELDS_SZ; ++i) {
-        answer.covv_data[SEQ_FIELDS_TO_ID.at(SEQ_FIELDS[i])] = j_obj[SEQ_FIELDS[i]];
+        answer.covv_data[SEQ_FIELDS_TO_ID.at(SEQ_FIELDS[i])] = j_obj[SEQ_FIELDS[i].c_str()].GetString();
     }
     return answer;
 }
@@ -39,14 +38,16 @@ SeqElemReader::~SeqElemReader() {
 }
 
 SeqElemReader::SeqElemReader(const std::string &input_path) {
-    f.open(input_path, std::ifstream::binary);
+    f.open(input_path);
     Logger::trace("Getting sequence and metadata from file '" + input_path + "'...");
 
     finished = false;
     last_id_read = -1;
 
-    f >> j_obj; 
-    this->next_elem = get_SeqElem_from_json(j_obj);
+    std::string json_line;
+    std::getline(f, json_line);
+    document.Parse(json_line.c_str());
+    this->next_elem = get_SeqElem_from_json(document);
 }
 
 bool SeqElemReader::end_of_file() {
@@ -56,15 +57,17 @@ bool SeqElemReader::end_of_file() {
 common::SeqElem SeqElemReader::get_next() {
     common::SeqElem to_return = this->next_elem;
     ++last_id_read;
-    try {
-        f >> j_obj;
+    std::string json_line = "";
+    while (json_line == "") {
+        if (! std::getline(f, json_line)) {
+            this->finished = true;
+            this->next_elem = SeqElem();
+            return to_return;
+        }
     }
-    catch (Json::exception& e) { // todo - more precise error catch
-        this->finished = true;
-        this->next_elem = SeqElem();
-        return to_return;
-    }
-    this->next_elem = get_SeqElem_from_json(j_obj);
+
+    document.Parse(json_line.c_str());
+    this->next_elem = get_SeqElem_from_json(document);
     return to_return;
 }
 
