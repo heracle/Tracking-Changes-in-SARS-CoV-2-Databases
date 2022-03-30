@@ -11,8 +11,8 @@
 #include "../ds/static_types/static_base.hpp"
 
 #include "H5Cpp.h"
-#include "../external_libraries/json.hpp"
-using Json = nlohmann::json;
+
+#include "../external_libraries/rapid_json/include/rapidjson/document.h"
 
 namespace common {
 
@@ -33,14 +33,14 @@ uint64_t get_hash(std::string s, uint64_t hash);
 /*
  * get_SeqElem_from_json returns a SeqElem object from json
  */
-SeqElem get_SeqElem_from_json(Json j_obj);
+SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj);
 
 /*
  * SeqElemReader is a handler for reading the snapshot file.
  */
 class SeqElemReader {
   private:
-    Json j_obj;
+    rapidjson::Document document;
     std::ifstream f;
     bool finished;
     int32_t last_id_read;

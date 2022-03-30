@@ -32,6 +32,20 @@ class TestQueries(unittest.TestCase):
         res = subprocess.run([append_command], shell=True)
         self.assertEqual(res.returncode, 0)
 
+        stats_command = '{exe} stats {input_h5}'.format(
+            exe=CTC,
+            input_h5=self.tempdir.name + '/second.h5'
+        )
+        res = subprocess.run([stats_command], shell=True, stdout=PIPE)
+        self.assertEqual(res.returncode, 0)
+
+        expected_stdout = """Total number of saved snapshots: 2
+Size of 'data' field:8
+Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json' contains 5 treap nodes.
+Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json' contains 5 treap nodes."""
+        stdout_pipe = res.stdout.decode().rstrip()
+        self.assertEqual(stdout_pipe, expected_stdout)
+
         stats_command = '{exe} query -q bp_freq -i {input_h5} ""'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/second.h5'

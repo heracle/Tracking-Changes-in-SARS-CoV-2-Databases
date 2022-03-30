@@ -2,9 +2,6 @@
 
 #include "../external_libraries/hopscotch-map/include/tsl/hopscotch_map.h"
 
-#include "../external_libraries/json.hpp"
-using Json = nlohmann::json;
-
 namespace common {
 
 const int SEED = 2021;
