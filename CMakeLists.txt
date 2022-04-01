@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # -Wall -Wextra print all warning at compile time. 
 # TODO move back to O3
-set(CMAKE_CXX_FLAGS "-std=c++17 -O0 -lcurl -Wall -Wextra -lhdf5 -lhdf5_cpp")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -lcurl -Wall -Wextra -lhdf5 -lhdf5_cpp -mavx2")
 
 set(CURL_LIBRARY "-lcurl") 
 find_package(CURL REQUIRED)
@@ -43,6 +43,8 @@ set(SOURCES
             src/common/h5_helper.cpp
             src/common/logger.cpp
             src/common/constants.cpp
+
+            src/external_libraries/xxhash/xxhash.c
             src/main.cpp)
 
 
@@ -50,6 +52,9 @@ include_directories(src/external_libraries)
 
 # include rapid_json
 include_directories(src/external_libraries/rapid_json/include/rapidjson/)
+
+# include xx_hash
+include_directories(src/external_libraries/xx_hash/)
 
 #------------------
 # Print all variables

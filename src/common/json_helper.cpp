@@ -8,6 +8,7 @@
 #include "../common/h5_helper.hpp"
 
 #include "../external_libraries/rapid_json/include/rapidjson/document.h"
+#include "../external_libraries/xxhash/xxhash.h"
 
 namespace common {
 
@@ -18,11 +19,8 @@ SeqElem SeqElem::operator = (const SeqElem &source) {
     return *this;
 }
 
-uint64_t get_hash(std::string s, uint64_t hash) {
-    for (const auto c : s) {
-        hash = (hash * common::HASH_MOD + c) % MOD1;
-    }
-    return hash;
+uint64_t get_hash(std::string s, uint64_t seed) {
+    return XXH3_64bits_withSeed(s.c_str(), s.size(), seed);
 }
 
 SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj) {

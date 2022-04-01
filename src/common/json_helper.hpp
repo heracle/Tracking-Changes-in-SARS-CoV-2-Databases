@@ -25,11 +25,9 @@ struct SeqElem {
 };
 
 /* 
-  * Compute a hash on an extendable string. Considering that the received 'hash' is corresponding to a string 'v',
-  the returned value will be the hash corresponding to the concatenation 'v + s':
-  * e.g. get_hash("abc", get_hash("def", 0)) = get_hash("defabc", 0);
+  * Compute a hash on an extendable string based on a seed;
  */
-uint64_t get_hash(std::string s, uint64_t hash);
+uint64_t get_hash(std::string s, uint64_t seed);
 /*
  * get_SeqElem_from_json returns a SeqElem object from json
  */

@@ -35,19 +35,6 @@ TEST(JsonHelper, SeqElemEqOperator) {
     }
 }
 
-TEST(JsonHelper, GetHash) {
-    std::vector<uint64_t> init_hash_vals = {0, 1, 50000, 1000000, 2000000000, (1ULL << 63) + 500};
-
-    for (uint64_t init_hash : init_hash_vals) {
-        EXPECT_EQ(common::get_hash("abcde", init_hash), common::get_hash("de", common::get_hash("abc", init_hash)));
-        EXPECT_EQ(common::get_hash("111111111222222222222223333", init_hash), common::get_hash("3333", common::get_hash("22222222222222", common::get_hash("111111111", init_hash))));
-        EXPECT_NE(common::get_hash("abcde", init_hash), common::get_hash("abcde_", init_hash));
-        EXPECT_NE(common::get_hash("abcde", init_hash), common::get_hash("abcde ", init_hash));
-        EXPECT_NE(common::get_hash("abcde", init_hash), common::get_hash("abcdf", init_hash));
-        EXPECT_NE(common::get_hash("abcde", init_hash), common::get_hash("abcde", init_hash + 1));    
-    }
-}
-
 TEST(JsonHelper, GetSeqElemFromJson) {
     rapidjson::Document document;
     std::ifstream f(PROVISION_TEST_FILEPATH);
