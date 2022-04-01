@@ -10,3 +10,6 @@
 [submodule "src/external_libraries/rapid_json"]
 	path = src/external_libraries/rapid_json
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "src/external_libraries/xxhash"]
+	path = src/external_libraries/xxhash
+	url = https://github.com/Cyan4973/xxHash.git
