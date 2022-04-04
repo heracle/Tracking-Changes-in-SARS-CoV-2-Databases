@@ -7,8 +7,8 @@
 import sys, getopt, json, os
 import multiprocessing
 
-NEXTALIGN_EXE_PATH = "../src/external_libraries/nextclade-Linux-x86_64"
-COVID_NEXTALIGN_DATASET = "../sars_cov_dataset"
+NEXTALIGN_EXE_PATH = "/cluster/home/rmuntean/git/tracking-changes/src/external_libraries/nextclade-Linux-x86_64"
+COVID_NEXTALIGN_DATASET = "/cluster/home/rmuntean/git/tracking-changes/sars_cov_dataset/"
 
 def print_helper():
     print ('align_snapshot_modules.py -d <working_dir> -n <num_files>')
@@ -26,12 +26,17 @@ def run_file(i, w_dir):
     # raw_json_data is a dictionary where the key is an accession id and the value is the entire json from the snapshot file. 
     raw_json_data = {}
 
+    output_json = open(w_dir + "aligned" + str(i) + ".provision.json", "w")
+
+    if os.stat(input_json).st_size == 0:
+        print("file '" + input_json + "' has size 0, ignoring..")
+        output_json.append("")
+        return
+
     for line in open(input_json, 'r'):
         json_seq = json.loads(line)
         raw_json_data[json_seq["covv_accession_id"]] = json_seq
         # print(json_seq["covv_accession_id"])
-
-    output_json = open(w_dir + "aligned" + str(i) + ".provision.json", "w")
 
     last_seqid = ""
     curr_sequence = ""
