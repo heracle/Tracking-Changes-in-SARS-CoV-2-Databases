@@ -79,8 +79,15 @@ def main(argv):
     lookup_align_hashes = constants.get_hash_lookup(inputdir + constants.LOOKUP_ALIGN_BASENAME)
     
     for i in range(num_files):
-        cnt_per_file = 0      
-        for line in open(inputdir + "aligned" + str(i) + ".provision.json", "r"):
+        cnt_per_file = 0
+
+        input_filepath = inputdir + "aligned" + str(i) + ".provision.json"
+
+        if os.stat(input_filepath).st_size == 0:
+            print("file '" + input_filepath + "' has size 0, ignoring..")
+            continue
+
+        for line in open(input_filepath, "r"):
             cnt_per_file = cnt_per_file + 1
             output.write(line + "\n")
 
@@ -96,10 +103,10 @@ def main(argv):
     new_lookup_file.write("\n")
     new_lookup_file.close()
     
-    with open(inputdir + "modified_lookup.json", 'rb') as f, open(inputdir + "modified_lookup.json.xz", 'wb') as out:
-        out.write(xz.compress(bytes(f.read())))
+    # with open(inputdir + "modified_lookup.json", 'rb') as f, open(inputdir + "modified_lookup.json.xz", 'wb') as out:
+    #     out.write(xz.compress(bytes(f.read())))
 
-    os.system("cp " + inputdir + "modified_lookup.json.xz " + lookup_hash_align_filepath)
+    # os.system("cp " + inputdir + "modified_lookup.json.xz " + lookup_hash_align_filepath)
 
 if __name__ == "__main__":
    main(sys.argv[1:])

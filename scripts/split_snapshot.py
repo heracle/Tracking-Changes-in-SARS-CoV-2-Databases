@@ -57,7 +57,7 @@ def main(argv):
     # Create temporary directory:
     if (not outputdir.endswith("/")):
         outputdir = outputdir + "/"
-    os.mkdir(outputdir)
+    # os.mkdir(outputdir)
 
     # Decompress 'lookup_hash_align_filepath' to the temporary location:
 
