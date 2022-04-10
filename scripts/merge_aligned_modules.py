@@ -15,15 +15,15 @@ def main(argv):
     inputdir = ''
     outputfile = ''
     num_files_str = ''
-    lookup_hash_align_filepath = ''
+    lookup_output_filepath = ""
     try:
-        opts, _ = getopt.getopt(argv,"hi:o:n:",["idir=", "ofile=", "numfiles=", "lookup_hash_align="])
+        opts, _ = getopt.getopt(argv,"hi:o:n:",["idir=", "ofile=", "numfiles=", "lookup_output="])
     except getopt.GetoptError:
         print_helper()
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print ('test.py -i <inputdir> -o <outputfile> -n <num_files>')
+            print_helper()
             sys.exit()
         elif opt in ("-i", "--idir"):
             inputdir = arg
@@ -31,8 +31,8 @@ def main(argv):
             outputfile = arg
         elif opt in ("-n", "--numfiles"):
             num_files_str = arg
-        elif opt in "--lookup_hash_align":
-            lookup_hash_align_filepath = arg
+        elif opt in "--lookup_output":
+            lookup_output_filepath = arg
 
     if (not num_files_str.isnumeric()):
         print ("Error: received invalid number of output files '", num_files_str, "'")
@@ -61,7 +61,7 @@ def main(argv):
         print_helper()
         sys.exit(2)
     
-    if not lookup_hash_align_filepath.endswith(".json.xz"):
+    if lookup_output_filepath != "" and (not lookup_output_filepath.endswith(".json.xz")):
         print ("Error: filepath to save the lookup hash alignment should have a '.json.xz' format.")
         print_helper()
         sys.exit(2)
@@ -74,7 +74,7 @@ def main(argv):
 
     # Append the sequences which were aligned via the lookup table.    
     for line in open(inputdir + "prv_aligned.provision.json", "r"):
-        output.write(line + "\n")
+        output.write(line)
 
     lookup_align_hashes = constants.get_hash_lookup(inputdir + constants.LOOKUP_ALIGN_BASENAME)
     
@@ -103,10 +103,9 @@ def main(argv):
     new_lookup_file.write("\n")
     new_lookup_file.close()
     
-    # with open(inputdir + "modified_lookup.json", 'rb') as f, open(inputdir + "modified_lookup.json.xz", 'wb') as out:
-    #     out.write(xz.compress(bytes(f.read())))
-
-    # os.system("cp " + inputdir + "modified_lookup.json.xz " + lookup_hash_align_filepath)
+    if lookup_output_filepath != "":
+        os.system("xz " + inputdir + "modified_lookup.json")
+        os.system("cp " + inputdir + "modified_lookup.json.xz " + lookup_output_filepath)
 
 if __name__ == "__main__":
    main(sys.argv[1:])

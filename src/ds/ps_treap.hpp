@@ -44,7 +44,7 @@ class PS_Treap {
     void insert_tnode(Tnode *&tnode, Tnode *to_add);
     void erase_node(Tnode *&node, const BaseSortedTreap &to_delete, int &deleted_key_index);
     void run_tnode_callback(const Tnode *tnode, const std::function<void(const BaseSortedTreap &)> &callback) const;
-    void run_treap_query_callback_subtree(Tnode *tnode, query_ns::BaseQuery *query) const;
+    void run_treap_query_callback_subtree(Tnode *tnode, const ds::DB *db, query_ns::BaseQuery *query) const;
     void delete_subtree(Tnode *&node);
     void save_tnodes_in_subtree(tsl::hopscotch_set<Tnode*> &tnodes_to_save, Tnode *node);
     static void get_next_stack_tnode(std::vector<Tnode*> &stack);
@@ -86,6 +86,7 @@ class PS_Treap {
 
     // delete iterate_ordered and replace with 'query_callback_subtree'
     void query_callback_subtree(query_ns::BaseQuery *query,
+                                const ds::DB *db = NULL,
                                 const std::string &snapshot = "") const;
 
     static void get_differences(const PS_Treap *first_treap,
