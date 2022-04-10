@@ -71,7 +71,7 @@ TEST(FreqBpQuery, TestResultOneSnapshot) {
         for (uint32_t id_target_prefix = 0; id_target_prefix < test.target_prefixes.size(); ++id_target_prefix) {
             query_ns::FreqBpQuery *freq_bp_query = new query_ns::FreqBpQuery(std::vector<std::string>{test.target_prefixes[id_target_prefix]});
 
-            treap->query_callback_subtree(freq_bp_query, "");
+            treap->query_callback_subtree(freq_bp_query, NULL, "");
 
             EXPECT_EQ(freq_bp_query->altered_bp.size(), test.expected_answers[id_target_prefix].size());
             for (uint32_t i = 0; i < freq_bp_query->altered_bp.size(); ++i) {
@@ -277,7 +277,7 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
 
     for (const query_insert_erase_elem &test : tests) {
         query_ns::FreqBpQuery *freq_bp_query = new query_ns::FreqBpQuery(std::vector<std::string>{test.target_prefixes});
-        treap->query_callback_subtree(freq_bp_query, test.snapshot);
+        treap->query_callback_subtree(freq_bp_query, NULL, test.snapshot);
 
         EXPECT_EQ(
             std::make_pair(test.target_prefixes + "_" + test.snapshot, freq_bp_query->altered_bp.size()),

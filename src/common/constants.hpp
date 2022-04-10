@@ -17,19 +17,21 @@ const uint32_t H5_CHUNK_SIZE = 100 * ALIGNED_SEQ_SIZE;
 
 const std::string DS_FILE_FORMAT = ".h5";
 
-const uint32_t SEQ_FIELDS_SZ = 4;
+const uint32_t SEQ_FIELDS_SZ = 5;
 const std::vector<std::string> SEQ_FIELDS = {
     "covv_accession_id",
     "covv_collection_date",
     "covv_location",
-    "sequence"
+    "sequence",
+    "owner"
 };
 
 const tsl::hopscotch_map<std::string, uint32_t> SEQ_FIELDS_TO_ID = {
     {"covv_accession_id", 0},
     {"covv_collection_date", 1},
     {"covv_location", 2},
-    {"sequence", 3}
+    {"sequence", 3},
+    {"owner", 4}
 };
 
 void validate_seq_fields();

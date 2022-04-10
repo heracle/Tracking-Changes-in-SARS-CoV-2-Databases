@@ -58,6 +58,7 @@ int query(Config *config) {
 
     ctc->treaps[treap_name].treap->query_callback_subtree(
         query,
+        ctc->db,
         config->snapshot
     );
 

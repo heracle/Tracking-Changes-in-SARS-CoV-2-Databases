@@ -67,7 +67,7 @@ std::string FreqBpQuery::get_treap_name() {
     return "location_treap";
 }
 
-TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *tnode, const BaseSortedTreap *elem_unique) {
+TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *tnode, const BaseSortedTreap *elem_unique, const ds::DB *db) {
     if (elem_unique->key < target_location_prefix) {
         return RightChild;
     }
@@ -84,12 +84,15 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *tnode, const BaseSor
 
     if (lcp == target_location_prefix.size()) {
         altered_bp = add_alters(altered_bp, elem->bp_alterations);
+        if (db != NULL && elem->bp_alterations.size()) {
+            owner_edit_cnt[db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("owner")]]++;
+        }
     }
     
     return LeftChild;
 }
     
-TreeDirectionToGo FreqBpQuery::second_enter_into_node(Tnode *tnode, const BaseSortedTreap *elem_unique) {
+TreeDirectionToGo FreqBpQuery::second_enter_into_node(Tnode *tnode, const BaseSortedTreap *elem_unique, const ds::DB *db) {
     if (elem_unique->key > target_location_prefix + "~") {
         return NoSubtree;
     }
@@ -98,7 +101,7 @@ TreeDirectionToGo FreqBpQuery::second_enter_into_node(Tnode *tnode, const BaseSo
 }
 
 void FreqBpQuery::print_results() {
-    std::cout << "\n\n answer_altered_bp size=" << altered_bp.size() << std::endl;
+    std::cout << "\n\nanswer_altered_bp size=" << altered_bp.size() << std::endl;
     for (const auto &pr : altered_bp) {
         std::cout << pr.first << "\t" << pr.second << std::endl;
     }
@@ -110,9 +113,27 @@ void FreqBpQuery::print_results() {
         return a.first > b.first;
     });
 
-    std::cout << "\n\n top 50 bp:\n";
+    std::cout << "\n\ntop 50 bp:\n";
     for (uint32_t i = 0; i < altered_bp.size() && i < 50; ++i) {
         std::cout << altered_bp[i].first << "\t" << altered_bp[i].second << std::endl;
+    }
+
+    std::vector<std::pair<uint32_t, std::string>> edits_per_owner;
+    for (const auto &it : owner_edit_cnt) {
+        edits_per_owner.push_back(std::make_pair(it.second, it.first));
+    }
+
+    std::sort(edits_per_owner.begin(), edits_per_owner.end(), 
+    [](const std::pair<uint32_t, std::string> & a, const std::pair<uint32_t, std::string> &b) {
+        if (a.first != b.first) {
+            return a.first > b.first;
+        }
+        return a.second > b.second;
+    });
+
+    std::cout << "\n\ntop 50 owners:\n";
+    for (uint32_t i = 0; i < edits_per_owner.size() && i < 50; ++i) {
+        std::cout << edits_per_owner[i].first << "\t" << edits_per_owner[i].second << std::endl;
     }
 }
 

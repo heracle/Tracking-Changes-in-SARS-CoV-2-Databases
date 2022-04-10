@@ -11,6 +11,8 @@
 #include "../common/constants.hpp"
 #include "../common/h5_helper.hpp"
 
+#include "database.hpp"
+
 #include "static_types/static_acc_id.hpp"
 
 using namespace treap_types;
@@ -190,30 +192,31 @@ void PS_Treap::iterate_ordered(const std::function<void(const BaseSortedTreap &)
     run_tnode_callback(root_history[it->second], callback);
 }
 
-void PS_Treap::run_treap_query_callback_subtree(Tnode *tnode, query_ns::BaseQuery *query) const {
+void PS_Treap::run_treap_query_callback_subtree(Tnode *tnode, const ds::DB *db, query_ns::BaseQuery *query) const {
     if (tnode == NULL) {
         return;
     }
-    query_ns::TreeDirectionToGo direction = query->first_enter_into_node(tnode, static_data[tnode->data_id].get());
+    query_ns::TreeDirectionToGo direction = query->first_enter_into_node(tnode, static_data[tnode->data_id].get(), db);
     
     if (direction == query_ns::NoSubtree) {
         return;
     }
 
     if (direction == query_ns::LeftChild) {
-        run_treap_query_callback_subtree(tnode->l, query);
-        direction = query->second_enter_into_node(tnode, static_data[tnode->data_id].get()); 
+        run_treap_query_callback_subtree(tnode->l, db, query);
+        direction = query->second_enter_into_node(tnode, static_data[tnode->data_id].get(), db); 
     }
 
     if (direction == query_ns::RightChild) {
-        run_treap_query_callback_subtree(tnode->r, query);
+        run_treap_query_callback_subtree(tnode->r, db, query);
     }
 }
 
 void PS_Treap::query_callback_subtree(query_ns::BaseQuery *query,
+                                      const ds::DB *db,
                                       const std::string &snapshot) const {
     if (snapshot == "") {
-        run_treap_query_callback_subtree(root, query);
+        run_treap_query_callback_subtree(root, db, query);
         return;
     } 
     auto it = date_to_root_idx.find(snapshot);
@@ -221,7 +224,7 @@ void PS_Treap::query_callback_subtree(query_ns::BaseQuery *query,
         // todo test this line.
         throw std::runtime_error("ERROR -> query requested on a snapshot name that was not previously saved '" + snapshot + "'.");
     }
-    run_treap_query_callback_subtree(root_history[it->second], query);
+    run_treap_query_callback_subtree(root_history[it->second], db, query);
 }
 
 void PS_Treap::delete_subtree(Tnode *&node) {

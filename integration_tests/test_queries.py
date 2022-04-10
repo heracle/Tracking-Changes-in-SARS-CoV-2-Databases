@@ -55,15 +55,88 @@ Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_
 
         expected_stdout = """
 
- answer_altered_bp size=3
+answer_altered_bp size=3
 112	1
 157	1
 177	1
 
 
- top 50 bp:
+top 50 bp:
 177\t1
 157\t1
-112\t1"""
+112\t1
+
+
+top 50 owners:
+2\tow3
+1\tow1"""
+
+        stdout_pipe = res.stdout.decode().rstrip()
+        self.assertEqual(stdout_pipe, expected_stdout)
+
+        stats_command = '{exe} query -q bp_freq -i {input_h5} "Oceania"'.format(
+            exe=CTC,
+            input_h5=self.tempdir.name + '/second.h5'
+        )
+        res = subprocess.run([stats_command], shell=True, stdout=PIPE)
+        self.assertEqual(res.returncode, 0)
+
+        expected_stdout = """
+
+answer_altered_bp size=2
+112	1
+157	1
+
+
+top 50 bp:
+157\t1
+112\t1
+
+
+top 50 owners:
+1\tow3
+1\tow1"""
+
+        stdout_pipe = res.stdout.decode().rstrip()
+        self.assertEqual(stdout_pipe, expected_stdout)
+
+        stats_command = '{exe} query -q bp_freq -i {input_h5} "Europe"'.format(
+            exe=CTC,
+            input_h5=self.tempdir.name + '/second.h5'
+        )
+        res = subprocess.run([stats_command], shell=True, stdout=PIPE)
+        self.assertEqual(res.returncode, 0)
+
+        expected_stdout = """
+
+answer_altered_bp size=1
+177\t1
+
+
+top 50 bp:
+177\t1
+
+
+top 50 owners:
+1\tow3"""
+        stdout_pipe = res.stdout.decode().rstrip()
+        self.assertEqual(stdout_pipe, expected_stdout)
+
+        stats_command = '{exe} query -q bp_freq -i {input_h5} "America"'.format(
+            exe=CTC,
+            input_h5=self.tempdir.name + '/second.h5'
+        )
+        res = subprocess.run([stats_command], shell=True, stdout=PIPE)
+        self.assertEqual(res.returncode, 0)
+
+        expected_stdout = """
+
+answer_altered_bp size=0
+
+
+top 50 bp:
+
+
+top 50 owners:"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
