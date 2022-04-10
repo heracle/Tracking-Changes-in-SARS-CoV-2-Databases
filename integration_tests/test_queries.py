@@ -68,8 +68,8 @@ top 50 bp:
 
 
 top 50 owners:
-2\tow3
-1\tow1"""
+2\t2\tow3
+1\t1\tow1"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -94,8 +94,8 @@ top 50 bp:
 
 
 top 50 owners:
-1\tow3
-1\tow1"""
+1\t1\tow1
+1\t1\tow3"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -118,7 +118,7 @@ top 50 bp:
 
 
 top 50 owners:
-1\tow3"""
+1\t1\tow3"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 

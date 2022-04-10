@@ -16,6 +16,7 @@ class FreqBpQuery : public BaseQuery {
     bool found_first = false;
     bool before_lca_tnode = true;
     tsl::hopscotch_map<std::string, uint32_t> owner_edit_cnt;
+    tsl::hopscotch_map<std::string, uint32_t> owner_total_cnt;
 
     std::vector<std::pair<uint32_t, uint32_t>> add_alters(const std::vector<std::pair<uint32_t, uint32_t>> &main_altered_bp, const std::vector<uint32_t> &secondary) const;
 

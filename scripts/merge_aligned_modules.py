@@ -76,7 +76,8 @@ def main(argv):
     for line in open(inputdir + "prv_aligned.provision.json", "r"):
         output.write(line)
 
-    lookup_align_hashes = constants.get_hash_lookup(inputdir + constants.LOOKUP_ALIGN_BASENAME)
+    if lookup_output_filepath != "":
+        lookup_align_hashes = constants.get_hash_lookup(inputdir + constants.LOOKUP_ALIGN_BASENAME)
     
     for i in range(num_files):
         cnt_per_file = 0
@@ -96,14 +97,14 @@ def main(argv):
             # update the lookup table
             json_seq = json.loads(line)
 
-            lookup_align_hashes[json_seq["seq_hash"]] = json_seq["sequence"]
-    
-    new_lookup_file = open(inputdir + "modified_lookup.json", "w")
-    json.dump(lookup_align_hashes, new_lookup_file, indent=2)
-    new_lookup_file.write("\n")
-    new_lookup_file.close()
+            if lookup_output_filepath != "":
+                lookup_align_hashes[json_seq["seq_hash"]] = json_seq["sequence"]
     
     if lookup_output_filepath != "":
+        new_lookup_file = open(inputdir + "modified_lookup.json", "w")
+        json.dump(lookup_align_hashes, new_lookup_file, indent=2)
+        new_lookup_file.write("\n")
+        new_lookup_file.close()
         os.system("xz " + inputdir + "modified_lookup.json")
         os.system("cp " + inputdir + "modified_lookup.json.xz " + lookup_output_filepath)
 
