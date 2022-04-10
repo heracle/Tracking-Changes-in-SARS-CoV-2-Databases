@@ -39,20 +39,6 @@ std::vector<std::pair<uint32_t, uint32_t>> FreqBpQuery::add_alters(const std::ve
     }
 
     return answer;
-
-
-    // for (uint32_t index_s = 0; index_s < secondary.size(); ++index_s) {
-    //     bool found = false;
-    //     for (uint32_t index_main = 0; index_main < main_altered_bp.size(); ++index_main) {
-    //         if (main_altered_bp[index_main].first == secondary[index_s].first) {
-    //             found = true;
-    //             main_altered_bp[index_main].second += secondary[index_s].second;
-    //         }
-    //     }
-    //     if (!found) {
-    //         main_altered_bp.push_back(secondary[index_s]);
-    //     }
-    // }
 }
 
 FreqBpQuery::FreqBpQuery(const std::vector<std::string> &params) {
@@ -84,9 +70,14 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *tnode, const BaseSor
 
     if (lcp == target_location_prefix.size()) {
         altered_bp = add_alters(altered_bp, elem->bp_alterations);
-        if (db != NULL && elem->bp_alterations.size()) {
-            owner_edit_cnt[db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("owner")]]++;
+        std::string owner = "";
+        if (db != NULL) {
+            owner = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("owner")]; 
         }
+        if (elem->bp_alterations.size()) {
+            owner_edit_cnt[owner]++;
+        }
+        owner_total_cnt[owner]++;
     }
     
     return LeftChild;
@@ -118,22 +109,28 @@ void FreqBpQuery::print_results() {
         std::cout << altered_bp[i].first << "\t" << altered_bp[i].second << std::endl;
     }
 
-    std::vector<std::pair<uint32_t, std::string>> edits_per_owner;
+    struct OwnerDetails {
+        uint32_t edits;
+        uint32_t uploads;
+        std::string name;
+    };
+
+    std::vector<OwnerDetails> owners;
     for (const auto &it : owner_edit_cnt) {
-        edits_per_owner.push_back(std::make_pair(it.second, it.first));
+        owners.push_back({it.second, owner_total_cnt[it.first], it.first});
     }
 
-    std::sort(edits_per_owner.begin(), edits_per_owner.end(), 
-    [](const std::pair<uint32_t, std::string> & a, const std::pair<uint32_t, std::string> &b) {
-        if (a.first != b.first) {
-            return a.first > b.first;
+    std::sort(owners.begin(), owners.end(), 
+    [](const OwnerDetails &a, const OwnerDetails &b) {
+        if (a.edits != b.edits) {
+            return a.edits > b.edits;
         }
-        return a.second > b.second;
+        return a.uploads > b.uploads;
     });
 
     std::cout << "\n\ntop 50 owners:\n";
-    for (uint32_t i = 0; i < edits_per_owner.size() && i < 50; ++i) {
-        std::cout << edits_per_owner[i].first << "\t" << edits_per_owner[i].second << std::endl;
+    for (uint32_t i = 0; i < owners.size() && i < 50; ++i) {
+        std::cout << owners[i].edits << "\t" << owners[i].uploads << "\t" << owners[i].name << std::endl;
     }
 }
 
