@@ -22,7 +22,7 @@ LocationTnode::LocationTnode(const uint32_t index) : Tnode(index) {
     // this->altered_bp = std::vector<std::pair<uint32_t, uint32_t>>();
 }
 
-void recompute_location_statistics(Tnode *rec_tnode, const BaseSortedTreap* elem_base) {
+void recompute_location_statistics(Tnode *, const BaseSortedTreap* ) {
     // LocationTnode *tnode = static_cast<LocationTnode*>(rec_tnode); 
     // const LocationSorted* elem = static_cast<const LocationSorted*>(elem_base);
     // tnode->altered_bp = elem->bp_alterations;
@@ -44,13 +44,13 @@ Tnode* LocationTnode::get_h5_tnode(const uint32_t req_data_id, const unsigned lo
     return static_cast<Tnode*>(tnode);
 }
 
-void LocationTnode::reset_get_h5_tnode(const H5::Group &group) {
+void LocationTnode::reset_get_h5_tnode(const H5::Group &) {
     // LocationTnode::saved_altered_bp = H5Helper::read_h5_int_to_dataset<uint32_t>(group, "altered_bp");
     // LocationTnode::next_altered_bp_index = 0;
 }
 
-void LocationTnode::append_tnode_data(Tnode *rec_tnode) {
-    LocationTnode *tnode = static_cast<LocationTnode*>(rec_tnode);
+void LocationTnode::append_tnode_data(Tnode *) {
+    // LocationTnode *tnode = static_cast<LocationTnode*>(rec_tnode);
     // LocationTnode::saved_altered_bp.push_back(tnode->altered_bp.size());
     // for(uint32_t i = 0; i < tnode->altered_bp.size(); ++i) {
     //     LocationTnode::saved_altered_bp.push_back(tnode->altered_bp[i].first);
@@ -62,7 +62,7 @@ void LocationTnode::reset_append_tnode_data() {
     // LocationTnode::saved_altered_bp.clear();
 }
 
-void LocationTnode::write_tnode_data_to_h5(H5::Group &group) {
+void LocationTnode::write_tnode_data_to_h5(H5::Group &) {
     // H5Helper::write_h5_int_to_dataset(LocationTnode::saved_altered_bp, &group, "altered_bp");
 }
 

@@ -82,6 +82,7 @@ common::SeqElem SeqElemReader::get_elem(const int32_t id) {
         }
     }
     Logger::error("Elem reader got end of file before id=" + std::to_string(id));
+    exit(1);
 }
 
 std::vector<common::SeqElem> SeqElemReader::get_aligned_seq_elements(const uint32_t append_size) {
