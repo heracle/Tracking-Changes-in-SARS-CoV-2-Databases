@@ -28,6 +28,7 @@ SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj) {
     for (uint32_t i = 0; i < SEQ_FIELDS_SZ; ++i) {
         answer.covv_data[SEQ_FIELDS_TO_ID.at(SEQ_FIELDS[i])] = j_obj[SEQ_FIELDS[i].c_str()].GetString();
     }
+    answer.prv_db_id = 0;
     return answer;
 }
 

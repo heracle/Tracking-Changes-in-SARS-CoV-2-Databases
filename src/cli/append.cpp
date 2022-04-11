@@ -93,12 +93,12 @@ int append(Config *config) {
         ctc_out->erase_seq(deletions_db_ids, true);
 
         // Create a pair for id in snapshot and bool -> false for insertion and true for alteration.
-        std::vector<std::pair<uint32_t, bool>> snapshot_indices_to_insert;
+        std::vector<std::pair<uint32_t, uint32_t>> snapshot_indices_to_insert;
         for (uint32_t insertion_id : insertions_db_ids) {
-            snapshot_indices_to_insert.push_back({insertion_id, false});
+            snapshot_indices_to_insert.push_back({insertion_id, UINT_MAX});
         }
         for (std::pair<uint32_t, uint32_t> pair_ids : updates_db_ids) {
-            snapshot_indices_to_insert.push_back({pair_ids.second, true});
+            snapshot_indices_to_insert.push_back({pair_ids.second, pair_ids.first});
         }
 
         // sort snapshot_indices_to_insert for being able to open one single SeqElemReader.
@@ -109,8 +109,16 @@ int append(Config *config) {
 
         for (uint32_t i = 0; i < snapshot_indices_to_insert.size(); ++i) {
             common::SeqElem seq = seq_reader->get_elem(snapshot_indices_to_insert[i].first);
+            if (snapshot_indices_to_insert[i].second == UINT_MAX) {
+                // is new add
+                seq.prv_db_id = 0;
+            } else {
+                // is modified
+                seq.prv_db_id = snapshot_indices_to_insert[i].second;
+            }
+
             std::vector<common::SeqElem> curr = {seq};
-            ctc_out->insert_seq(&curr, snapshot_indices_to_insert[i].second);
+            ctc_out->insert_seq(&curr, snapshot_indices_to_insert[i].second != UINT_MAX);
         }
         delete seq_reader;
 
