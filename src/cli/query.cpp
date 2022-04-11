@@ -34,7 +34,7 @@ int query(Config *config) {
 
     query_ns::BaseQuery *query;
     if (config->query_type == FREQ_BP) {
-        query = new query_ns::FreqBpQuery(config->fnames);
+        query = new query_ns::FreqBpQuery(config->fnames, config->compute_total_owner_cnt, config->num_to_print);
     } else {
         Logger::error("Query type not recognised.");
         exit(1);

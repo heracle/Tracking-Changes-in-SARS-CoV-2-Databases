@@ -61,7 +61,8 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
                             "\t The input DB file must be a '.h5' file specific for this tool\n", prog_name.c_str());
 
             fprintf(stderr, "Available options for STATS:\n");
-            fprintf(stderr, "\t   TODO fill in\n");
+            fprintf(stderr, "\t   --compute-total-owner-cnt \t print how many uploads has each owner group.\n");
+            fprintf(stderr, "\t   --top-to-print [int] \t Set the number of results to print.\n");
             break;
             
         default:
@@ -119,6 +120,10 @@ Config::Config(int argc, char *argv[]) {
             outdb_filepath = std::string(get_value(i++));
         } else if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--verbose")) {
             verbosity = true;
+        } else if (!strcmp(argv[i], "--compute-total-owner-cnt")) {
+            compute_total_owner_cnt = true;
+        } else if (!strcmp(argv[i], "--num-to-print")) {
+            num_to_print = std::atol(get_value(i++));
         } else if (!strcmp(argv[i], "-q") || !strcmp(argv[i], "--query")) {
             std::string aux = std::string(get_value(i++));
             if (aux == "bp_freq") {
