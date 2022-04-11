@@ -247,7 +247,7 @@ TEST(DsTreap, GetDifferences) {
 
     first_treap->insert(first_seq_list);
     uint32_t cnt = 0;
-    first_treap->iterate_ordered([&](const BaseSortedTreap &x) {cnt++;});
+    first_treap->iterate_ordered([&](const BaseSortedTreap &) {cnt++;});
     EXPECT_EQ(cnt, first_seq_list_sz);
 
     std::vector<std::unique_ptr<BaseSortedTreap>> second_seq_list;
@@ -261,7 +261,7 @@ TEST(DsTreap, GetDifferences) {
  
     second_treap->insert(second_seq_list);
     cnt = 0;
-    second_treap->iterate_ordered([&](const BaseSortedTreap &x) {cnt++;});
+    second_treap->iterate_ordered([&](const BaseSortedTreap &) {cnt++;});
     EXPECT_EQ(cnt, second_seq_list_sz);
 
     std::vector<uint32_t> insertions_db_ids;
