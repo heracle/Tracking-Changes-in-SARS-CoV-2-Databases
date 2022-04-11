@@ -53,7 +53,7 @@ std::string FreqBpQuery::get_treap_name() {
     return "location_treap";
 }
 
-TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *tnode, const BaseSortedTreap *elem_unique, const ds::DB *db) {
+TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *, const BaseSortedTreap *elem_unique, const ds::DB *db) {
     if (elem_unique->key < target_location_prefix) {
         return RightChild;
     }
@@ -83,7 +83,7 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *tnode, const BaseSor
     return LeftChild;
 }
     
-TreeDirectionToGo FreqBpQuery::second_enter_into_node(Tnode *tnode, const BaseSortedTreap *elem_unique, const ds::DB *db) {
+TreeDirectionToGo FreqBpQuery::second_enter_into_node(Tnode *, const BaseSortedTreap *elem_unique, const ds::DB *) {
     if (elem_unique->key > target_location_prefix + "~") {
         return NoSubtree;
     }

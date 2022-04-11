@@ -21,6 +21,7 @@ class BaseQuery {
     virtual TreeDirectionToGo first_enter_into_node(treap_types::Tnode *, const treap_types::BaseSortedTreap *, const ds::DB *db) = 0;
     virtual TreeDirectionToGo second_enter_into_node(treap_types::Tnode *, const treap_types::BaseSortedTreap *, const ds::DB *db) = 0;
     virtual void print_results() = 0;
+    virtual ~BaseQuery(){};
 };
 
 } // namespace query_ns

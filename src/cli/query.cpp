@@ -22,21 +22,6 @@ using namespace treap_types;
 
 namespace cli {
 
-// void add_alters(std::vector<std::pair<uint32_t, uint32_t>> &main_altered_bp, const std::vector<std::pair<uint32_t, uint32_t>> &secondary) {
-//     for (uint32_t index_s = 0; index_s < secondary.size(); ++index_s) {
-//         bool found = false;
-//         for (uint32_t index_main = 0; index_main < main_altered_bp.size(); ++index_main) {
-//             if (main_altered_bp[index_main].first == secondary[index_s].first) {
-//                 found = true;
-//                 main_altered_bp[index_main].second += secondary[index_s].second;
-//             }
-//         }
-//         if (!found) {
-//             main_altered_bp.push_back(secondary[index_s]);
-//         }
-//     }
-// }
-
 int query(Config *config) {
 
     std::ifstream instrm(config->indb_filepath, std::ios::in | std::ios::binary);
@@ -52,6 +37,7 @@ int query(Config *config) {
         query = new query_ns::FreqBpQuery(config->fnames);
     } else {
         Logger::error("Query type not recognised.");
+        exit(1);
     }
 
     const std::string treap_name = query->get_treap_name();
