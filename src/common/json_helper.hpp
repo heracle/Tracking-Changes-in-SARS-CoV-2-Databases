@@ -20,6 +20,7 @@ struct SeqElem {
     // covv_data size will be equal to constants.hpp/SEQ_FIELDS
     std::string covv_data[SEQ_FIELDS_SZ];    
     // todo add std::string lab_owner;
+    uint32_t prv_db_id;
 
     SeqElem operator = (const SeqElem &source);
 };

@@ -30,7 +30,7 @@ pushd "${tmp_dir}"
 
 bs_name=${bs_name%%.*}
 tmp_filepath="${tmp_dir}${bs_name}.provision.json"
-output_filepath="/cluster/scratch/rmuntean/gisaid_data/to_add_owner/ready/aligned_${bs_name}.provision.json"
+output_filepath="/cluster/scratch/rmuntean/gisaid_data/to_add_owner/ready/aligned_owner_${bs_name}.provision.json"
 
 echo "bs_name = ${bs_name}"
 echo "tmp_dir = ${tmp_dir}"

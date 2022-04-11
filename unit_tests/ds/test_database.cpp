@@ -65,6 +65,8 @@ TEST(Database, InsertGetElement) {
         std::vector<common::SeqElem> file_SeqElem = reader->get_aligned_seq_elements(20);
 
         for (uint32_t i = 0; i < file_SeqElem.size(); ++i) {
+            file_SeqElem[i].prv_db_id = i + 1050;
+
             db->insert_element(file_SeqElem[i]);
             EXPECT_EQ(db->buff_data.size(), (i + 1) % flush_size);
             EXPECT_EQ(db->data_size, i + 1);
@@ -81,6 +83,7 @@ TEST(Database, InsertGetElement) {
             for (uint32_t field_id = 0; field_id < common::SEQ_FIELDS_SZ; ++field_id) {
                 EXPECT_EQ(db2->get_element(i).covv_data[field_id], file_SeqElem[i].covv_data[field_id]);
             }
+            EXPECT_EQ(db2->get_element(i).prv_db_id, file_SeqElem[i].prv_db_id);
         }
 
         delete db2;
@@ -101,6 +104,8 @@ TEST(Database, CloneDB) {
     std::vector<common::SeqElem> file_SeqElem = reader->get_aligned_seq_elements(20);
 
     for (uint32_t i = 0; i < file_SeqElem.size(); ++i) {
+        file_SeqElem[i].prv_db_id = i + 1050;
+
         db->insert_element(file_SeqElem[i]);
         EXPECT_EQ(db->buff_data.size(), (i + 1) % flush_size);
         EXPECT_EQ(db->data_size, i + 1);
@@ -119,6 +124,7 @@ TEST(Database, CloneDB) {
         for (uint32_t field_id = 0; field_id < common::SEQ_FIELDS_SZ; ++field_id) {
             EXPECT_EQ(db2->get_element(i).covv_data[field_id], file_SeqElem[i].covv_data[field_id]);
         }
+        EXPECT_EQ(db2->get_element(i).prv_db_id, file_SeqElem[i].prv_db_id);
     }
 
     delete db2;
