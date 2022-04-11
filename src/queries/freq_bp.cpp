@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-
 #include "../ds/static_types/static_base.hpp"
 #include "../ds/static_types/static_location.hpp"
 #include "../ds/tnode_types/tnode_base.hpp"
@@ -41,11 +40,13 @@ std::vector<std::pair<uint32_t, uint32_t>> FreqBpQuery::add_alters(const std::ve
     return answer;
 }
 
-FreqBpQuery::FreqBpQuery(const std::vector<std::string> &params) {
+FreqBpQuery::FreqBpQuery(const std::vector<std::string> &params, const bool req_compute_total_owner_cnt, const uint32_t req_num_to_print) {
     if (params.size() != 1) {
         Logger::error("freq_bp query must receive exactly one parameter, the prefix of the location string to query");
     }
     target_location_prefix = params[0];
+    this->compute_total_owner_cnt = req_compute_total_owner_cnt;
+    this->num_to_print = req_num_to_print;
 }
 
 std::string FreqBpQuery::get_treap_name() {
@@ -77,7 +78,9 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *, const BaseSortedTr
         if (elem->bp_alterations.size()) {
             owner_edit_cnt[owner]++;
         }
-        owner_total_cnt[owner]++;
+        if (this->compute_total_owner_cnt) {
+            owner_total_cnt[owner]++;
+        }
     }
     
     return LeftChild;
@@ -93,9 +96,6 @@ TreeDirectionToGo FreqBpQuery::second_enter_into_node(Tnode *, const BaseSortedT
 
 void FreqBpQuery::print_results() {
     std::cout << "\n\nanswer_altered_bp size=" << altered_bp.size() << std::endl;
-    for (const auto &pr : altered_bp) {
-        std::cout << pr.first << "\t" << pr.second << std::endl;
-    }
 
     std::sort(altered_bp.begin(), altered_bp.end(), [](const std::pair<uint32_t, uint32_t> &a, const std::pair<uint32_t, uint32_t> &b){
         if (a.second != b.second) {
@@ -104,8 +104,8 @@ void FreqBpQuery::print_results() {
         return a.first > b.first;
     });
 
-    std::cout << "\n\ntop 50 bp:\n";
-    for (uint32_t i = 0; i < altered_bp.size() && i < 50; ++i) {
+    std::cout << "\n\ntop " << num_to_print << " bp:\n";
+    for (uint32_t i = 0; i < altered_bp.size() && i < num_to_print; ++i) {
         std::cout << altered_bp[i].first << "\t" << altered_bp[i].second << std::endl;
     }
 
@@ -128,9 +128,13 @@ void FreqBpQuery::print_results() {
         return a.uploads > b.uploads;
     });
 
-    std::cout << "\n\ntop 50 owners:\n";
-    for (uint32_t i = 0; i < owners.size() && i < 50; ++i) {
-        std::cout << owners[i].edits << "\t" << owners[i].uploads << "\t" << owners[i].name << std::endl;
+    std::cout << "\n\ntop " << num_to_print << " owners:\n";
+    for (uint32_t i = 0; i < owners.size() && i < num_to_print; ++i) {
+        std::cout << owners[i].edits << "\t";
+        if (this->compute_total_owner_cnt) {
+            std::cout << owners[i].uploads << "\t";
+        }
+        std::cout << owners[i].name << std::endl;
     }
 }
 

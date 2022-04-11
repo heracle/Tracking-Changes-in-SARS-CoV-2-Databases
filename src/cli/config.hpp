@@ -27,6 +27,8 @@ class Config {
     std::vector<std::string> fnames;
     std::string snapshot = "";
     bool verbosity = false;
+    bool compute_total_owner_cnt = false;
+    uint32_t num_to_print = 50;
 
     std::string location_prefix = "";
   
