@@ -28,7 +28,7 @@ AccessionIdSorted::AccessionIdSorted(const H5::Group &h5_group) : BaseSortedTrea
 
 AccessionIdSorted::~AccessionIdSorted() {}
 
-std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_unique_from_SeqElem(const SeqElem &e, const uint32_t req_database_id, const bool) {
+std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_unique_from_snapshot_line(const SeqElem &e, const uint32_t req_database_id, const bool) {
     return std::make_unique<AccessionIdSorted>(
         e.covv_data[SEQ_FIELDS_TO_ID.at("covv_accession_id")],
         req_database_id,
@@ -43,13 +43,13 @@ std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_unique_from_SeqElem(cons
     // return answer; // set a flag at compiletime to not add 'move'? https://stackoverflow.com/questions/4316727/returning-unique-ptr-from-functions
 }
 
-void AccessionIdSorted::reset_get_unique_from_SeqElem(const ds::PS_Treap*,
-                                                      const ds::PS_Treap*,
-                                                      const ds::DB *,
-                                                      common::SeqElemReader*,
-                                                      const std::vector<uint32_t>&, 
-                                                      const std::vector<uint32_t>&, 
-                                                      std::vector<std::pair<uint32_t, uint32_t>>) {
+void AccessionIdSorted::reset_get_unique_from_snapshot_line(const ds::PS_Treap*,
+                                                            const ds::PS_Treap*,
+                                                            const ds::DB *,
+                                                            common::SeqElemReader*,
+                                                            const std::vector<uint32_t>&, 
+                                                            const std::vector<uint32_t>&, 
+                                                            std::vector<std::pair<uint32_t, uint32_t>>) {
 
 }
 

@@ -28,14 +28,14 @@ struct CTCData {
     std::function<std::unique_ptr<BaseSortedTreap>(const std::string&, const uint32_t)> get_new_BaseSortedTreap;
     std::function<void(const H5::Group&)> reset_get_new_BaseSortedTreap;
     // Regarding static treap data, read from seqElem.
-    std::function<std::unique_ptr<BaseSortedTreap>(const common::SeqElem&, const uint32_t, const bool)> get_unique_from_SeqElem;
+    std::function<std::unique_ptr<BaseSortedTreap>(const common::SeqElem&, const uint32_t, const bool)> get_unique_from_snapshot_line;
     std::function<void(const ds::PS_Treap*, 
                        const ds::PS_Treap*, 
                        const ds::DB *, 
                        common::SeqElemReader*, 
                        const std::vector<uint32_t>&, 
                        const std::vector<uint32_t>&, 
-                       std::vector<std::pair<uint32_t, uint32_t>>)> reset_get_unique_from_SeqElem;
+                       std::vector<std::pair<uint32_t, uint32_t>>)> reset_get_unique_from_snapshot_line;
 
     // Regarding static treap data, write to h5
     std::function<void(const std::vector<std::unique_ptr<BaseSortedTreap>>&, H5::Group&)> serialize_elem_to_hdf5;

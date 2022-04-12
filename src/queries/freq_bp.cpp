@@ -72,7 +72,7 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *, const BaseSortedTr
     if (lcp == target_location_prefix.size()) {
         altered_bp = add_alters(altered_bp, elem->bp_alterations);
         std::string owner = "";
-        if (db != NULL) {
+        if (db != NULL && (this->compute_total_owner_cnt || elem->bp_alterations.size())) {
             owner = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("owner")]; 
         }
         if (elem->bp_alterations.size()) {

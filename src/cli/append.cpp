@@ -38,7 +38,7 @@ int append(Config *config) {
     ds::CTC *ctc_out = new ds::CTC(&h5_file_out, ctc_in);
     ds::PS_Treap *hash_treap = ctc_out->hash_treap;
     
-    delete ctc_in; // it is also make unusable by the previous constructor.
+    delete ctc_in; // it is also made unusable by the previous constructor.
     h5_file_in.close();
 
     for (uint32_t i = 0; i < config->fnames.size(); ++i) {
@@ -54,12 +54,10 @@ int append(Config *config) {
 
             // Create a treap only for seq_id to do the comparison.
             std::vector<std::unique_ptr<BaseSortedTreap>> acc_id_seq_snapshot;
-            // std::vector<common::SeqElem> seqelem_from_snapshot;
 
             uint32_t seq_counter = 0;
             for (const common::SeqElem &seq : seq_elems) {
-                acc_id_seq_snapshot.push_back(AccessionIdSorted::get_unique_from_SeqElem(seq, seq_counter++));
-                // seqelem_from_snapshot.push_back(seq);
+                acc_id_seq_snapshot.push_back(AccessionIdSorted::get_unique_from_snapshot_line(seq, seq_counter++));
             }
 
             snapshot_treap_acc_ids->insert(acc_id_seq_snapshot);
