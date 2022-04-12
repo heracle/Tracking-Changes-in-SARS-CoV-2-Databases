@@ -20,7 +20,7 @@ TEST(StaticLocation, GetUnique) {
     e.covv_data[0] = e.covv_data[1] = e.covv_data[2] = e.covv_data[3] = "Y";
 
     for (uint32_t i = 0; i < treap_types::LocationSorted::alteration_list_SeqElem.size(); ++i) {
-        std::unique_ptr<BaseSortedTreap> base = LocationSorted::get_unique_from_SeqElem(e, 0, true);
+        std::unique_ptr<BaseSortedTreap> base = LocationSorted::get_unique_from_snapshot_line(e, 0, true);
         LocationSorted *curr = static_cast<LocationSorted*>(base.get());
 
         EXPECT_EQ(curr->bp_alterations, treap_types::LocationSorted::alteration_list_SeqElem[i]);
@@ -64,6 +64,6 @@ TEST(StaticLocation, GetUnique) {
     // second_treap->iterate_ordered([&](const BaseSortedTreap &x) {cnt++;});
     // EXPECT_EQ(cnt, second_seq_list_sz);
 
-    // LocationSorted::reset_get_unique_from_SeqElem();
+    // LocationSorted::get_unique_from_snapshot_line();
     // EXPECT_EQ(0, 1);
 }

@@ -28,8 +28,8 @@ void CTC::ctc_init() {
         recompute_location_statistics,
         treap_types::LocationSorted::get_new_BaseSortedTreap,
         treap_types::LocationSorted::reset_get_new_BaseSortedTreap,
-        treap_types::LocationSorted::get_unique_from_SeqElem,
-        treap_types::LocationSorted::reset_get_unique_from_SeqElem,
+        treap_types::LocationSorted::get_unique_from_snapshot_line,
+        treap_types::LocationSorted::reset_get_unique_from_snapshot_line,
         treap_types::serialize_location_elem_to_hdf5
     };
     this->treaps["acc_id_treap"] = {
@@ -44,13 +44,13 @@ void CTC::ctc_init() {
         recompute_acc_id_statistics,
         treap_types::AccessionIdSorted::get_new_BaseSortedTreap,
         treap_types::AccessionIdSorted::reset_get_new_BaseSortedTreap,
-        treap_types::AccessionIdSorted::get_unique_from_SeqElem,
-        treap_types::AccessionIdSorted::reset_get_unique_from_SeqElem,
+        treap_types::AccessionIdSorted::get_unique_from_snapshot_line,
+        treap_types::AccessionIdSorted::reset_get_unique_from_snapshot_line,
         treap_types::serialize_acc_id_elem_to_hdf5
     };
 }
 
-// todo fix constuctor duplicatio (used by create)
+// todo fix constructor duplication (used by append)
 CTC::CTC(H5::H5File *h5_file, CTC* source) : h5file(*h5_file) {
     this->ctc_init();
     this->db = new ds::DB(h5_file);
@@ -72,7 +72,7 @@ CTC::CTC(H5::H5File *h5_file, CTC* source) : h5file(*h5_file) {
 }
 
 // todo keep only one h5 constructor..
-// todo fix constuctor duplicatio (used by append)
+// todo fix constructor duplication (used by create)
 CTC::CTC(H5::H5File &h5_file) : h5file(h5_file) {
     this->ctc_init();
     this->db = new ds::DB(&h5_file);
@@ -119,7 +119,7 @@ void CTC::insert_seq(const std::vector<common::SeqElem> *seq_elems, bool was_mod
     for (auto [treap_name, treap_data] : this->treaps) {
         std::vector<std::unique_ptr<BaseSortedTreap>> unique_seq_to_insert;
         for (uint32_t i = 0; i < seq_elems->size(); i++) {
-            unique_seq_to_insert.push_back(std::move(treap_data.get_unique_from_SeqElem((*seq_elems)[i], seq_ids[i], was_modified)));
+            unique_seq_to_insert.push_back(std::move(treap_data.get_unique_from_snapshot_line((*seq_elems)[i], seq_ids[i], was_modified)));
         }
         
         Logger::trace("Total number of elements to insert in '" + treap_name + "' treap: " + std::to_string(unique_seq_to_insert.size()));
@@ -185,7 +185,7 @@ void CTC::prepare_specific_get_unique_SeqElem(const ds::PS_Treap *accid_base_tre
                                               const std::vector<std::pair<uint32_t, uint32_t>> &updates_db_ids) const {
     for (auto [treap_name, treap_data] : this->treaps) {
         common::SeqElemReader *seq_reader = new common::SeqElemReader(file_name);
-        treap_data.reset_get_unique_from_SeqElem(accid_base_treap, accid_snapshot_treap, base_db, seq_reader, insertions_db_ids, deletions_db_ids, updates_db_ids);
+        treap_data.reset_get_unique_from_snapshot_line(accid_base_treap, accid_snapshot_treap, base_db, seq_reader, insertions_db_ids, deletions_db_ids, updates_db_ids);
         delete seq_reader;
     }
 }

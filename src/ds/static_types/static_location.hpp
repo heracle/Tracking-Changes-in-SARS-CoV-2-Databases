@@ -23,14 +23,14 @@ class LocationSorted : public BaseSortedTreap {
     /*
       * get_unique_from_SeqElem returns an unique ptr for a new LocationSorted object according to the arguments.
     */
-    static std::unique_ptr<BaseSortedTreap> get_unique_from_SeqElem(const common::SeqElem &e, const uint32_t req_database_id, const bool reinsert);
-    static void reset_get_unique_from_SeqElem(const ds::PS_Treap *accid_base_treap,
-                                              const ds::PS_Treap *accid_snapshot_treap,
-                                              const ds::DB *base_db,
-                                              common::SeqElemReader *snapshot_reader,
-                                              const std::vector<uint32_t> &insertions_db_ids, 
-                                              const std::vector<uint32_t> &deletions_db_ids, 
-                                              std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids);
+    static std::unique_ptr<BaseSortedTreap> get_unique_from_snapshot_line(const common::SeqElem &e, const uint32_t req_database_id, const bool reinsert);
+    static void reset_get_unique_from_snapshot_line(const ds::PS_Treap *accid_base_treap,
+                                                    const ds::PS_Treap *accid_snapshot_treap,
+                                                    const ds::DB *base_db,
+                                                    common::SeqElemReader *snapshot_reader,
+                                                    const std::vector<uint32_t> &insertions_db_ids, 
+                                                    const std::vector<uint32_t> &deletions_db_ids, 
+                                                    std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids);
 
     static std::vector<uint64_t> alteration_sizes;
     static std::vector<uint32_t> merged_alterations;

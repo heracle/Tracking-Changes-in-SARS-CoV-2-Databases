@@ -26,7 +26,7 @@ LocationSorted::~LocationSorted() {}
 std::vector<std::vector<uint32_t>> LocationSorted::alteration_list_SeqElem;
 uint32_t LocationSorted::next_alteration_SeqElem_id = 0;
 
-std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_SeqElem(const SeqElem &e, const uint32_t req_database_id, const bool reinsert) {
+std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_snapshot_line(const SeqElem &e, const uint32_t req_database_id, const bool reinsert) {
     if (! reinsert) {
         auto aux = std::make_unique<LocationSorted>(
             e.covv_data[SEQ_FIELDS_TO_ID.at("covv_location")] + "_$_" + e.covv_data[SEQ_FIELDS_TO_ID.at("covv_collection_date")],
@@ -68,13 +68,13 @@ std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_SeqElem(const S
     return answer;
 }
 
-void LocationSorted::reset_get_unique_from_SeqElem(const ds::PS_Treap *accid_base_treap,
-                                                   const ds::PS_Treap *accid_snapshot_treap,
-                                                   const ds::DB *base_db,
-                                                   common::SeqElemReader *snapshot_reader,
-                                                   const std::vector<uint32_t>&, 
-                                                   const std::vector<uint32_t>&, 
-                                                   std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids) {
+void LocationSorted::reset_get_unique_from_snapshot_line(const ds::PS_Treap *accid_base_treap,
+                                                        const ds::PS_Treap *accid_snapshot_treap,
+                                                        const ds::DB *base_db,
+                                                        common::SeqElemReader *snapshot_reader,
+                                                        const std::vector<uint32_t>&, 
+                                                        const std::vector<uint32_t>&, 
+                                                        std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids) {
     LocationSorted::alteration_list_SeqElem.clear();
 
     std::sort(updates_db_ids.begin(), updates_db_ids.end(), [](const std::pair<uint32_t, uint32_t> &a, const std::pair<uint32_t, uint32_t> &b) {
