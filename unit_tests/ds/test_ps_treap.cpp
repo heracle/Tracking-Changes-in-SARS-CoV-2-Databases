@@ -159,6 +159,73 @@ TEST(DsTreap, InsertEraseElementInteger) {
     }
 }
 
+TEST(DsTreap, InsertElementsWithPrv) {
+    ds::PS_Treap *treap = new ds::PS_Treap([&](Tnode *, const BaseSortedTreap*) {},
+                                            create_new_test_tnode,
+                                            copy_test_tnode);
+    EXPECT_EQ(treap->static_data.size(), 0);
+
+    std::vector<std::unique_ptr<BaseSortedTreap>> init_list;
+    init_list.push_back(std::make_unique<BaseSortedTreap>("t", 0));
+    init_list.push_back(std::make_unique<BaseSortedTreap>("abc", 0));
+    init_list.push_back(std::make_unique<BaseSortedTreap>("aba", 0));
+    init_list.push_back(std::make_unique<BaseSortedTreap>("ab0ccde", 0));
+    init_list.push_back(std::make_unique<BaseSortedTreap>("ab0caade", 0));
+
+    std::vector<std::string> expected1 = {"ab0caade", "ab0ccde", "aba", "abc", "t"};
+    std::vector<std::string> ordered_values;
+    treap->insert(init_list);
+    treap->iterate_ordered([&](const BaseSortedTreap &x) {ordered_values.push_back(x.key);});
+    EXPECT_EQ(ordered_values, expected1);
+
+    std::vector<uint32_t> erase_list;
+    erase_list.push_back(treap->find(BaseSortedTreap{"t", 0})->data_id);
+    erase_list.push_back(treap->find(BaseSortedTreap{"aba", 0})->data_id);
+    erase_list.push_back(treap->find(BaseSortedTreap{"ab0ccde", 0})->data_id);
+
+    std::vector<std::string> expected2 = {"ab0caade", "abc"};
+    treap->erase(erase_list);
+    ordered_values.clear();
+    treap->iterate_ordered([&](const BaseSortedTreap &x) {ordered_values.push_back(x.key);});
+    EXPECT_EQ(ordered_values, expected2);
+
+    std::vector<std::unique_ptr<BaseSortedTreap>> reinsert_list;
+    reinsert_list.push_back(std::make_unique<BaseSortedTreap>("t", 0));
+    reinsert_list.push_back(std::make_unique<BaseSortedTreap>("aba", 0));
+    reinsert_list.push_back(std::make_unique<BaseSortedTreap>("ab0ccde", 0));
+    
+    std::vector<std::pair<common::SeqElem, uint32_t> > elems_with_prv = {
+        {common::SeqElem(), 0},
+        {common::SeqElem(), 2},
+        {common::SeqElem(), 3}
+    };
+    treap->insert(reinsert_list, elems_with_prv);
+    ordered_values.clear();
+
+    uint32_t validations_mask = 0;
+
+    for (uint32_t i = 0; i < treap->static_data.size(); ++i) {
+        const BaseSortedTreap *x = treap->static_data[i].get();
+        if (i == 0 || i == 2 || i == 3) {
+            // the first insertions of the edited sequences;
+            EXPECT_EQ(treap->prv_static_data[i], UINT_MAX);
+        } else if (x->key == "t") {
+            EXPECT_EQ(treap->prv_static_data[i], 0);
+            validations_mask |= 1;
+        } else if (x->key == "aba") {
+            EXPECT_EQ(treap->prv_static_data[i], 2);
+            validations_mask |= 2;
+        } else if (x->key == "ab0ccde") {
+            EXPECT_EQ(treap->prv_static_data[i], 3);
+            validations_mask |= 4;
+        } else {
+            EXPECT_EQ(treap->prv_static_data[i], UINT_MAX);
+        }
+    }
+    EXPECT_EQ(validations_mask, 7);
+    delete treap;
+}
+
 TEST(DsTreap, InsertEraseElementString) {
     ds::PS_Treap *treap = new ds::PS_Treap([&](Tnode *, const BaseSortedTreap*) {},
                                             create_new_test_tnode,

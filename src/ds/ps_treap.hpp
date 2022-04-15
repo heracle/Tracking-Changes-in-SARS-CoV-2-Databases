@@ -18,6 +18,7 @@ class PS_Treap {
   //todo fix this private field
   public:
       std::vector<std::unique_ptr<BaseSortedTreap>> static_data;
+      std::vector<uint32_t> prv_static_data;
   private:
   // Pieces of code taken from: https://cp-algorithms.com/data_structures/treap.html
     /* The 'data' field stores all the sequences which have been previously inserted to the treap.
@@ -63,7 +64,10 @@ class PS_Treap {
 
     ~PS_Treap();
     // we need to delete the old nodes, so it can't be a 'const'.
-    void insert(std::vector<std::unique_ptr<BaseSortedTreap>> &nodes);
+    /*
+      insert method: only .second is used from 'seq_elems_with_prv'.
+    */
+    void insert(std::vector<std::unique_ptr<BaseSortedTreap>> &nodes, const std::vector<std::pair<common::SeqElem, uint32_t> > &seq_elems_with_prv = std::vector<std::pair<common::SeqElem, uint32_t> >());
     void erase(const std::vector<uint32_t> &nodes_indices); // delete list of indeces returned by 'get_differences()' method.
     void save_snapshot(const std::string &name);
 

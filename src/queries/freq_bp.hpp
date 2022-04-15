@@ -11,7 +11,7 @@ namespace query_ns {
 
 class FreqBpQuery : public BaseQuery {
   private:
-    std::vector<std::pair<uint32_t, uint32_t>> altered_bp;
+    uint32_t alterations_per_bp[common::ALIGNED_SEQ_SIZE];
     std::string target_location_prefix;
     Tnode *lca_tnode = NULL;
     bool found_first = false;
@@ -21,7 +21,11 @@ class FreqBpQuery : public BaseQuery {
     tsl::hopscotch_map<std::string, uint32_t> owner_edit_cnt;
     tsl::hopscotch_map<std::string, uint32_t> owner_total_cnt;
 
-    std::vector<std::pair<uint32_t, uint32_t>> add_alters(const std::vector<std::pair<uint32_t, uint32_t>> &main_altered_bp, const std::vector<uint32_t> &secondary) const;
+    tsl::hopscotch_map<std::string, uint32_t> owner_distrib_per_bp[common::ALIGNED_SEQ_SIZE];
+    tsl::hopscotch_map<std::string, uint32_t> char_to_char_distrib_per_bp[common::ALIGNED_SEQ_SIZE];
+    tsl::hopscotch_map<uint64_t, std::pair<std::string, std::string>> prv_sequences;
+
+    void add_alters(const std::vector<uint32_t> bp_alterations, uint32_t database_id, const std::string &owner, const ds::DB *db);
 
   public:
     FreqBpQuery(const std::vector<std::string> &params, const bool req_compute_total_owner_cnt, const uint32_t req_num_to_print);

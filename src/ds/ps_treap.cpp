@@ -82,13 +82,26 @@ void PS_Treap::merge(Tnode *&tnode, Tnode *left, Tnode *right) {
     recompute_tnode_statistics(tnode, static_data[tnode->data_id].get());
 }
 
-void PS_Treap::insert(std::vector<std::unique_ptr<BaseSortedTreap>> &nodes) {
+void PS_Treap::insert(std::vector<std::unique_ptr<BaseSortedTreap>> &nodes, const std::vector<std::pair<common::SeqElem, uint32_t> > &seq_elems_with_prv) {
+    if (seq_elems_with_prv.size() && nodes.size() != seq_elems_with_prv.size()) {
+        Logger::error("internal error while trying to insert new nodes in the treap (not proper size for seq_prv array)");
+    }
+
+    // todo add this i inside the for.
+    uint32_t i = 0;
     for (std::unique_ptr<BaseSortedTreap> &unique_node : nodes) {
         // Tnode *new_tnode = new Tnode(static_data.size());
         Tnode *new_tnode = create_new_specialized_tnode(static_data.size());
         static_data.push_back(std::move(unique_node));
+        if (seq_elems_with_prv.size()) {
+            prv_static_data.push_back(seq_elems_with_prv[i].second);
+        } else {
+            prv_static_data.push_back(UINT_MAX);
+        }
+        
         insert_tnode(root, new_tnode);
         assert(root != NULL);
+        ++i;
     }
     // clear nodes, because everything was already destructed.
     nodes.clear();
@@ -218,7 +231,7 @@ void PS_Treap::query_callback_subtree(query_ns::BaseQuery *query,
     if (snapshot == "") {
         run_treap_query_callback_subtree(root, db, query);
         return;
-    } 
+    }
     auto it = date_to_root_idx.find(snapshot);
     if (it == date_to_root_idx.end()) {
         // todo test this line.

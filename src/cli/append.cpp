@@ -57,7 +57,7 @@ int append(Config *config) {
 
             uint32_t seq_counter = 0;
             for (const common::SeqElem &seq : seq_elems) {
-                acc_id_seq_snapshot.push_back(AccessionIdSorted::get_unique_from_snapshot_line(seq, seq_counter++));
+                acc_id_seq_snapshot.push_back(AccessionIdSorted::get_unique_from_snapshot_line(seq, seq_counter++, NULL));
             }
 
             snapshot_treap_acc_ids->insert(acc_id_seq_snapshot);
@@ -67,6 +67,7 @@ int append(Config *config) {
         // compare ctc treap with 'snapshot_treap_location'.
         std::vector<uint32_t> insertions_db_ids;
         std::vector<uint32_t> deletions_db_ids;
+        // .first is the idx in the main hash_treap and .second in the current snapshot.
         std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids;
 
         Logger::trace("Getting the difference between the input treap and the current snapshot...");
@@ -90,7 +91,7 @@ int append(Config *config) {
         // erase the deleted and modified sequence from treap:
         ctc_out->erase_seq(deletions_db_ids, true);
 
-        // Create a pair for id in snapshot and bool -> false for insertion and true for alteration.
+        // Create a pair for id in snapshot and previous id of the same sequence to set the linked list.
         std::vector<std::pair<uint32_t, uint32_t>> snapshot_indices_to_insert;
         for (uint32_t insertion_id : insertions_db_ids) {
             snapshot_indices_to_insert.push_back({insertion_id, UINT_MAX});
@@ -109,14 +110,14 @@ int append(Config *config) {
             common::SeqElem seq = seq_reader->get_elem(snapshot_indices_to_insert[i].first);
             if (snapshot_indices_to_insert[i].second == UINT_MAX) {
                 // is new add
-                seq.prv_db_id = 0;
+                seq.prv_db_id = UINT_MAX;
             } else {
                 // is modified
                 seq.prv_db_id = snapshot_indices_to_insert[i].second;
             }
 
-            std::vector<common::SeqElem> curr = {seq};
-            ctc_out->insert_seq(&curr, snapshot_indices_to_insert[i].second != UINT_MAX);
+            std::vector<std::pair<common::SeqElem, uint32_t> > curr = {std::make_pair(seq, snapshot_indices_to_insert[i].second)};
+            ctc_out->insert_seq(curr);
         }
         delete seq_reader;
 

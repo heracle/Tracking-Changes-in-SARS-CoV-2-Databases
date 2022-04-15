@@ -28,7 +28,7 @@ AccessionIdSorted::AccessionIdSorted(const H5::Group &h5_group) : BaseSortedTrea
 
 AccessionIdSorted::~AccessionIdSorted() {}
 
-std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_unique_from_snapshot_line(const SeqElem &e, const uint32_t req_database_id, const bool) {
+std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_unique_from_snapshot_line(const SeqElem &e, const uint32_t req_database_id, const BaseSortedTreap *) {
     return std::make_unique<AccessionIdSorted>(
         e.covv_data[SEQ_FIELDS_TO_ID.at("covv_accession_id")],
         req_database_id,

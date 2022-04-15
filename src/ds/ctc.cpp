@@ -110,20 +110,25 @@ CTC::~CTC() {
     }
 }
 
-void CTC::insert_seq(const std::vector<common::SeqElem> *seq_elems, bool was_modified) {
-    std::vector<uint32_t> seq_ids(seq_elems->size());
-    for (uint32_t i = 0; i < seq_elems->size(); ++i) {
-        seq_ids[i] = db->insert_element((*seq_elems)[i]);
+void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint32_t> > &seq_elems_with_prv) {
+
+    std::vector<uint32_t> seq_ids(seq_elems_with_prv.size());
+    for (uint32_t i = 0; i < seq_elems_with_prv.size(); ++i) {
+        seq_ids[i] = db->insert_element(seq_elems_with_prv[i].first);
     }
 
     for (auto [treap_name, treap_data] : this->treaps) {
         std::vector<std::unique_ptr<BaseSortedTreap>> unique_seq_to_insert;
-        for (uint32_t i = 0; i < seq_elems->size(); i++) {
-            unique_seq_to_insert.push_back(std::move(treap_data.get_unique_from_snapshot_line((*seq_elems)[i], seq_ids[i], was_modified)));
+        for (uint32_t i = 0; i < seq_elems_with_prv.size(); i++) {
+            BaseSortedTreap *curr_prv = NULL;
+            if (seq_elems_with_prv[i].second != UINT_MAX) {
+                curr_prv = treap_data.treap->static_data[seq_elems_with_prv[i].second].get();
+            }
+            unique_seq_to_insert.push_back(std::move(treap_data.get_unique_from_snapshot_line(seq_elems_with_prv[i].first, seq_ids[i], curr_prv)));
         }
         
         Logger::trace("Total number of elements to insert in '" + treap_name + "' treap: " + std::to_string(unique_seq_to_insert.size()));
-        treap_data.treap->insert(unique_seq_to_insert);
+        treap_data.treap->insert(unique_seq_to_insert, seq_elems_with_prv);
     }
 }
 

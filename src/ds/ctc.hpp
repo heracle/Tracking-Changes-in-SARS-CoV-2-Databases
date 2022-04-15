@@ -28,7 +28,7 @@ struct CTCData {
     std::function<std::unique_ptr<BaseSortedTreap>(const std::string&, const uint32_t)> get_new_BaseSortedTreap;
     std::function<void(const H5::Group&)> reset_get_new_BaseSortedTreap;
     // Regarding static treap data, read from seqElem.
-    std::function<std::unique_ptr<BaseSortedTreap>(const common::SeqElem&, const uint32_t, const bool)> get_unique_from_snapshot_line;
+    std::function<std::unique_ptr<BaseSortedTreap>(const common::SeqElem&, const uint32_t, const BaseSortedTreap *)> get_unique_from_snapshot_line;
     std::function<void(const ds::PS_Treap*, 
                        const ds::PS_Treap*, 
                        const ds::DB *, 
@@ -55,7 +55,7 @@ class CTC {
     CTC(H5::H5File *h5_file, CTC* source = NULL);
     CTC(H5::H5File &h5_file);
     ~CTC();
-    void insert_seq(const std::vector<common::SeqElem> *seq_elems, const bool was_modified);
+    void insert_seq(const std::vector<std::pair<common::SeqElem, uint32_t> > &seq_elems_with_prv);
     void erase_seq(const std::vector<uint32_t> &deletions_db_ids, const bool was_modified);
     void save_snapshot(const std::string &name);
     void export_to_h5();

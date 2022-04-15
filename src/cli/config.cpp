@@ -61,6 +61,7 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
                             "\t The input DB file must be a '.h5' file specific for this tool\n", prog_name.c_str());
 
             fprintf(stderr, "Available options for STATS:\n");
+            fprintf(stderr, "\t   --snapshot [str] \t Indicate what snapshot to use as target for the query.\n");
             fprintf(stderr, "\t   --compute-total-owner-cnt \t print how many uploads has each owner group.\n");
             fprintf(stderr, "\t   --top-to-print [int] \t Set the number of results to print.\n");
             break;
