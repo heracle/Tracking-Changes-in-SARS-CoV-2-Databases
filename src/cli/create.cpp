@@ -26,8 +26,12 @@ int create(Config *config) {
     common::SeqElemReader *seq_reader = new common::SeqElemReader(input_fname);
 
     while (!seq_reader->end_of_file()) {
-        std::vector<common::SeqElem> seq_elems = seq_reader->get_aligned_seq_elements();
-        ctc->insert_seq(&seq_elems, false);
+        std::vector<common::SeqElem> read_seq_elems = seq_reader->get_aligned_seq_elements();
+        std::vector<std::pair<common::SeqElem, uint32_t>> seq_elems_to_insert;
+        for (const common::SeqElem &seq : read_seq_elems) {
+            seq_elems_to_insert.push_back(std::make_pair(seq, UINT_MAX));
+        }
+        ctc->insert_seq(seq_elems_to_insert);
     }
     ctc->save_snapshot(input_fname);
     ctc->export_to_h5();

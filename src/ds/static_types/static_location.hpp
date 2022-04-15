@@ -23,7 +23,7 @@ class LocationSorted : public BaseSortedTreap {
     /*
       * get_unique_from_SeqElem returns an unique ptr for a new LocationSorted object according to the arguments.
     */
-    static std::unique_ptr<BaseSortedTreap> get_unique_from_snapshot_line(const common::SeqElem &e, const uint32_t req_database_id, const bool reinsert);
+    static std::unique_ptr<BaseSortedTreap> get_unique_from_snapshot_line(const common::SeqElem &e, const uint32_t req_database_id, const BaseSortedTreap *prv);
     static void reset_get_unique_from_snapshot_line(const ds::PS_Treap *accid_base_treap,
                                                     const ds::PS_Treap *accid_snapshot_treap,
                                                     const ds::DB *base_db,

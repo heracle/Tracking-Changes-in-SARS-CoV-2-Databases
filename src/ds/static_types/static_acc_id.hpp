@@ -24,7 +24,7 @@ class AccessionIdSorted : public BaseSortedTreap {
     AccessionIdSorted(const H5::Group &h5_group);
     ~AccessionIdSorted();
 
-    static std::unique_ptr<BaseSortedTreap> get_unique_from_snapshot_line(const common::SeqElem &e, const uint32_t req_database_id, const bool reinsert = false);
+    static std::unique_ptr<BaseSortedTreap> get_unique_from_snapshot_line(const common::SeqElem &e, const uint32_t req_database_id, const BaseSortedTreap *);
     
     /*
      TODO FIX: because of this static function we have a problem when defining 2 different AccessionId treaps.

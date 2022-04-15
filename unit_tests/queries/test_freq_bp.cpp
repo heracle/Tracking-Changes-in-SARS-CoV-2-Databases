@@ -10,6 +10,16 @@
 #include "../ds/static_types/static_location.hpp"
 #include "../ds/tnode_types/tnode_location.hpp"
 
+// the last BITS_FOR_STEPS_BACK are masking the index of the previous version from which those alterations were coming;
+// we need to add empty spaces for these BITS_FOR_STEPS_BACK bits.
+std::vector<uint32_t> get_alter_from(const std::vector<uint32_t> &v) {
+    std::vector<uint32_t> alterations;
+    for (uint32_t i = 0; i < v.size(); ++i) {
+        alterations.push_back(v[i] * (1<<common::BITS_FOR_STEPS_BACK));
+    }
+    return alterations;
+}
+
 TEST(FreqBpQuery, TestResultOneSnapshot) {
     struct query_insert_erase_elem {
         std::string test_id;
@@ -63,7 +73,8 @@ TEST(FreqBpQuery, TestResultOneSnapshot) {
 
         std::vector<std::unique_ptr<BaseSortedTreap>> seq_list;
         for (const std::pair<std::string, std::vector<uint32_t>> &seq_data : test.treap_data) {
-            seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, seq_data.second));
+            std::vector<uint32_t> alterations = get_alter_from(seq_data.second);
+            seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, alterations));
         }
         treap->insert(seq_list);
         ASSERT_EQ(test.target_prefixes.size(), test.expected_answers.size());
@@ -73,10 +84,8 @@ TEST(FreqBpQuery, TestResultOneSnapshot) {
 
             treap->query_callback_subtree(freq_bp_query, NULL, "");
 
-            EXPECT_EQ(freq_bp_query->altered_bp.size(), test.expected_answers[id_target_prefix].size());
-            for (uint32_t i = 0; i < freq_bp_query->altered_bp.size(); ++i) {
-                EXPECT_EQ(freq_bp_query->altered_bp[i].first, test.expected_answers[id_target_prefix][i].first);
-                EXPECT_EQ(freq_bp_query->altered_bp[i].second, test.expected_answers[id_target_prefix][i].second);
+            for (uint32_t i = 0; i < test.expected_answers[id_target_prefix].size(); ++i) {
+                EXPECT_EQ(freq_bp_query->alterations_per_bp[test.expected_answers[id_target_prefix][i].first], test.expected_answers[id_target_prefix][i].second);
             }
             delete freq_bp_query;
         }
@@ -100,7 +109,8 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
 
     std::vector<std::unique_ptr<BaseSortedTreap>> seq_list;
     for (const std::pair<std::string, std::vector<uint32_t>> &seq_data : first_insert5) {
-        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, seq_data.second));
+        std::vector<uint32_t> alterations = get_alter_from(seq_data.second);
+        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, alterations));
     }
     treap->insert(seq_list);
     treap->save_snapshot("first");
@@ -113,7 +123,8 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
 
     seq_list.clear();
     for (const std::pair<std::string, std::vector<uint32_t>> &seq_data : second_insert3) {
-        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, seq_data.second));
+        std::vector<uint32_t> alterations = get_alter_from(seq_data.second);
+        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, alterations));
     }
 
     treap->insert(seq_list);
@@ -129,7 +140,8 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
 
     seq_list.clear();
     for (const std::pair<std::string, std::vector<uint32_t>> &seq_data : fourth_insert2) {
-        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, seq_data.second));
+        std::vector<uint32_t> alterations = get_alter_from(seq_data.second);
+        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, alterations));
     }
     treap->insert(seq_list);
     treap->save_snapshot("fourth");
@@ -279,17 +291,9 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
         query_ns::FreqBpQuery *freq_bp_query = new query_ns::FreqBpQuery(std::vector<std::string>{test.target_prefixes}, false, 0);
         treap->query_callback_subtree(freq_bp_query, NULL, test.snapshot);
 
-        EXPECT_EQ(
-            std::make_pair(test.target_prefixes + "_" + test.snapshot, freq_bp_query->altered_bp.size()),
-            std::make_pair(test.target_prefixes + "_" + test.snapshot, test.expected_answers.size())
-        );
-        for (uint32_t i = 0; i < freq_bp_query->altered_bp.size(); ++i) {
+        for (uint32_t i = 0; i < test.expected_answers.size(); ++i) {
             EXPECT_EQ(
-                std::make_pair(test.target_prefixes + "_" + test.snapshot, freq_bp_query->altered_bp[i].first),
-                std::make_pair(test.target_prefixes + "_" + test.snapshot, test.expected_answers[i].first)
-            );
-            EXPECT_EQ(
-                std::make_pair(test.target_prefixes + "_" + test.snapshot, freq_bp_query->altered_bp[i].second),
+                std::make_pair(test.target_prefixes + "_" + test.snapshot, freq_bp_query->alterations_per_bp[test.expected_answers[i].first]),
                 std::make_pair(test.target_prefixes + "_" + test.snapshot, test.expected_answers[i].second)
             );
         }
