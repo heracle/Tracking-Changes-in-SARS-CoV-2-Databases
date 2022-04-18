@@ -28,6 +28,23 @@ SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj) {
     for (uint32_t i = 0; i < SEQ_FIELDS_SZ; ++i) {
         answer.covv_data[SEQ_FIELDS_TO_ID.at(SEQ_FIELDS[i])] = j_obj[SEQ_FIELDS[i].c_str()].GetString();
     }
+
+    // Masking leading and tailing deletions because they are often actually unknowns but appear here as
+    // deletions due to aligning.
+    std::string &seq = answer.covv_data[SEQ_FIELDS_TO_ID.at("sequence")];
+    for (uint32_t i = 0; i < seq.size(); ++i) {
+        if (seq[i] != '-') {
+            break;
+        }
+        seq[i] = 'N';
+    }
+    for (int32_t i = seq.size() - 1; i >= 0; --i) {
+        if (seq[i] != '-') {
+            break;
+        }
+        seq[i] = 'N';
+    }
+
     answer.prv_db_id = 0;
     return answer;
 }

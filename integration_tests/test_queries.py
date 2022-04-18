@@ -69,38 +69,35 @@ Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_
         expected_stdout = """
 
 top 34 bp:
-basepair index = 112	 total number of edits = 3
-owner distribution per bp --> #owners=3 #edits=3:
-33.3333% 	 owner=ow4
-33.3333% 	 owner=ow3
-33.3333% 	 owner=ow1
-char to char distribution per bp --> #char_to_char_types=3 #edits=3:
-33.3333% T>A
-33.3333% G>A
-33.3333% A>G
+basepair index = 112	 total number of edits = 4
+owner distribution per bp --> #owners=3 #edits=4:
+	50% (2) 	 owner=ow3
+		T>G 50% (1) 
+		A>C 50% (1) 
+	25% (1) 	 owner=ow4
+		G>A 100% (1) 
+	25% (1) 	 owner=ow1
+		A>G 100% (1) 
 
 
 basepair index = 42	 total number of edits = 2
 owner distribution per bp --> #owners=2 #edits=2:
-50% 	 owner=ow4
-50% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=2 #edits=2:
-50% T>C
-50% G>T
+	50% (1) 	 owner=ow4
+		G>T 100% (1) 
+	50% (1) 	 owner=ow3
+		T>C 100% (1) 
 
 
 basepair index = 157	 total number of edits = 1
 owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% A>C
+	100% (1) 	 owner=ow3
+		A>C 100% (1) 
 
 
 basepair index = 177	 total number of edits = 1
 owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% A>T
+	100% (1) 	 owner=ow3
+		A>T 100% (1) 
 
 
 
@@ -127,38 +124,35 @@ top 34 owners:
         expected_stdout = """
 
 top 50 bp:
-basepair index = 112	 total number of edits = 3
-owner distribution per bp --> #owners=3 #edits=3:
-33.3333% 	 owner=ow4
-33.3333% 	 owner=ow3
-33.3333% 	 owner=ow1
-char to char distribution per bp --> #char_to_char_types=3 #edits=3:
-33.3333% T>A
-33.3333% G>A
-33.3333% A>G
+basepair index = 112	 total number of edits = 4
+owner distribution per bp --> #owners=3 #edits=4:
+	50% (2) 	 owner=ow3
+		T>G 50% (1) 
+		A>C 50% (1) 
+	25% (1) 	 owner=ow4
+		G>A 100% (1) 
+	25% (1) 	 owner=ow1
+		A>G 100% (1) 
 
 
 basepair index = 42	 total number of edits = 2
 owner distribution per bp --> #owners=2 #edits=2:
-50% 	 owner=ow4
-50% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=2 #edits=2:
-50% T>C
-50% G>T
+	50% (1) 	 owner=ow4
+		G>T 100% (1) 
+	50% (1) 	 owner=ow3
+		T>C 100% (1) 
 
 
 basepair index = 157	 total number of edits = 1
 owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% A>C
+	100% (1) 	 owner=ow3
+		A>C 100% (1) 
 
 
 basepair index = 177	 total number of edits = 1
 owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% A>T
+	100% (1) 	 owner=ow3
+		A>T 100% (1) 
 
 
 
@@ -185,25 +179,24 @@ top 50 owners:
         expected_stdout = """
 
 top 50 bp:
+basepair index = 112	 total number of edits = 2
+owner distribution per bp --> #owners=2 #edits=2:
+	50% (1) 	 owner=ow3
+		A>C 100% (1) 
+	50% (1) 	 owner=ow1
+		A>G 100% (1) 
+
+
 basepair index = 42	 total number of edits = 1
 owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% T>C
-
-
-basepair index = 112	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow1
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% A>G
+	100% (1) 	 owner=ow3
+		T>C 100% (1) 
 
 
 basepair index = 157	 total number of edits = 1
 owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% A>C
+	100% (1) 	 owner=ow3
+		A>C 100% (1) 
 
 
 
@@ -231,25 +224,22 @@ top 50 owners:
 top 50 bp:
 basepair index = 112	 total number of edits = 2
 owner distribution per bp --> #owners=2 #edits=2:
-50% 	 owner=ow4
-50% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=2 #edits=2:
-50% T>A
-50% G>A
+	50% (1) 	 owner=ow4
+		G>A 100% (1) 
+	50% (1) 	 owner=ow3
+		T>G 100% (1) 
 
 
 basepair index = 42	 total number of edits = 1
 owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow4
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% G>T
+	100% (1) 	 owner=ow4
+		G>T 100% (1) 
 
 
 basepair index = 177	 total number of edits = 1
 owner distribution per bp --> #owners=1 #edits=1:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=1 #edits=1:
-100% A>T
+	100% (1) 	 owner=ow3
+		A>T 100% (1) 
 
 
 
@@ -293,39 +283,37 @@ top 50 owners:"""
         expected_stdout = """
 
 top 23 bp:
-basepair index = 112	 total number of edits = 4
-owner distribution per bp --> #owners=2 #edits=4:
-50% 	 owner=ow3
-50% 	 owner=ow1
-char to char distribution per bp --> #char_to_char_types=4 #edits=4:
-25% T>A
-25% G>A
-25% A>T
-25% A>G
+basepair index = 112	 total number of edits = 6
+owner distribution per bp --> #owners=2 #edits=6:
+	66.6667% (4) 	 owner=ow3
+		T>G 25% (1) 
+		G>T 25% (1) 
+		C>A 25% (1) 
+		A>C 25% (1) 
+	33.3333% (2) 	 owner=ow1
+		G>A 50% (1) 
+		A>G 50% (1) 
 
 
 basepair index = 42	 total number of edits = 2
 owner distribution per bp --> #owners=1 #edits=2:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=2 #edits=2:
-50% T>C
-50% C>T
+	100% (2) 	 owner=ow3
+		T>C 50% (1) 
+		C>T 50% (1) 
 
 
 basepair index = 157	 total number of edits = 2
 owner distribution per bp --> #owners=1 #edits=2:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=2 #edits=2:
-50% C>A
-50% A>C
+	100% (2) 	 owner=ow3
+		C>A 50% (1) 
+		A>C 50% (1) 
 
 
 basepair index = 177	 total number of edits = 2
 owner distribution per bp --> #owners=1 #edits=2:
-100% 	 owner=ow3
-char to char distribution per bp --> #char_to_char_types=2 #edits=2:
-50% T>A
-50% A>T
+	100% (2) 	 owner=ow3
+		T>A 50% (1) 
+		A>T 50% (1) 
 
 
 

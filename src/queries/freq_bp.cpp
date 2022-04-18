@@ -43,7 +43,7 @@ void FreqBpQuery::add_alters(const std::vector<uint32_t> bp_alterations, uint32_
         char_to_char = char_to_char + ">";
         char_to_char.push_back(act_char);
 
-        char_to_char_distrib_per_bp[altered_bp][char_to_char]++;
+        char_to_char_distrib_per_bp_per_owner[altered_bp][owner][char_to_char]++;
     }
 }
 
@@ -126,31 +126,32 @@ void FreqBpQuery::print_results() {
         }
         uint32_t bp_idx = top_bp_idx[i].first;
         std::cout << "basepair index = " << bp_idx << "\t total number of edits = " << top_bp_idx[i].second << std::endl;
-        std::vector<std::pair<uint32_t, std::string>> v;
+        std::vector<std::pair<uint32_t, std::string>> owners_list;
         uint32_t num_owners = 0, total_edits = 0;
         for (const auto x : owner_distrib_per_bp[bp_idx]) {
-            v.push_back({x.second, x.first});
+            owners_list.push_back({x.second, x.first});
             ++num_owners;
             total_edits += x.second;
         }
-        std::sort(v.begin(), v.end());
+        std::sort(owners_list.begin(), owners_list.end());
         std::cout << "owner distribution per bp --> #owners=" << num_owners << " #edits=" << total_edits <<":\n";
-        for (int32_t i = v.size() - 1; i >= 0; --i) {
-            std::cout << 100.0 * v[i].first / total_edits << "% \t owner=" << v[i].second << "\n";
-        }
-        
-        v.clear();
-        uint32_t num_char_to_char_types = 0;
-        total_edits = 0;
-        for (const auto x : char_to_char_distrib_per_bp[bp_idx]) {
-            v.push_back({x.second, x.first});
-            ++num_char_to_char_types;
-            total_edits += x.second;
-        }
-        std::sort(v.begin(), v.end());
-        std::cout << "char to char distribution per bp --> #char_to_char_types=" << num_char_to_char_types << " #edits=" << total_edits << ":\n";
-        for (int32_t i = v.size() - 1; i >= 0; --i) {
-            std::cout << 100.0 * v[i].first / total_edits << "% " << v[i].second << "\n";
+        for (int32_t i = owners_list.size() - 1; i >= 0; --i) {
+            std::cout << "\t" << 100.0 * owners_list[i].first / total_edits << "% (" << owners_list[i].first << ") \t owner=" << owners_list[i].second << "\n";
+
+            std::vector<std::pair<uint32_t, std::string>> bp_distrib;
+
+            uint32_t num_char_to_char_types = 0;
+            uint32_t total_owner_edits = 0;
+            for (const auto x : char_to_char_distrib_per_bp_per_owner[bp_idx][owners_list[i].second]) {
+                bp_distrib.push_back({x.second, x.first});
+                ++num_char_to_char_types;
+                total_owner_edits += x.second;
+            }
+            std::sort(bp_distrib.begin(), bp_distrib.end());
+            // std::cout << "char to char distribution per bp --> #char_to_char_types=" << num_char_to_char_types << " #edits=" << total_edits << ":\n";
+            for (int32_t i = bp_distrib.size() - 1; i >= 0; --i) {
+                std::cout << "\t\t" << bp_distrib[i].second << " " << 100.0 * bp_distrib[i].first / total_owner_edits << "% (" << bp_distrib[i].first << ") " << "\n";
+            }
         }
         std::cout << "\n" << std::endl;
     }
