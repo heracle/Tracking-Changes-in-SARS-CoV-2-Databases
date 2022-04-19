@@ -295,29 +295,11 @@ PS_Treap::PS_Treap(const H5::Group &treap_group,
     assert(tnode_data_id.size() == tnode_r.size());
 
     for (uint32_t i = 0; i < tnode_data_id.size(); ++i) {
-        // H5::Group group_tnode = H5Gopen(treap_group.getLocId(), ("tnode" + std::to_string(i)).c_str(), H5P_DEFAULT);
-
-        // uint32_t altered_bp_size = saved_altered_bp[next_altered_bp_index++];
-        // std::vector<std::pair<uint32_t, uint32_t> > curr_altered_bp;
-        // for (uint32_t j = 0; j < altered_bp_size; ++j) {
-        //     std::pair<uint32_t, uint32_t> act = {saved_altered_bp[next_altered_bp_index], saved_altered_bp[next_altered_bp_index + 1]};
-        //     next_altered_bp_index += 2;
-        //     curr_altered_bp.push_back(act);
-        // }
-
-        // h5id_to_tnodes[i] = new Tnode(tnode_data_id[i], tnode_prio[i], curr_altered_bp, tnode_index[i]);
         h5id_to_tnodes[i] = get_h5_tnode(tnode_data_id[i], tnode_prio[i], tnode_index[i]);
-
-        // group_tnode.close();
     }
 
     // add 'l' and 'r' fields;
     for (uint32_t i = 0; i < tnode_data_id.size(); ++i) {
-        // H5::Group group_tnode = H5Gopen(treap_group.getLocId(), ("tnode" + std::to_string(i)).c_str(), H5P_DEFAULT);
-        // int32_t l = H5Helper::get_int32_attr_from(group_tnode, "l");
-        // int32_t r = H5Helper::get_int32_attr_from(group_tnode, "r");
-        // group_tnode.close();
-
         Tnode *t = h5id_to_tnodes.at(i);
         if (tnode_l[i] != -1) {
             auto it = h5id_to_tnodes.find(tnode_l[i]);
@@ -334,15 +316,12 @@ PS_Treap::PS_Treap(const H5::Group &treap_group,
             t->r = it->second;
         }
     }
-
     // todo recompute all the tnodes in the tree.
 
     std::vector<uint32_t> saved_root_history = H5Helper::read_h5_int_to_dataset<uint32_t>(treap_group, "root_history");
 
     // deserialize root_history
-    // uint32_t root_history_size = H5Helper::get_uint32_attr_from(treap_group, "root_history_size");
     for (uint32_t i = 0; i < saved_root_history.size(); ++i) {
-        // uint32_t root_history_id = H5Helper::get_uint32_attr_from(treap_group, ("root_history" + std::to_string(i)).c_str());
         auto it = h5id_to_tnodes.find(saved_root_history[i]);
         if (it == h5id_to_tnodes.end()) {
             Logger::error("Broken hdf5 file, could not find a specific linked tnode.");
@@ -350,24 +329,21 @@ PS_Treap::PS_Treap(const H5::Group &treap_group,
         this->root_history.push_back(it->second);
     }
 
-    // serialize date_to_root_idx.
-    // uint32_t size_date_to_root = H5Helper::get_uint32_attr_from(treap_group, "date_to_root_size");
-
-    // if (treap.date_to_root_idx_key_size() != treap.date_to_root_idx_value_size()) {
-    //     Logger::error("Broken hdf5 file, date_to_root_idx 'key' and 'value' have different sizes.");
-    // }
-    // uint32_t size_date_to_root = treap.date_to_root_idx_key_size();
-
     std::vector<std::string> root_idx_key = H5Helper::read_h5_dataset(treap_group, "root_idx_key");
     std::vector<uint32_t> root_idx_value = H5Helper::read_h5_int_to_dataset<uint32_t>(treap_group, "root_idx_value");
     assert(root_idx_key.size() == root_idx_value.size());
-
+    
     for (uint32_t i = 0; i < root_idx_value.size(); ++i) {
         date_to_root_idx[root_idx_key[i]] = root_idx_value[i];
     }
 
     // set root
-    this->root = root_history.back();
+    if (root_history.size()) {
+        this->root = root_history.back();
+    } else {
+        this->root = NULL;
+    }
+    
 }
 
 PS_Treap::PS_Treap(PS_Treap *source) {
@@ -397,12 +373,15 @@ void PS_Treap::save_snapshot(const std::string &name) {
 void PS_Treap::export_to_hdf5(H5::Group &treap_group, 
                               const std::function<void(const std::vector<std::unique_ptr<BaseSortedTreap>> &, H5::Group &)> &write_static_data_to_h5,
                               const std::function<void(Tnode*)> &append_tnode_data) {    
-    if (root != root_history.back()) {
+    if (root_history.size() && root != root_history.back()) {
         Logger::warn("The last root version was not saved");
     }
     tsl::hopscotch_set<Tnode*> tnodes_to_save;
 
     for (uint32_t i = 0; i < root_history.size(); ++i) {
+        if (root_history[i] == NULL) {
+            continue;
+        }
         save_tnodes_in_subtree(tnodes_to_save, root_history[i]);
     }
 
@@ -458,6 +437,9 @@ void PS_Treap::export_to_hdf5(H5::Group &treap_group,
 
     // serialize root_history
     for (uint32_t i = 0; i < root_history.size(); ++i) {
+        if (root_history[i] == NULL) {
+            continue;
+        }
         saved_root_history.push_back(tnodes_to_h5id[root_history[i]]);
     }
     H5Helper::write_h5_int_to_dataset(saved_root_history, &treap_group, "root_history");

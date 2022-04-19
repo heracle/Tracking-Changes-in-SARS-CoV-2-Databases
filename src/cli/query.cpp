@@ -48,6 +48,18 @@ int query(Config *config) {
         config->snapshot
     );
 
+    if (config->include_deleted) {
+        std::string treap_for_deletions = "deleted_" + treap_name; 
+        if (! ctc->treaps.count(treap_for_deletions)) {
+            Logger::error("Could not find a treap for deletions with name '" + treap_for_deletions + "'.");
+        }
+        ctc->treaps[treap_for_deletions].treap->query_callback_subtree(
+            query,
+            ctc->db,
+            config->snapshot
+        );
+    }
+
     delete ctc;
     query->print_results();
     delete query;

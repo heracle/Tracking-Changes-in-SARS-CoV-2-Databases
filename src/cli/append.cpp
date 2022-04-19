@@ -75,7 +75,7 @@ int append(Config *config) {
         Logger::trace("Found " + std::to_string(insertions_db_ids.size()) + " new sequences.");
         Logger::trace("Found " + std::to_string(deletions_db_ids.size()) + " deleted sequences.");
         Logger::trace("Found " + std::to_string(updates_db_ids.size()) + " modified sequences.");
-
+        
         ctc_out->prepare_specific_get_unique_SeqElem(hash_treap, snapshot_treap_acc_ids, ctc_out->db, config->fnames[i], insertions_db_ids, deletions_db_ids, updates_db_ids);
         Logger::trace("Erasing the deleted elements from the main treap...");
         // erase the deleted and modified sequence from treap:

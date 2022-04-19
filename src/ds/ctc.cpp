@@ -26,6 +26,7 @@ void CTC::ctc_init() {
         treap_types::LocationTnode::reset_append_tnode_data,
         treap_types::LocationTnode::write_tnode_data_to_h5,
         recompute_location_statistics,
+        treap_types::LocationSorted::copy_specialized_static_field,
         treap_types::LocationSorted::get_new_BaseSortedTreap,
         treap_types::LocationSorted::reset_get_new_BaseSortedTreap,
         treap_types::LocationSorted::get_unique_from_snapshot_line,
@@ -42,11 +43,29 @@ void CTC::ctc_init() {
         treap_types::AccIdTnode::reset_append_tnode_data,
         treap_types::AccIdTnode::write_tnode_data_to_h5,
         recompute_acc_id_statistics,
+        treap_types::AccessionIdSorted::copy_specialized_static_field,
         treap_types::AccessionIdSorted::get_new_BaseSortedTreap,
         treap_types::AccessionIdSorted::reset_get_new_BaseSortedTreap,
         treap_types::AccessionIdSorted::get_unique_from_snapshot_line,
         treap_types::AccessionIdSorted::reset_get_unique_from_snapshot_line,
         treap_types::serialize_acc_id_elem_to_hdf5
+    };
+    this->treaps["deleted_location_treap"] = {
+        NULL,
+        treap_types::LocationTnode::create_new_specialized_tnode,
+        treap_types::LocationTnode::copy_specialized_tnode,
+        treap_types::LocationTnode::get_h5_tnode,
+        treap_types::LocationTnode::reset_get_h5_tnode,
+        treap_types::LocationTnode::append_tnode_data,
+        treap_types::LocationTnode::reset_append_tnode_data,
+        treap_types::LocationTnode::write_tnode_data_to_h5,
+        recompute_location_statistics,
+        treap_types::LocationSorted::copy_specialized_static_field,
+        treap_types::LocationSorted::get_new_BaseSortedTreap,
+        treap_types::LocationSorted::reset_get_new_BaseSortedTreap,
+        treap_types::LocationSorted::get_unique_from_snapshot_line,
+        treap_types::LocationSorted::reset_get_unique_from_snapshot_line,
+        treap_types::serialize_location_elem_to_hdf5
     };
 }
 
@@ -72,7 +91,7 @@ CTC::CTC(H5::H5File *h5_file, CTC* source) : h5file(*h5_file) {
 }
 
 // todo keep only one h5 constructor..
-// todo fix constructor duplication (used by create)
+// todo fix constructor duplication (used by append open h5)
 CTC::CTC(H5::H5File &h5_file) : h5file(h5_file) {
     this->ctc_init();
     this->db = new ds::DB(&h5_file);
@@ -118,6 +137,11 @@ void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint32_t> > &s
     }
 
     for (auto [treap_name, treap_data] : this->treaps) {
+        if (treap_name.find("deleted_") == 0) {
+            // don't insert new sequences in treaps for deletions.
+            continue;
+        }
+
         std::vector<std::unique_ptr<BaseSortedTreap>> unique_seq_to_insert;
         for (uint32_t i = 0; i < seq_elems_with_prv.size(); i++) {
             BaseSortedTreap *curr_prv = NULL;
@@ -132,8 +156,25 @@ void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint32_t> > &s
     }
 }
 
-void CTC::erase_seq(const std::vector<uint32_t> &deletions_db_ids, const bool) {
+void CTC::erase_seq(const std::vector<uint32_t> &deletions_db_ids, const bool was_modified) {
     for (auto [treap_name, treap_data] : this->treaps) {
+        if (treap_name.find("deleted_") == 0) {
+            // don't erase sequences from treaps for deletions.
+            continue;
+        }
+
+        // insert sequences to the treap for deletions (if it exists).
+        if (was_modified == false && treaps.count("deleted_" + treap_name)) {
+            std::vector<std::unique_ptr<BaseSortedTreap>> unique_seq_to_insert;
+
+            // save the content of the deleted sequences for copying them into the deleted treap;
+            for (uint32_t i = 0; i < deletions_db_ids.size(); ++i) {
+                unique_seq_to_insert.push_back(std::move(treap_data.copy_specialized_static_field(treap_data.treap->static_data[deletions_db_ids[i]].get())));
+            }
+            treaps.at("deleted_" + treap_name).treap->insert(unique_seq_to_insert);
+        }
+
+        // delete sequences from the normal treap.
         treap_data.treap->erase(deletions_db_ids);
     }
 }
@@ -148,19 +189,7 @@ void CTC::export_to_h5() {
     for (auto [treap_name, treap_data] : this->treaps) {
         H5::Group treap_group;
         if (H5Lexists( h5file.getId(), ("/" + treap_name).c_str(), H5P_DEFAULT ) > 0) {
-            treap_group = h5file.openGroup(("/" + treap_name).c_str());
-
-            // std::function<void(H5::H5Object&, const std::string, void *)> attr_op = 
-            // [&treap_group](H5::H5Object&, const std::string attr_name, void *){
-            //      treap_group.removeAttr(attr_name);
-            //  };
-
-            // H5::attr_operator_t attr_op_h5 = attr_op;
-
-            // // delete all attrs:
-            // treap_group.iterateAttrs(attr_op_h5);
-
-            
+            treap_group = h5file.openGroup(("/" + treap_name).c_str());            
         } else {
             treap_group = h5file.createGroup(("/" + treap_name).c_str());
         }
@@ -170,15 +199,7 @@ void CTC::export_to_h5() {
         treap_group.close();
     }
 
-    // todo make a method for last steps.
     db->write_buff_data();
-    // TODO create in a different piece of code.
-    // H5::Group database_group = h5_file.createGroup("/database");
-    // db->export_to_hdf5(database_group);
-    // // database_group.close();
-    // H5Helper::set_uint32_hdf5_attr(db->data_size, &(db->group), "data_size");
-    // H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::next_index_tnode, &(db->group), "next_index_tnode");
-    // H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::first_notsaved_index_tnode, &(db->group), "first_notsaved_index_tnode");
 }
 
 void CTC::prepare_specific_get_unique_SeqElem(const ds::PS_Treap *accid_base_treap,

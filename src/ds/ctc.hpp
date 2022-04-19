@@ -25,6 +25,7 @@ struct CTCData {
     std::function<void(Tnode*, const BaseSortedTreap*)> recompute_tnode_statistics;
     
     // Regarding static treap data, read from h5.
+    std::function<std::unique_ptr<BaseSortedTreap>(const BaseSortedTreap*)> copy_specialized_static_field;
     std::function<std::unique_ptr<BaseSortedTreap>(const std::string&, const uint32_t)> get_new_BaseSortedTreap;
     std::function<void(const H5::Group&)> reset_get_new_BaseSortedTreap;
     // Regarding static treap data, read from seqElem.

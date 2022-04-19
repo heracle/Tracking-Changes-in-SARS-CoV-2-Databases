@@ -216,6 +216,10 @@ std::string get_from_extendable_h5_dataset(uint32_t id, const H5::Group &h5, con
     }  
     assert(ndims == RANK);
 
+    if (id + 1 >= pos_dimsf[1]) {
+        Logger::error("internal error: request id that exceds the current size of extandable dataset");
+    }
+
     /*
         select hyperslab from where to read:
         we need to get a block of 2 consecutive indices postions for having the starting index and the length of the target string.
@@ -310,6 +314,10 @@ std::string get_from_extendable_h5_dataset(uint32_t id, const H5::Group &h5, con
 }
 
 void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Group &h5, const std::string &dataset_name) {
+    if (elems.empty()) {
+        return;
+    }
+
     // example: https://bitbucket.hdfgroup.org/projects/HDFFV/repos/hdf5-examples/browse/1_10/C/H5D/h5ex_d_unlimadd.c
     // example2:https://www.asc.ohio-state.edu/wilkins.5/computing/HDF/hdf5tutorial/examples/C/h5_hyperslab.c 
     int32_t RANK = 2;
@@ -506,9 +514,11 @@ std::vector<std::string> read_h5_dataset(const H5::Group &h5, const std::string 
     std::string loaded_str;
     read_posstr_to_h5_dataset(h5, dataset_name, &elem_size, positions, &loaded_str);
     std::vector<std::string> answer;
-    answer.push_back(loaded_str.substr(0, positions[0]));
-    for (uint32_t i = 1; i < elem_size; ++i) {
-        answer.push_back(loaded_str.substr(positions[i-1], positions[i] - positions[i-1]));
+    if (elem_size != 0) {
+        answer.push_back(loaded_str.substr(0, positions[0]));
+        for (uint32_t i = 1; i < elem_size; ++i) {
+            answer.push_back(loaded_str.substr(positions[i-1], positions[i] - positions[i-1]));
+        }
     }
     delete positions;
     return answer;
