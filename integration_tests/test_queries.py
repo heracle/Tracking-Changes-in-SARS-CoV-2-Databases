@@ -325,53 +325,61 @@ top 23 owners:
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
+        # -------------------- query 5:  "" version2 vs version3 including deleted sequences -----------------------------------------------------
 
-        # TODO add another integration test, identical to "query 5", but where to not ignore the deleted sequences
-        # expected output:
+        stats_command = '{exe} query -q bp_freq --compute-total-owner-cnt -i {input_h5} --include-deleted ""'.format(
+            exe=CTC,
+            input_h5=self.tempdir.name + '/second.h5'
+        )
+        res = subprocess.run([stats_command], shell=True, stdout=PIPE)
+        self.assertEqual(res.returncode, 0)
 
-# top 23 bp:
-# basepair index = 112	 total number of edits = 6
-# owner distribution per bp --> #owners=3 #edits=6:
-# 33.3333% 	 owner=ow4
-# 33.3333% 	 owner=ow3
-# 33.3333% 	 owner=ow1
-# char to char distribution per bp --> #char_to_char_types=4 #edits=6:
-# 33.3333% G>A
-# 33.3333% A>G
-# 16.6667% T>A
-# 16.6667% A>T
+        expected_stdout = """
 
-
-# basepair index = 42	 total number of edits = 4
-# owner distribution per bp --> #owners=2 #edits=4:
-# 50% 	 owner=ow4
-# 50% 	 owner=ow3
-# char to char distribution per bp --> #char_to_char_types=4 #edits=4:
-# 25% T>G
-# 25% T>C
-# 25% G>T
-# 25% C>T
+top 50 bp:
+basepair index = 112	 total number of edits = 7
+owner distribution per bp --> #owners=3 #edits=7:
+	57.1429% (4) 	 owner=ow3
+		T>G 25% (1) 
+		G>T 25% (1) 
+		C>A 25% (1) 
+		A>C 25% (1) 
+	28.5714% (2) 	 owner=ow1
+		G>A 50% (1) 
+		A>G 50% (1) 
+	14.2857% (1) 	 owner=ow4
+		G>A 100% (1) 
 
 
-# basepair index = 157	 total number of edits = 2
-# owner distribution per bp --> #owners=1 #edits=2:
-# 100% 	 owner=ow3
-# char to char distribution per bp --> #char_to_char_types=2 #edits=2:
-# 50% C>A
-# 50% A>C
+basepair index = 42	 total number of edits = 3
+owner distribution per bp --> #owners=2 #edits=3:
+	66.6667% (2) 	 owner=ow3
+		T>C 50% (1) 
+		C>T 50% (1) 
+	33.3333% (1) 	 owner=ow4
+		G>T 100% (1) 
 
 
-# basepair index = 177	 total number of edits = 2
-# owner distribution per bp --> #owners=1 #edits=2:
-# 100% 	 owner=ow3
-# char to char distribution per bp --> #char_to_char_types=2 #edits=2:
-# 50% T>A
-# 50% A>T
+basepair index = 157	 total number of edits = 2
+owner distribution per bp --> #owners=1 #edits=2:
+	100% (2) 	 owner=ow3
+		C>A 50% (1) 
+		A>C 50% (1) 
+
+
+basepair index = 177	 total number of edits = 2
+owner distribution per bp --> #owners=1 #edits=2:
+	100% (2) 	 owner=ow3
+		T>A 50% (1) 
+		A>T 50% (1) 
 
 
 
 
-# top 23 owners:
-# 2	2	ow3
-# 1	1	ow1
-# 1	1	ow4
+top 50 owners:
+2	2	ow3
+1	1	ow1
+1	1	ow4"""
+
+        stdout_pipe = res.stdout.decode().rstrip()
+        self.assertEqual(stdout_pipe, expected_stdout)

@@ -93,4 +93,16 @@ void serialize_acc_id_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSortedT
     H5Helper::write_h5_int_to_dataset(saved_metadata_hash, &h5_group, "metadata_hash");
 }
 
+std::unique_ptr<BaseSortedTreap> AccessionIdSorted::copy_specialized_static_field(const BaseSortedTreap* oth) {
+    const AccessionIdSorted *acc_id_oth = static_cast<const AccessionIdSorted*>(oth);
+
+    std::unique_ptr<BaseSortedTreap> unique_curr = std::make_unique<AccessionIdSorted>(
+        acc_id_oth->key,
+        acc_id_oth->database_id,
+        acc_id_oth->seq_hash,
+        acc_id_oth->metadata_hash
+    );
+    return unique_curr;
+}
+
 } // namespace treap_types

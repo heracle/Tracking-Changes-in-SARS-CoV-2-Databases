@@ -39,6 +39,8 @@ class LocationSorted : public BaseSortedTreap {
 
     static std::unique_ptr<BaseSortedTreap> get_new_BaseSortedTreap(const std::string &key, const uint32_t database_id);
     static void reset_get_new_BaseSortedTreap(const H5::Group &group);
+
+    static std::unique_ptr<BaseSortedTreap> copy_specialized_static_field(const BaseSortedTreap*);
 };
 
 void serialize_location_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSortedTreap>> &elems, H5::Group &h5_group);

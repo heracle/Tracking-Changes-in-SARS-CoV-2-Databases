@@ -46,6 +46,8 @@ class AccessionIdSorted : public BaseSortedTreap {
     static uint32_t next_hash_id;
     static std::unique_ptr<BaseSortedTreap> get_new_BaseSortedTreap(const std::string &key, const uint32_t database_id);
     static void reset_get_new_BaseSortedTreap(const H5::Group &group);
+
+    static std::unique_ptr<BaseSortedTreap> copy_specialized_static_field(const BaseSortedTreap*);
 };
 
 void serialize_acc_id_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSortedTreap>> &elems, H5::Group &h5_group);

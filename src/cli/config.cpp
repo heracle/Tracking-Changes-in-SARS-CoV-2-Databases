@@ -64,6 +64,7 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
             fprintf(stderr, "\t   --snapshot [str] \t Indicate what snapshot to use as target for the query.\n");
             fprintf(stderr, "\t   --compute-total-owner-cnt \t print how many uploads has each owner group.\n");
             fprintf(stderr, "\t   --top-to-print [int] \t Set the number of results to print.\n");
+            fprintf(stderr, "\t   --include-deleted [int] \t Include the results from the previously deleted sequences.\n");
             break;
             
         default:
@@ -123,6 +124,8 @@ Config::Config(int argc, char *argv[]) {
             verbosity = true;
         } else if (!strcmp(argv[i], "--compute-total-owner-cnt")) {
             compute_total_owner_cnt = true;
+        } else if (!strcmp(argv[i], "--include-deleted")) {
+            include_deleted = true;
         } else if (!strcmp(argv[i], "--num-to-print")) {
             num_to_print = std::atol(get_value(i++));
         } else if (!strcmp(argv[i], "-q") || !strcmp(argv[i], "--query")) {

@@ -169,5 +169,15 @@ void serialize_location_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSorte
     H5Helper::write_h5_int_to_dataset(merged_alterations, &h5_group, "merged_alterations");
 }
 
+std::unique_ptr<BaseSortedTreap> LocationSorted::copy_specialized_static_field(const BaseSortedTreap* oth) {
+    const LocationSorted *acc_id_oth = static_cast<const LocationSorted*>(oth);
+
+    std::unique_ptr<BaseSortedTreap> unique_curr = std::make_unique<LocationSorted>(
+        acc_id_oth->key,
+        acc_id_oth->database_id,
+        acc_id_oth->bp_alterations
+    );
+    return unique_curr;
+}
 
 } // namespace treap_types
