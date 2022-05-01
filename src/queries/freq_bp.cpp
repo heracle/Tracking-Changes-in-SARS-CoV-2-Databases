@@ -47,15 +47,17 @@ void FreqBpQuery::add_alters(const std::vector<uint32_t> bp_alterations, uint32_
     }
 }
 
-FreqBpQuery::FreqBpQuery(const std::vector<std::string> &params, const bool req_compute_total_owner_cnt, const uint32_t req_num_to_print) {
-    if (params.size() != 1) {
-        Logger::error("freq_bp query must receive exactly one parameter, the prefix of the location string to query");
-    }
-    target_location_prefix = params[0];
+FreqBpQuery::FreqBpQuery(const bool req_compute_total_owner_cnt, const uint32_t req_num_to_print) {
     this->compute_total_owner_cnt = req_compute_total_owner_cnt;
     this->num_to_print = req_num_to_print;
 
+    reset();
+}
+
+void FreqBpQuery::reset() {
     memset(alterations_per_bp, 0, sizeof alterations_per_bp);
+    found_first = false;
+    before_lca_tnode = true;
 }
 
 std::string FreqBpQuery::get_treap_name() {
@@ -63,7 +65,7 @@ std::string FreqBpQuery::get_treap_name() {
     return "location_treap";
 }
 
-TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *, const BaseSortedTreap *elem_unique, const ds::DB *db) {
+TreeDirectionToGo FreqBpQuery::first_enter_into_node(const std::string &target_location_prefix, Tnode *, const BaseSortedTreap *elem_unique, const ds::DB *db) {
     if (elem_unique->key < target_location_prefix) {
         return RightChild;
     }
@@ -95,7 +97,7 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(Tnode *, const BaseSortedTr
     return LeftChild;
 }
     
-TreeDirectionToGo FreqBpQuery::second_enter_into_node(Tnode *, const BaseSortedTreap *elem_unique, const ds::DB *) {
+TreeDirectionToGo FreqBpQuery::second_enter_into_node(const std::string &target_location_prefix, Tnode *, const BaseSortedTreap *elem_unique, const ds::DB *) {
     if (elem_unique->key > target_location_prefix + "~") {
         return NoSubtree;
     }
@@ -103,7 +105,7 @@ TreeDirectionToGo FreqBpQuery::second_enter_into_node(Tnode *, const BaseSortedT
     return RightChild;
 }
 
-void FreqBpQuery::print_results() {
+void FreqBpQuery::print_results(const std::string &) {
     std::vector<std::pair<uint32_t, uint32_t>> top_bp_idx;
 
     for (uint32_t i = 0; i < common::ALIGNED_SEQ_SIZE; ++i) {

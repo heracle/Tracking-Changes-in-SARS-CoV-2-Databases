@@ -28,11 +28,12 @@ class FreqBpQuery : public BaseQuery {
     void add_alters(const std::vector<uint32_t> bp_alterations, uint32_t database_id, const std::string &owner, const ds::DB *db);
 
   public:
-    FreqBpQuery(const std::vector<std::string> &params, const bool req_compute_total_owner_cnt, const uint32_t req_num_to_print);
+    FreqBpQuery(const bool req_compute_total_owner_cnt, const uint32_t req_num_to_print);
+    void reset();
     std::string get_treap_name();
-    TreeDirectionToGo first_enter_into_node(Tnode *, const BaseSortedTreap *, const ds::DB *);
-    TreeDirectionToGo second_enter_into_node(Tnode *, const BaseSortedTreap *, const ds::DB *);
-    void print_results();
+    TreeDirectionToGo first_enter_into_node(const std::string &, Tnode *, const BaseSortedTreap *, const ds::DB *);
+    TreeDirectionToGo second_enter_into_node(const std::string &, Tnode *, const BaseSortedTreap *, const ds::DB *);
+    void print_results(const std::string &);
 };
 
 } // namespace query_ns

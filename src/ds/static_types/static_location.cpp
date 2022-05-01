@@ -17,8 +17,10 @@ using namespace common;
 LocationSorted::LocationSorted(
     const std::string &req_key, 
     const uint32_t req_database_id,
+    const uint32_t req_num_seq_versions,
     const std::vector<uint32_t> &req_bp_alterations) : BaseSortedTreap(req_key, req_database_id) {
     this->bp_alterations = req_bp_alterations;
+    this->num_sequence_versions = req_num_seq_versions;
 };
 
 LocationSorted::~LocationSorted() {}
@@ -31,6 +33,7 @@ std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_snapshot_line(c
         auto aux = std::make_unique<LocationSorted>(
             e.covv_data[SEQ_FIELDS_TO_ID.at("covv_location")] + "_$_" + e.covv_data[SEQ_FIELDS_TO_ID.at("covv_collection_date")],
             req_database_id,
+            0,
             std::vector<uint32_t>()
         );
 
@@ -38,7 +41,9 @@ std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_snapshot_line(c
         return answer;
     }
 
-    const std::vector<uint32_t> &prv_alterations = (static_cast<const LocationSorted*>(prv))->bp_alterations;
+    const LocationSorted *location_prv = static_cast<const LocationSorted*>(prv);
+
+    const std::vector<uint32_t> &prv_alterations = location_prv->bp_alterations;
     const std::vector<uint32_t> &new_alterations = (LocationSorted::alteration_list_SeqElem[LocationSorted::next_alteration_SeqElem_id++]);
     std::vector<uint32_t> merged_alterations;
     uint32_t prv_idx = 0, new_idx = 0;
@@ -71,6 +76,7 @@ std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_snapshot_line(c
     auto aux = std::make_unique<LocationSorted>(
         e.covv_data[SEQ_FIELDS_TO_ID.at("covv_location")] + "_$_" + e.covv_data[SEQ_FIELDS_TO_ID.at("covv_collection_date")],
         req_database_id,
+        location_prv->num_sequence_versions + 1,
         merged_alterations
     );
     std::unique_ptr<BaseSortedTreap> answer = std::move(aux);
@@ -121,6 +127,7 @@ void LocationSorted::reset_get_unique_from_snapshot_line(const ds::PS_Treap *acc
 
 std::vector<uint64_t> LocationSorted::alteration_sizes;
 std::vector<uint32_t> LocationSorted::merged_alterations;
+std::vector<uint32_t> LocationSorted::num_seq_vers_h5;
 uint32_t LocationSorted::next_node_id;
 uint32_t LocationSorted::next_merged_id;
 
@@ -129,17 +136,19 @@ void LocationSorted::reset_get_new_BaseSortedTreap(const H5::Group &group) {
     LocationSorted::next_merged_id = 0;
     LocationSorted::alteration_sizes = H5Helper::read_h5_int_to_dataset<uint64_t>(group, "alteration_sizes");
     LocationSorted::merged_alterations = H5Helper::read_h5_int_to_dataset<uint32_t>(group, "merged_alterations");
+    LocationSorted::num_seq_vers_h5 = H5Helper::read_h5_int_to_dataset<uint32_t>(group, "num_seq_vers_h5");
 }
 
 std::unique_ptr<BaseSortedTreap> LocationSorted::get_new_BaseSortedTreap(const std::string &key, const uint32_t database_id) {
-    uint32_t num_alters = alteration_sizes[next_node_id++];
+    uint32_t num_alters = alteration_sizes[next_node_id];
     std::vector<uint32_t> curr_alterations;
     for (uint64_t i = LocationSorted::next_merged_id; i < LocationSorted::next_merged_id + num_alters; ++i) {
         curr_alterations.push_back(LocationSorted::merged_alterations[i]);
     }
     LocationSorted::next_merged_id += num_alters;
 
-    auto aux =  std::make_unique<LocationSorted>(key, database_id, curr_alterations); 
+    auto aux =  std::make_unique<LocationSorted>(key, database_id, num_seq_vers_h5[next_node_id], curr_alterations); 
+    next_node_id++;
     std::unique_ptr<BaseSortedTreap> answer = std::move(aux);
     return answer;
 }
@@ -150,11 +159,13 @@ void serialize_location_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSorte
 
     std::vector<uint64_t> alteration_sizes;
     std::vector<uint32_t> merged_alterations;
+    std::vector<uint32_t> saved_num_seq_vers;
     for (uint32_t i = 0; i < elems.size(); ++i) {
         LocationSorted* elem = static_cast<LocationSorted*>(elems[i].get());
 
         saved_key.push_back(elem->key);
         saved_database_id.push_back(elem->database_id);
+        saved_num_seq_vers.push_back(elem->num_sequence_versions);
 
         alteration_sizes.push_back(elem->bp_alterations.size());
 
@@ -167,6 +178,7 @@ void serialize_location_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSorte
     H5Helper::write_h5_int_to_dataset(saved_database_id, &h5_group, "database_id");
     H5Helper::write_h5_int_to_dataset(alteration_sizes, &h5_group, "alteration_sizes");
     H5Helper::write_h5_int_to_dataset(merged_alterations, &h5_group, "merged_alterations");
+    H5Helper::write_h5_int_to_dataset(saved_num_seq_vers, &h5_group, "num_seq_vers_h5");
 }
 
 std::unique_ptr<BaseSortedTreap> LocationSorted::copy_specialized_static_field(const BaseSortedTreap* oth) {
@@ -175,6 +187,7 @@ std::unique_ptr<BaseSortedTreap> LocationSorted::copy_specialized_static_field(c
     std::unique_ptr<BaseSortedTreap> unique_curr = std::make_unique<LocationSorted>(
         acc_id_oth->key,
         acc_id_oth->database_id,
+        acc_id_oth->num_sequence_versions,
         acc_id_oth->bp_alterations
     );
     return unique_curr;

@@ -10,16 +10,21 @@ namespace treap_types {
 
 class LocationTnode : public Tnode {
   public:
-    LocationTnode(//const std::vector<std::pair<uint32_t, uint32_t> > &rc_altered_bp, 
+    uint32_t total_versions_in_subtree;
+    uint32_t total_nodes_in_subtree;
+
+    LocationTnode(const uint32_t rc_total_versions,
+                  const uint32_t rc_total_nodes, 
                   const uint32_t rc_data_id, 
                   const uint64_t rc_prio, 
-                  const uint32_t rc_index_tnode);
+                  const uint32_t rc_index_tnode = 0xffffffff);
     LocationTnode(const LocationTnode *oth);
     LocationTnode(const uint32_t index);
 
-    // static std::vector<uint32_t> saved_altered_bp;
+    static std::vector<uint32_t> saved_total_versions_subtree;
+    static std::vector<uint32_t> saved_total_nodes_subtree;
 
-    // static uint32_t next_altered_bp_index;
+    static uint32_t next_h5_bp_index;
     static Tnode* get_h5_tnode(const uint32_t req_data_id, const unsigned long long req_prio, const uint32_t req_index);
     static void reset_get_h5_tnode(const H5::Group &group);
 

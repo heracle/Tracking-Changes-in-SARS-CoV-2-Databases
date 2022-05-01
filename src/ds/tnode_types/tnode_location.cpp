@@ -9,61 +9,76 @@
 namespace treap_types {
 
 LocationTnode::LocationTnode(const LocationTnode *oth) : Tnode(static_cast<const Tnode*>(oth)) {
-    // this->altered_bp = oth->altered_bp;
+    this->total_versions_in_subtree = oth->total_versions_in_subtree;
+    this->total_nodes_in_subtree = oth->total_nodes_in_subtree;
 }
 
-LocationTnode::LocationTnode(//const std::vector<std::pair<uint32_t, uint32_t> > &rc_altered_bp, 
-                             const uint32_t rc_data_id, const uint64_t rc_prio, const uint32_t rc_index_tnode = 0xffffffff)
+LocationTnode::LocationTnode(const uint32_t rc_total_versions,
+                             const uint32_t rc_total_nodes, 
+                             const uint32_t rc_data_id, 
+                             const uint64_t rc_prio, 
+                             const uint32_t rc_index_tnode)
 : Tnode(rc_data_id, rc_prio, rc_index_tnode) {
-    // this->altered_bp = rc_altered_bp;
+    this->total_versions_in_subtree = rc_total_versions;
+    this->total_nodes_in_subtree = rc_total_nodes;
 }
 
 LocationTnode::LocationTnode(const uint32_t index) : Tnode(index) {
-    // this->altered_bp = std::vector<std::pair<uint32_t, uint32_t>>();
+    this->total_versions_in_subtree = 0;
+    this->total_nodes_in_subtree = 0;
 }
 
-void recompute_location_statistics(Tnode *, const BaseSortedTreap* ) {
-    // LocationTnode *tnode = static_cast<LocationTnode*>(rec_tnode); 
-    // const LocationSorted* elem = static_cast<const LocationSorted*>(elem_base);
-    // tnode->altered_bp = elem->bp_alterations;
+void recompute_location_statistics(Tnode *rec_tnode, const BaseSortedTreap* elem_base) {
+    LocationTnode *tnode = static_cast<LocationTnode*>(rec_tnode);
+    const LocationSorted* elem = static_cast<const LocationSorted*>(elem_base);
+
+    tnode->total_nodes_in_subtree = 1;
+    tnode->total_versions_in_subtree = elem->num_sequence_versions;
+
+    if (tnode->l != NULL) {
+        LocationTnode *left = static_cast<LocationTnode*>(tnode->l);
+        tnode->total_nodes_in_subtree += left->total_nodes_in_subtree;
+        tnode->total_versions_in_subtree += left->total_versions_in_subtree;
+    }
+    if (tnode->r != NULL) {
+        LocationTnode *right = static_cast<LocationTnode*>(tnode->r);
+        tnode->total_nodes_in_subtree += right->total_nodes_in_subtree;
+        tnode->total_versions_in_subtree += right->total_versions_in_subtree;
+    }
 }
 
-// std::vector<uint32_t> LocationTnode::saved_altered_bp;
-// uint32_t LocationTnode::next_altered_bp_index;
+uint32_t LocationTnode::next_h5_bp_index;
+std::vector<uint32_t> LocationTnode::saved_total_versions_subtree;
+std::vector<uint32_t> LocationTnode::saved_total_nodes_subtree;
 
 Tnode* LocationTnode::get_h5_tnode(const uint32_t req_data_id, const unsigned long long req_prio, const uint32_t req_index) {
-    // uint32_t altered_bp_size = LocationTnode::saved_altered_bp[next_altered_bp_index++];
-    // std::vector<std::pair<uint32_t, uint32_t> > curr_altered_bp;
-    // for (uint32_t j = 0; j < altered_bp_size; ++j) {
-    //     std::pair<uint32_t, uint32_t> act = {saved_altered_bp[next_altered_bp_index], saved_altered_bp[next_altered_bp_index + 1]};
-    //     next_altered_bp_index += 2;
-    //     curr_altered_bp.push_back(act);
-    // }
-    LocationTnode *tnode = new LocationTnode(//curr_altered_bp, 
+    LocationTnode *tnode = new LocationTnode(saved_total_versions_subtree[next_h5_bp_index],
+                                             saved_total_nodes_subtree[next_h5_bp_index],
                                              req_data_id, req_prio, req_index);
+    ++next_h5_bp_index;
     return static_cast<Tnode*>(tnode);
 }
 
-void LocationTnode::reset_get_h5_tnode(const H5::Group &) {
-    // LocationTnode::saved_altered_bp = H5Helper::read_h5_int_to_dataset<uint32_t>(group, "altered_bp");
-    // LocationTnode::next_altered_bp_index = 0;
+void LocationTnode::reset_get_h5_tnode(const H5::Group &group) {
+    LocationTnode::next_h5_bp_index = 0;
+    LocationTnode::saved_total_versions_subtree = H5Helper::read_h5_int_to_dataset<uint32_t>(group, "total_versions_subtree");
+    LocationTnode::saved_total_nodes_subtree = H5Helper::read_h5_int_to_dataset<uint32_t>(group, "total_nodes_subtree");
 }
 
-void LocationTnode::append_tnode_data(Tnode *) {
-    // LocationTnode *tnode = static_cast<LocationTnode*>(rec_tnode);
-    // LocationTnode::saved_altered_bp.push_back(tnode->altered_bp.size());
-    // for(uint32_t i = 0; i < tnode->altered_bp.size(); ++i) {
-    //     LocationTnode::saved_altered_bp.push_back(tnode->altered_bp[i].first);
-    //     LocationTnode::saved_altered_bp.push_back(tnode->altered_bp[i].second);
-    // }
+void LocationTnode::append_tnode_data(Tnode *rec_tnode) {
+    LocationTnode *tnode = static_cast<LocationTnode*>(rec_tnode);
+    LocationTnode::saved_total_versions_subtree.push_back(tnode->total_versions_in_subtree);
+    LocationTnode::saved_total_nodes_subtree.push_back(tnode->total_nodes_in_subtree);
 }
 
 void LocationTnode::reset_append_tnode_data() {
-    // LocationTnode::saved_altered_bp.clear();
+    LocationTnode::saved_total_versions_subtree.clear();
+    LocationTnode::saved_total_nodes_subtree.clear();
 }
 
-void LocationTnode::write_tnode_data_to_h5(H5::Group &) {
-    // H5Helper::write_h5_int_to_dataset(LocationTnode::saved_altered_bp, &group, "altered_bp");
+void LocationTnode::write_tnode_data_to_h5(H5::Group &group) {
+    H5Helper::write_h5_int_to_dataset(LocationTnode::saved_total_versions_subtree, &group, "total_versions_subtree");
+    H5Helper::write_h5_int_to_dataset(LocationTnode::saved_total_nodes_subtree, &group, "total_nodes_subtree");
 }
 
 Tnode* LocationTnode::create_new_specialized_tnode(const uint32_t data_id) {

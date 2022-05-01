@@ -35,7 +35,7 @@ int stats(Config *config) {
 
     for (uint32_t i = 0; i < location_keys.size(); ++i) {
         // H5::Group curr_data_group = H5Gopen(location_group.getLocId(), ("static_data" + std::to_string(i)).c_str(), H5P_DEFAULT);
-        std::unique_ptr<BaseSortedTreap> curr_location = std::make_unique<LocationSorted>(location_keys[i], location_database_ids[i]);
+        std::unique_ptr<BaseSortedTreap> curr_location = std::make_unique<LocationSorted>(location_keys[i], location_database_ids[i], 0, std::vector<uint32_t>());
         // curr_data_group.close();
         location_data.push_back(std::move(curr_location));
     }

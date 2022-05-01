@@ -65,6 +65,8 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
             fprintf(stderr, "\t   --compute-total-owner-cnt \t print how many uploads has each owner group.\n");
             fprintf(stderr, "\t   --top-to-print [int] \t Set the number of results to print.\n");
             fprintf(stderr, "\t   --include-deleted [int] \t Include the results from the previously deleted sequences.\n");
+
+            fprintf(stderr, "\n\nAvailable query tyes: 'bp_freq', 'cnt_indels'");
             break;
             
         default:
@@ -132,6 +134,8 @@ Config::Config(int argc, char *argv[]) {
             std::string aux = std::string(get_value(i++));
             if (aux == "bp_freq") {
                 query_type = QueryType::FREQ_BP;
+            } else if (aux == "cnt_indels") {
+                query_type = QueryType::CNT_INDELS;
             } else {
                 print_helper(argv[0], module);
                 Logger::error("\nERROR: Unknown query type " + aux + "\n\n");

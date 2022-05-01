@@ -16,6 +16,7 @@ enum ModuleType {
 enum QueryType {
     NO_QUERY = -1,
     FREQ_BP = 0,
+    CNT_INDELS = 1,
 };
 
 class Config {
