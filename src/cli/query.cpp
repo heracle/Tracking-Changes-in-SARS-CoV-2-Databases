@@ -14,6 +14,7 @@
 
 #include "../queries/base_query.hpp"
 #include "../queries/freq_bp.hpp"
+#include "../queries/count_indels.hpp"
 
 using namespace treap_types;
 
@@ -34,7 +35,12 @@ int query(Config *config) {
 
     query_ns::BaseQuery *query;
     if (config->query_type == FREQ_BP) {
-        query = new query_ns::FreqBpQuery(config->fnames, config->compute_total_owner_cnt, config->num_to_print);
+        if (config->fnames.size() != 1) {
+            Logger::error("Frequent Basepair query must receive exactly one target key.");
+        }
+        query = new query_ns::FreqBpQuery(config->compute_total_owner_cnt, config->num_to_print);
+    } else if (config->query_type == CNT_INDELS) {
+        query = new query_ns::CountIndelsQuery();
     } else {
         Logger::error("Query type not recognised.");
         exit(1);
@@ -42,26 +48,31 @@ int query(Config *config) {
 
     const std::string treap_name = query->get_treap_name();
 
-    ctc->treaps[treap_name].treap->query_callback_subtree(
-        query,
-        ctc->db,
-        config->snapshot
-    );
-
-    if (config->include_deleted) {
-        std::string treap_for_deletions = "deleted_" + treap_name; 
-        if (! ctc->treaps.count(treap_for_deletions)) {
-            Logger::error("Could not find a treap for deletions with name '" + treap_for_deletions + "'.");
-        }
-        ctc->treaps[treap_for_deletions].treap->query_callback_subtree(
+    for (uint32_t i = 0; i < config->fnames.size(); ++i) {
+        query->reset();
+        ctc->treaps[treap_name].treap->query_callback_subtree(
             query,
+            config->fnames[i],
             ctc->db,
             config->snapshot
         );
+
+        if (config->include_deleted) {
+            std::string treap_for_deletions = "deleted_" + treap_name; 
+            if (! ctc->treaps.count(treap_for_deletions)) {
+                Logger::error("Could not find a treap for deletions with name '" + treap_for_deletions + "'.");
+            }
+            ctc->treaps[treap_for_deletions].treap->query_callback_subtree(
+                query,
+                config->fnames[i],
+                ctc->db,
+                config->snapshot
+            );
+        }
+        query->print_results(config->fnames[i]);
     }
 
     delete ctc;
-    query->print_results();
     delete query;
 
     return 0;

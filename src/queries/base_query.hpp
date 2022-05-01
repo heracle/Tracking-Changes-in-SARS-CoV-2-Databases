@@ -18,9 +18,10 @@ class BaseQuery {
   public:
     // init does some initialisation for the specific query and returns the name of the treap to run.
     virtual std::string get_treap_name() = 0;
-    virtual TreeDirectionToGo first_enter_into_node(treap_types::Tnode *, const treap_types::BaseSortedTreap *, const ds::DB *db) = 0;
-    virtual TreeDirectionToGo second_enter_into_node(treap_types::Tnode *, const treap_types::BaseSortedTreap *, const ds::DB *db) = 0;
-    virtual void print_results() = 0;
+    virtual void reset() = 0;
+    virtual TreeDirectionToGo first_enter_into_node(const std::string &, treap_types::Tnode *, const treap_types::BaseSortedTreap *, const ds::DB *db) = 0;
+    virtual TreeDirectionToGo second_enter_into_node(const std::string &, treap_types::Tnode *, const treap_types::BaseSortedTreap *, const ds::DB *db) = 0;
+    virtual void print_results(const std::string &query_location) = 0;
     virtual ~BaseQuery(){};
 };
 

@@ -19,7 +19,7 @@ TEST(StaticLocation, GetUnique) {
     common::SeqElem e;
     e.covv_data[0] = e.covv_data[1] = e.covv_data[2] = e.covv_data[3] = "Y";
 
-    LocationSorted *prv = new LocationSorted("key", 0, std::vector<uint32_t>());
+    LocationSorted *prv = new LocationSorted("key", 0, 0, std::vector<uint32_t>());
 
     for (uint32_t i = 0; i < treap_types::LocationSorted::alteration_list_SeqElem.size(); ++i) {
         std::unique_ptr<BaseSortedTreap> base = LocationSorted::get_unique_from_snapshot_line(e, 0, prv);
@@ -39,12 +39,12 @@ TEST(StaticLocation, SumUpOldAndNewAlterations) {
         std::vector<uint32_t>{},
     });
     LocationSorted *prv[6];
-    prv[0] = new LocationSorted("key", 0, std::vector<uint32_t>{600, 1000});
-    prv[1] = new LocationSorted("key", 0, std::vector<uint32_t>{800, 900, 1000, 1100, 2000});
-    prv[2] = new LocationSorted("key", 0, std::vector<uint32_t>{});
-    prv[3] = new LocationSorted("key", 0, std::vector<uint32_t>{1000});
-    prv[4] = new LocationSorted("key", 0, std::vector<uint32_t>{800, 900});
-    prv[5] = new LocationSorted("key", 0, std::vector<uint32_t>{800, 900});
+    prv[0] = new LocationSorted("key", 0, 0, std::vector<uint32_t>{600, 1000});
+    prv[1] = new LocationSorted("key", 0, 0, std::vector<uint32_t>{800, 900, 1000, 1100, 2000});
+    prv[2] = new LocationSorted("key", 0, 0, std::vector<uint32_t>{});
+    prv[3] = new LocationSorted("key", 0, 0, std::vector<uint32_t>{1000});
+    prv[4] = new LocationSorted("key", 0, 0, std::vector<uint32_t>{800, 900});
+    prv[5] = new LocationSorted("key", 0, 0, std::vector<uint32_t>{800, 900});
 
     std::vector<uint32_t> expected_results[6] = {
         std::vector<uint32_t>{100, 500, 601, 700, 1001},
@@ -66,5 +66,28 @@ TEST(StaticLocation, SumUpOldAndNewAlterations) {
         LocationSorted *curr = static_cast<LocationSorted*>(base.get());
 
         EXPECT_EQ(curr->bp_alterations, expected_results[i]);
+    }
+}
+
+TEST(StaticLocation, VersionIncrementationWhenEditing) {
+
+    LocationSorted *prv[6];
+    prv[0] = new LocationSorted("key", 0, 0, std::vector<uint32_t>());
+    prv[1] = new LocationSorted("key", 1, 1, std::vector<uint32_t>());
+    prv[2] = new LocationSorted("key", 2, 1, std::vector<uint32_t>());
+    prv[3] = new LocationSorted("key", 3, 2, std::vector<uint32_t>());
+    prv[4] = new LocationSorted("key", 4, 2, std::vector<uint32_t>());
+    prv[5] = new LocationSorted("key", 5, 3, std::vector<uint32_t>());
+
+    treap_types::LocationSorted::next_alteration_SeqElem_id = 0;
+
+    common::SeqElem e;
+    e.covv_data[0] = e.covv_data[1] = e.covv_data[2] = e.covv_data[3] = "Y";
+
+    for (uint32_t i = 0; i < 6; ++i) {
+        std::unique_ptr<BaseSortedTreap> base = LocationSorted::get_unique_from_snapshot_line(e, 6 + i, prv[i]);
+        LocationSorted *curr = static_cast<LocationSorted*>(base.get());
+
+        EXPECT_EQ(curr->num_sequence_versions, prv[i]->num_sequence_versions + 1);
     }
 }

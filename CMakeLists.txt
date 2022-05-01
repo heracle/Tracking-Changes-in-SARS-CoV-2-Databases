@@ -38,6 +38,7 @@ set(SOURCES
             src/cli/query.cpp
 
             src/queries/freq_bp.cpp
+            src/queries/count_indels.cpp
 
             src/common/json_helper.cpp
             src/common/h5_helper.cpp

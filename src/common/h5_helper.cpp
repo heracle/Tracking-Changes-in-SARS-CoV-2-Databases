@@ -250,7 +250,10 @@ std::string get_from_extendable_h5_dataset(uint32_t id, const H5::Group &h5, con
     status = H5Dread (pos_dset, H5T_NATIVE_LLONG, memspace, pos_space, H5P_DEFAULT, rdata);
     assert(status == 0);
 
-    assert(rdata[1] - rdata[0] > 0);
+    assert(rdata[1] - rdata[0] >= 0);
+    if (rdata[1] == rdata[0]) {
+        return "";
+    }
 
     status = H5Dclose (pos_dset);
     assert(status == 0);
@@ -444,6 +447,10 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
             appending the concatenated string
     --------------------------------------------------------------------------------------------------------------------
     */
+    if (concat_str.size() == 0) {
+        return;
+    }
+
 
     /*
      * Extend the dataset.
