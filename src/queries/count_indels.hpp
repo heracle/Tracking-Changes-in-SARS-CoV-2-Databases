@@ -16,15 +16,17 @@ class CountIndelsQuery : public BaseQuery {
     bool before_lca_tnode = true;
 
   public:
-    uint32_t num_sequences;
-    uint32_t sum_versions;
+    std::vector<uint32_t> total_inserted_sequences;
+    std::vector<uint32_t> total_modified_sequences;
+    std::vector<uint32_t> total_deleted_sequences;
     
-    CountIndelsQuery();
+    CountIndelsQuery(const uint32_t num_total_snapshots);
     std::string get_treap_name();
     TreeDirectionToGo first_enter_into_node(const std::string &target_location_prefix, Tnode *, const BaseSortedTreap *, const ds::DB *);
     TreeDirectionToGo second_enter_into_node(const std::string &target_location_prefix, Tnode *, const BaseSortedTreap *, const ds::DB *);
-    void print_results(const std::string &query_location);
+    void print_results();
     void reset();
+    void set_deletion_mode(const bool is_deletion_mode);
 };
 
 } // namespace query_ns

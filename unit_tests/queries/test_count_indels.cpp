@@ -10,7 +10,7 @@
 #include "../ds/static_types/static_location.hpp"
 #include "../ds/tnode_types/tnode_location.hpp"
 
-TEST(CountIndelsQuery, TestDifferentSubtrees) {
+TEST(CountIndelsQuery, TestCntIndels) {
     ds::PS_Treap *treap = new ds::PS_Treap(recompute_location_statistics,
                                             treap_types::LocationTnode::create_new_specialized_tnode,
                                             treap_types::LocationTnode::copy_specialized_tnode);
@@ -41,9 +41,6 @@ TEST(CountIndelsQuery, TestDifferentSubtrees) {
     for (int32_t i = 14; i >= 0; --i) {
         recompute_location_statistics(tnode[i], treap->static_data[i].get());
     }
-
-    // treap->iterate_ordered([&](const BaseSortedTreap &x) {std::cerr << x.key << "\n";});
-    query_ns::CountIndelsQuery *query = new query_ns::CountIndelsQuery();
 
     struct CntIndelsTestStr {
         std::string test_id;
@@ -138,12 +135,106 @@ TEST(CountIndelsQuery, TestDifferentSubtrees) {
             1,
             1024
         },
+        {
+            "test12_",
+            "todo",
+            "ddaaa",
+            1,
+            32768
+        }
     };
+    query_ns::CountIndelsQuery *query = new query_ns::CountIndelsQuery(tests.size());
 
     for (CntIndelsTestStr test : tests) {
         treap->query_callback_subtree(query, test.target_prefix, NULL);
-        EXPECT_EQ(test.test_id + std::to_string(query->num_sequences), test.test_id + std::to_string(test.expected_num_sequences));
-        EXPECT_EQ(test.test_id + std::to_string(query->sum_versions), test.test_id + std::to_string(test.expected_sum_versions));
-        query->reset();
+        query->snapshot_idx++;
+        query->set_deletion_mode(false);
     }
+
+    for (uint32_t i = 0; i < tests.size(); ++i) {
+        const CntIndelsTestStr &test = tests[i];
+        EXPECT_EQ(test.test_id + std::to_string(query->total_inserted_sequences[i]), test.test_id + std::to_string(test.expected_num_sequences));
+        EXPECT_EQ(test.test_id + std::to_string(query->total_modified_sequences[i]), test.test_id + std::to_string(test.expected_sum_versions));
+    }
+}
+
+TEST(CountIndelsQuery, TestDeletionsTreap) {
+    ds::PS_Treap *treap = new ds::PS_Treap(recompute_location_statistics,
+                                            treap_types::LocationTnode::create_new_specialized_tnode,
+                                            treap_types::LocationTnode::copy_specialized_tnode);
+    EXPECT_EQ(treap->static_data.size(), 0);
+
+    std::unique_ptr<BaseSortedTreap> unique_node;
+
+    std::vector<std::string> seq_keys = {"dcbae", "dcbac", "dcc", "dcaa", "eee"}; // first 3 are normal sequences, the last 2 are deletions.
+
+    for (uint32_t i = 0; i < 3; ++i) {
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint32_t>());
+        treap->static_data.push_back(std::move(unique_node));
+    }
+
+    Tnode *tnode[5];
+    
+    for (uint32_t i = 0; i < 3; ++i) {
+        tnode[i] = LocationTnode::create_new_specialized_tnode(i);
+    }    
+
+    treap->root = tnode[0];
+
+    tnode[0]->l = tnode[1];
+    tnode[0]->r = tnode[2];
+
+    ds::PS_Treap *deletions_treap = new ds::PS_Treap(recompute_location_statistics,
+                                            treap_types::LocationTnode::create_new_specialized_tnode,
+                                            treap_types::LocationTnode::copy_specialized_tnode);
+
+
+    for (uint32_t i = 3; i < 5; ++i) {
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint32_t>());
+        deletions_treap->static_data.push_back(std::move(unique_node));
+    }
+
+    for (uint32_t i = 3; i < 5; ++i) {
+        tnode[i] = LocationTnode::create_new_specialized_tnode(i-3);
+    }
+
+    deletions_treap->root = tnode[4];
+    tnode[4]->l = tnode[3];
+
+    for (int32_t i = 4; i >= 3; --i) {
+        recompute_location_statistics(tnode[i], deletions_treap->static_data[i - 3].get());
+    }
+    for (int32_t i = 2; i >= 0; --i) {
+        recompute_location_statistics(tnode[i], treap->static_data[i].get());
+    }
+
+    query_ns::CountIndelsQuery *query = new query_ns::CountIndelsQuery(3);
+
+    treap->query_callback_subtree(query, "", NULL);
+    query->set_deletion_mode(true);
+    deletions_treap->query_callback_subtree(query, "", NULL);
+
+    query->set_deletion_mode(false);
+    query->snapshot_idx++;
+    treap->query_callback_subtree(query, "d", NULL);
+    query->set_deletion_mode(true);
+    deletions_treap->query_callback_subtree(query, "d", NULL);
+
+    query->set_deletion_mode(false);
+    query->snapshot_idx++;
+    treap->query_callback_subtree(query, "e", NULL);
+    query->set_deletion_mode(true);
+    deletions_treap->query_callback_subtree(query, "e", NULL);
+
+    EXPECT_EQ(query->total_inserted_sequences[0], 3);
+    EXPECT_EQ(query->total_modified_sequences[0], 62);
+    EXPECT_EQ(query->total_deleted_sequences[0], 2);
+
+    EXPECT_EQ(query->total_inserted_sequences[1], 3);
+    EXPECT_EQ(query->total_modified_sequences[1], 30);
+    EXPECT_EQ(query->total_deleted_sequences[1], 1);
+
+    EXPECT_EQ(query->total_inserted_sequences[2], 0);
+    EXPECT_EQ(query->total_modified_sequences[2], 32);
+    EXPECT_EQ(query->total_deleted_sequences[2], 1);
 }

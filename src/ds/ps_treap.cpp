@@ -205,7 +205,7 @@ void PS_Treap::iterate_ordered(const std::function<void(const BaseSortedTreap &)
     run_tnode_callback(root_history[it->second], callback);
 }
 
-void PS_Treap::run_treap_query_callback_subtree(const std::string &target_key, Tnode *tnode, const ds::DB *db, query_ns::BaseQuery *query) const {
+void PS_Treap::run_treap_query_callback_subtree(const std::string &target_key,Tnode *tnode, const ds::DB *db, query_ns::BaseQuery *query) const {
     if (tnode == NULL) {
         return;
     }
@@ -323,6 +323,10 @@ PS_Treap::PS_Treap(const H5::Group &treap_group,
 
     // deserialize root_history
     for (uint32_t i = 0; i < saved_root_history.size(); ++i) {
+        if (saved_root_history[i] == UINT_MAX) {
+            this->root_history.push_back(NULL);
+            continue;
+        }
         auto it = h5id_to_tnodes.find(saved_root_history[i]);
         if (it == h5id_to_tnodes.end()) {
             Logger::error("Broken hdf5 file, could not find a specific linked tnode.");
@@ -368,7 +372,7 @@ PS_Treap::PS_Treap(PS_Treap *source) {
 void PS_Treap::save_snapshot(const std::string &name) {
     Tnode::first_notsaved_index_tnode = Tnode::next_index_tnode;
     date_to_root_idx[name] = root_history.size();
-    root_history.push_back(root); 
+    root_history.push_back(root);
 }
 
 void PS_Treap::export_to_hdf5(H5::Group &treap_group, 
@@ -439,9 +443,10 @@ void PS_Treap::export_to_hdf5(H5::Group &treap_group,
     // serialize root_history
     for (uint32_t i = 0; i < root_history.size(); ++i) {
         if (root_history[i] == NULL) {
-            continue;
+            saved_root_history.push_back(UINT_MAX);
+        } else {
+            saved_root_history.push_back(tnodes_to_h5id[root_history[i]]);
         }
-        saved_root_history.push_back(tnodes_to_h5id[root_history[i]]);
     }
     H5Helper::write_h5_int_to_dataset(saved_root_history, &treap_group, "root_history");
 

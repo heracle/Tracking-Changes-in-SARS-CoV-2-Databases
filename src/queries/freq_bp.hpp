@@ -30,10 +30,11 @@ class FreqBpQuery : public BaseQuery {
   public:
     FreqBpQuery(const bool req_compute_total_owner_cnt, const uint32_t req_num_to_print);
     void reset();
+    void set_deletion_mode(const bool is_deletion_mode);
     std::string get_treap_name();
     TreeDirectionToGo first_enter_into_node(const std::string &, Tnode *, const BaseSortedTreap *, const ds::DB *);
     TreeDirectionToGo second_enter_into_node(const std::string &, Tnode *, const BaseSortedTreap *, const ds::DB *);
-    void print_results(const std::string &);
+    void print_results();
 };
 
 } // namespace query_ns
