@@ -57,16 +57,20 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
             break;
 
         case QUERY:
-            fprintf(stderr, "Usage: %s query -q <query_type> -i <DB*> <location_prefix> \n"
+            fprintf(stderr, "Usage: %s query [options] -q <query_type> -i <DB*> [location_prefix] \n"
                             "\t The input DB file must be a '.h5' file specific for this tool\n", prog_name.c_str());
 
-            fprintf(stderr, "Available options for STATS:\n");
+            fprintf(stderr, "\n\nAvailable query tyes: 'bp_freq', 'cnt_indels'");
+
+            fprintf(stderr, "\nAvailable options for query bp_freq:\n");
             fprintf(stderr, "\t   --snapshot [str] \t Indicate what snapshot to use as target for the query.\n");
             fprintf(stderr, "\t   --compute-total-owner-cnt \t print how many uploads has each owner group.\n");
             fprintf(stderr, "\t   --top-to-print [int] \t Set the number of results to print.\n");
-            fprintf(stderr, "\t   --include-deleted [int] \t Include the results from the previously deleted sequences.\n");
+            fprintf(stderr, "\t   --exclude-deleted [int] \t Exclude the results from the previously deleted sequences.\n");
 
-            fprintf(stderr, "\n\nAvailable query tyes: 'bp_freq', 'cnt_indels'");
+            fprintf(stderr, "\nAvailable options for query cnt_indels:\n");
+            fprintf(stderr, "\t   --snapshot [str,str,..] \t Compute one column for each requested snapshot (e.g. '--snapshot snap1,snap2,snap3' with no spaces).\n");
+
             break;
             
         default:
@@ -126,8 +130,8 @@ Config::Config(int argc, char *argv[]) {
             verbosity = true;
         } else if (!strcmp(argv[i], "--compute-total-owner-cnt")) {
             compute_total_owner_cnt = true;
-        } else if (!strcmp(argv[i], "--include-deleted")) {
-            include_deleted = true;
+        } else if (!strcmp(argv[i], "--exclude-deleted")) {
+            exclude_deleted = true;
         } else if (!strcmp(argv[i], "--num-to-print")) {
             num_to_print = std::atol(get_value(i++));
         } else if (!strcmp(argv[i], "-q") || !strcmp(argv[i], "--query")) {
