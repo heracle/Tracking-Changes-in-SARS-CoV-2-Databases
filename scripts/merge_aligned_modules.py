@@ -77,7 +77,7 @@ def main(argv):
         output.write(line)
 
     if lookup_output_filepath != "":
-        lookup_align_hashes = constants.get_hash_lookup(inputdir + constants.LOOKUP_ALIGN_BASENAME)
+        lookup_align_hashes = constants.get_hash_lookup(constants.LOOKUP_ALIGN_BASENAME)
     
     for i in range(num_files):
         cnt_per_file = 0

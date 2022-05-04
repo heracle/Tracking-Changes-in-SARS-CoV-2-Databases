@@ -6,6 +6,10 @@
 # Creates a file with the alignment in "/cluster/home/rmuntean/cevo/data/aligned_2022-03-13.provision.json.xz" and
 # a lookup new file in "/cluster/home/rmuntean/git/tracking-changes/data/lookup_2022-03-13.json.xz"
 
+# If the lookup decompressed file is not available at '/cluster/home/rmuntean/git/tracking-changes/data/lookup_2022-03-13.json.xz', then run:
+#   cp /cluster/home/rmuntean/git/tracking-changes/data/lookup_2022-03-13.json.xz /cluster/scratch/rmuntean/gisaid_data/lookup_2022-03-13.json.xz
+#   bsub -R "rusage[mem=200000]" unxz /cluster/scratch/rmuntean/gisaid_data/lookup_2022-03-13.json.xz
+
 cores=32
 
 input_filepath="${1}"
@@ -38,7 +42,7 @@ echo "tmp_filepath = ${tmp_filepath}"
 
 bsub -W 4:00 -R "rusage[mem=280000]" -J "unxz_${bs_name}" unxz "${bs_name}.provision.json.xz"
 
-bsub -W 4:00 -J "split_${bs_name}" -w "done(unxz_${bs_name})" -R "rusage[mem=480000]" python "/cluster/home/rmuntean/git/tracking-changes/scripts/split_snapshot.py" -i "${tmp_filepath}" -o "${tmp_dir}" -n "${cores}" --lookup_hash_align "/cluster/home/rmuntean/git/tracking-changes/data/lookup_2022-03-13.json.xz"
+bsub -W 4:00 -J "split_${bs_name}" -w "done(unxz_${bs_name})" -R "rusage[mem=480000]" python "/cluster/home/rmuntean/git/tracking-changes/scripts/split_snapshot.py" -i "${tmp_filepath}" -o "${tmp_dir}" -n "${cores}"
 bsub -J "delete_bs_${bs_name}" -w "done(split_${bs_name})" rm "${tmp_filepath}"
 
 bsub -M 300G -n "${cores}" -W 24:00 -J "align_${bs_name}" -w "done(split_${bs_name})" -R "rusage[mem=8000]" python "/cluster/home/rmuntean/git/tracking-changes/scripts/align_snapshot_modules.py" -d "${tmp_dir}" -n "${cores}"

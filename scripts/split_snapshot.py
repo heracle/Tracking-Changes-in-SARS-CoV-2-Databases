@@ -4,7 +4,7 @@
 # This script is used to split a snapshot json in multiple small modules. All of these modules will be aligned in parallel. 
 
 # Usage example:
-#       python split_snapshot.py -i 2021-06-27.provision.json -o tmp/aux_align -n 128 --lookup_hash_align <file.xz>
+#       python split_snapshot.py -i 2021-06-27.provision.json -o tmp/aux_align -n 128 --lookup_hash_align <file.json>
 
 # Will create 128 small which sum up to the initial "2021-06-27.provision.json".
 # For each module there will be 2 files created:
@@ -19,15 +19,14 @@ import constants
 import sys, getopt, json, os, subprocess
 
 def print_helper():
-    print ('split_snapshot.py -i <inputfile> -o <outputpath> -n <num_files> --lookup_hash_align <file.xz>')
+    print ('split_snapshot.py -i <inputfile> -o <outputpath> -n <num_files> --lookup_hash_align <file.json>')
 
 def main(argv):
     inputfile = ''
     outputdir = ''
     num_files_str = ''
-    lookup_hash_align_filepath = ''
     try:
-        opts, _ = getopt.getopt(argv,"hi:o:n:",["ifile=", "ofile=", "numfiles=", "lookup_hash_align="])
+        opts, _ = getopt.getopt(argv,"hi:o:n:",["ifile=", "ofile=", "numfiles="])
     except getopt.GetoptError:
         print_helper()
         sys.exit(2)
@@ -41,16 +40,14 @@ def main(argv):
             outputdir = arg
         elif opt in ("-n", "--numfiles"):
             num_files_str = arg
-        elif opt in "--lookup_hash_align":
-            lookup_hash_align_filepath = arg
 
     if (not num_files_str.isnumeric()):
         print ("Error: received invalid number of output files '", num_files_str, "'")
         print_helper()
         sys.exit(2)
 
-    if (not lookup_hash_align_filepath.endswith(".json.xz")):
-        print ("The provided lookup_hash_align filepath is a not '.json.xz' compressed file '" + lookup_hash_align_filepath + "'.")
+    if (not constants.LOOKUP_ALIGN_FILEPATH.endswith(".json")):
+        print ("The provided lookup_hash_align filepath is a not '.json' compressed file '" + constants.LOOKUP_ALIGN_FILEPATH + "'.")
         print_helper()
         sys.exit(2)
 
@@ -61,17 +58,8 @@ def main(argv):
 
     # Decompress 'lookup_hash_align_filepath' to the temporary location:
 
-    if not os.path.isfile(lookup_hash_align_filepath):
-        print ("Provided filepath '" + lookup_hash_align_filepath + "' does not exist")
-    os.system("cp " + lookup_hash_align_filepath + " " + outputdir)
-    p = subprocess.Popen(["unxz", os.path.basename(lookup_hash_align_filepath)], cwd=outputdir)
-    p.wait()
-    if p.poll() != 0:
-        print ("error while applying unxz on the compressed file " + lookup_hash_align_filepath)
-        sys.exit(2)
-
-    # Rename the file:
-    os.system("mv " + outputdir + os.path.basename(lookup_hash_align_filepath).rstrip(".xz") + " " + outputdir + constants.LOOKUP_ALIGN_BASENAME)
+    if not os.path.isfile(constants.LOOKUP_ALIGN_FILEPATH):
+        print ("Provided filepath '" + constants.LOOKUP_ALIGN_FILEPATH + "' does not exist")
 
     num_files = int(num_files_str)
 
@@ -90,7 +78,7 @@ def main(argv):
         output_json.append(f)
 
     already_aligned_file = open(outputdir + "prv_aligned.provision.json", "w")
-    lookup_align_hashes = constants.get_hash_lookup(outputdir + constants.LOOKUP_ALIGN_BASENAME)
+    lookup_align_hashes = constants.get_hash_lookup(constants.LOOKUP_ALIGN_FILEPATH)
 
     num_seq_to_skip = 0
     num_seq_to_align = 0
