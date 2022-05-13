@@ -15,7 +15,7 @@ Tnode* copy_test_tnode(const treap_types::Tnode* target) {
     return tnode;
 }
 
-Tnode* create_new_test_tnode(const uint32_t x) {
+Tnode* create_new_test_tnode(const uint64_t x) {
     treap_types::Tnode *tnode = new treap_types::Tnode(x);
     return tnode;
 }
@@ -111,11 +111,11 @@ TEST(DsTreap, InsertEraseElementInteger) {
                                                 create_new_test_tnode,
                                                 copy_test_tnode);
         EXPECT_EQ(treap->static_data.size(), 0);
-        uint32_t id_query = 0;
+        uint64_t id_query = 0;
         for (std::pair<TreapRequest, std::vector<int>> treap_request : test.requests) {
             // create nodes for the requested int number.
             std::vector<std::unique_ptr<BaseSortedTreap>> curr_nodes;
-            std::vector<uint32_t> indices_to_erase;
+            std::vector<uint64_t> indices_to_erase;
             for (const int x : treap_request.second) {
                 curr_nodes.push_back(std::move(
                     std::make_unique<BaseSortedTreap>(std::to_string(x), 0)
@@ -178,7 +178,7 @@ TEST(DsTreap, InsertElementsWithPrv) {
     treap->iterate_ordered([&](const BaseSortedTreap &x) {ordered_values.push_back(x.key);});
     EXPECT_EQ(ordered_values, expected1);
 
-    std::vector<uint32_t> erase_list;
+    std::vector<uint64_t> erase_list;
     erase_list.push_back(treap->find(BaseSortedTreap{"t", 0})->data_id);
     erase_list.push_back(treap->find(BaseSortedTreap{"aba", 0})->data_id);
     erase_list.push_back(treap->find(BaseSortedTreap{"ab0ccde", 0})->data_id);
@@ -194,7 +194,7 @@ TEST(DsTreap, InsertElementsWithPrv) {
     reinsert_list.push_back(std::make_unique<BaseSortedTreap>("aba", 0));
     reinsert_list.push_back(std::make_unique<BaseSortedTreap>("ab0ccde", 0));
     
-    std::vector<std::pair<common::SeqElem, uint32_t> > elems_with_prv = {
+    std::vector<std::pair<common::SeqElem, uint64_t> > elems_with_prv = {
         {common::SeqElem(), 0},
         {common::SeqElem(), 2},
         {common::SeqElem(), 3}
@@ -202,13 +202,13 @@ TEST(DsTreap, InsertElementsWithPrv) {
     treap->insert(reinsert_list, elems_with_prv);
     ordered_values.clear();
 
-    uint32_t validations_mask = 0;
+    uint64_t validations_mask = 0;
 
-    for (uint32_t i = 0; i < treap->static_data.size(); ++i) {
+    for (uint64_t i = 0; i < treap->static_data.size(); ++i) {
         const BaseSortedTreap *x = treap->static_data[i].get();
         if (i == 0 || i == 2 || i == 3) {
             // the first insertions of the edited sequences;
-            EXPECT_EQ(treap->prv_static_data[i], UINT_MAX);
+            EXPECT_EQ(treap->prv_static_data[i], ULLONG_MAX);
         } else if (x->key == "t") {
             EXPECT_EQ(treap->prv_static_data[i], 0);
             validations_mask |= 1;
@@ -219,7 +219,7 @@ TEST(DsTreap, InsertElementsWithPrv) {
             EXPECT_EQ(treap->prv_static_data[i], 3);
             validations_mask |= 4;
         } else {
-            EXPECT_EQ(treap->prv_static_data[i], UINT_MAX);
+            EXPECT_EQ(treap->prv_static_data[i], ULLONG_MAX);
         }
     }
     EXPECT_EQ(validations_mask, 7);
@@ -245,7 +245,7 @@ TEST(DsTreap, InsertEraseElementString) {
     treap->iterate_ordered([&](const BaseSortedTreap &x) {ordered_values.push_back(x.key);});
     EXPECT_EQ(ordered_values, expected1);
 
-    std::vector<uint32_t> erase_list;
+    std::vector<uint64_t> erase_list;
     erase_list.push_back(treap->find(BaseSortedTreap{"t", 0})->data_id);
     erase_list.push_back(treap->find(BaseSortedTreap{"ab0ccde", 0})->data_id);
 
@@ -310,10 +310,10 @@ TEST(DsTreap, GetDifferences) {
     first_seq_list.push_back(std::make_unique<AccessionIdSorted>("aac", 20, 300, 300));
     first_seq_list.push_back(std::make_unique<AccessionIdSorted>("acd", 30, 400, 400));
     first_seq_list.push_back(std::make_unique<AccessionIdSorted>("db0", 40, 500, 500));
-    uint32_t first_seq_list_sz = first_seq_list.size();
+    uint64_t first_seq_list_sz = first_seq_list.size();
 
     first_treap->insert(first_seq_list);
-    uint32_t cnt = 0;
+    uint64_t cnt = 0;
     first_treap->iterate_ordered([&](const BaseSortedTreap &) {cnt++;});
     EXPECT_EQ(cnt, first_seq_list_sz);
 
@@ -324,16 +324,16 @@ TEST(DsTreap, GetDifferences) {
     second_seq_list.push_back(std::make_unique<AccessionIdSorted>("acd", 30, 400, 409));
     second_seq_list.push_back(std::make_unique<AccessionIdSorted>("db0", 40, 510, 510));
     second_seq_list.push_back(std::make_unique<AccessionIdSorted>("aaa", 0, 100, 100));
-    uint32_t second_seq_list_sz = second_seq_list.size();
+    uint64_t second_seq_list_sz = second_seq_list.size();
  
     second_treap->insert(second_seq_list);
     cnt = 0;
     second_treap->iterate_ordered([&](const BaseSortedTreap &) {cnt++;});
     EXPECT_EQ(cnt, second_seq_list_sz);
 
-    std::vector<uint32_t> insertions_db_ids;
-    std::vector<uint32_t> deletions_db_ids;
-    std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids;
+    std::vector<uint64_t> insertions_db_ids;
+    std::vector<uint64_t> deletions_db_ids;
+    std::vector<std::pair<uint64_t, uint64_t>> updates_db_ids;
     ds::PS_Treap::get_differences(first_treap, second_treap, insertions_db_ids, deletions_db_ids, updates_db_ids);
 
     EXPECT_EQ(insertions_db_ids.size(), 1);

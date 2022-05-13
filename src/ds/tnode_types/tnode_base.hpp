@@ -11,12 +11,12 @@ namespace treap_types {
 class Tnode {
   //todo change this "public"
   public:
-    uint32_t data_id;
+    uint64_t data_id;
     unsigned long long prio;
-    uint32_t index_tnode;
+    uint64_t index_tnode;
 
-    static const int rand_pool_size = (1 << 16);
-    static int next_rand_idx;
+    static const int64_t rand_pool_size = (1 << 16);
+    static int64_t next_rand_idx;
     static std::vector<unsigned long long> rand_values;
     static uint64_t next_index_tnode;
     static uint64_t first_notsaved_index_tnode;
@@ -25,16 +25,10 @@ class Tnode {
 
     Tnode *l;
     Tnode *r;
-
-    // uint32_t total_mutations;
-    // tsl::hopscotch_map<std::string, uint32_t> mutation_freq;
     
-    Tnode(const uint32_t index);
+    Tnode(const uint64_t index);
     Tnode(const Tnode *oth);
-    Tnode(const uint32_t rc_data_id, const uint64_t rc_prio, const uint32_t rc_index_tnode);
-    
-    // This constructor is not initializing 'r' and 'l' fields!
-    // Tnode(const H5::Group &tnode_group);
+    Tnode(const uint64_t rc_data_id, const uint64_t rc_prio, const uint64_t rc_index_tnode);
 
     // https://isocpp.org/wiki/faq/freestore-mgmt#delete-this
     void try_to_suicide();

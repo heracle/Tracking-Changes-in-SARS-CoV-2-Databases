@@ -41,7 +41,7 @@ int append(Config *config) {
     delete ctc_in; // it is also made unusable by the previous constructor.
     h5_file_in.close();
 
-    for (uint32_t i = 0; i < config->fnames.size(); ++i) {
+    for (uint64_t i = 0; i < config->fnames.size(); ++i) {
         Logger::trace("Parsing snapshot '" + config->fnames[i] + "'...");
         std::vector<common::SeqElem> seq_elems;
         Logger::trace("Composing snapshot treap to compute the diferences...");
@@ -55,7 +55,7 @@ int append(Config *config) {
             // Create a treap only for seq_id to do the comparison.
             std::vector<std::unique_ptr<BaseSortedTreap>> acc_id_seq_snapshot;
 
-            uint32_t seq_counter = 0;
+            uint64_t seq_counter = 0;
             for (const common::SeqElem &seq : seq_elems) {
                 acc_id_seq_snapshot.push_back(AccessionIdSorted::get_unique_from_snapshot_line(seq, seq_counter++, NULL));
             }
@@ -65,10 +65,10 @@ int append(Config *config) {
         delete seq_reader;
 
         // compare ctc treap with 'snapshot_treap_location'.
-        std::vector<uint32_t> insertions_db_ids;
-        std::vector<uint32_t> deletions_db_ids;
+        std::vector<uint64_t> insertions_db_ids;
+        std::vector<uint64_t> deletions_db_ids;
         // .first is the idx in the main hash_treap and .second in the current snapshot.
-        std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids;
+        std::vector<std::pair<uint64_t, uint64_t>> updates_db_ids;
 
         Logger::trace("Getting the difference between the input treap and the current snapshot...");
         ds::PS_Treap::get_differences(hash_treap, snapshot_treap_acc_ids, insertions_db_ids, deletions_db_ids, updates_db_ids);
@@ -83,7 +83,7 @@ int append(Config *config) {
 
         deletions_db_ids.clear();
         // append the modified sequences id to the 'deletions_db_ids' list.
-        for (std::pair<uint32_t, uint32_t> pair_ids : updates_db_ids) {
+        for (std::pair<uint64_t, uint64_t> pair_ids : updates_db_ids) {
             deletions_db_ids.push_back(pair_ids.first);
         }
 
@@ -92,11 +92,11 @@ int append(Config *config) {
         ctc_out->erase_seq(deletions_db_ids, true);
 
         // Create a pair for id in snapshot and previous id of the same sequence to set the linked list.
-        std::vector<std::pair<uint32_t, uint32_t>> snapshot_indices_to_insert;
-        for (uint32_t insertion_id : insertions_db_ids) {
-            snapshot_indices_to_insert.push_back({insertion_id, UINT_MAX});
+        std::vector<std::pair<uint64_t, uint64_t>> snapshot_indices_to_insert;
+        for (uint64_t insertion_id : insertions_db_ids) {
+            snapshot_indices_to_insert.push_back({insertion_id, ULLONG_MAX});
         }
-        for (std::pair<uint32_t, uint32_t> pair_ids : updates_db_ids) {
+        for (std::pair<uint64_t, uint64_t> pair_ids : updates_db_ids) {
             snapshot_indices_to_insert.push_back({pair_ids.second, pair_ids.first});
         }
 
@@ -106,13 +106,13 @@ int append(Config *config) {
         Logger::trace("Inserting the new/modified elements from the main treap...");
         seq_reader = new common::SeqElemReader(config->fnames[i]);
 
-        std::vector<std::pair<common::SeqElem, uint32_t> > elems_to_insert;
+        std::vector<std::pair<common::SeqElem, uint64_t> > elems_to_insert;
         
-        for (uint32_t i = 0; i < snapshot_indices_to_insert.size(); ++i) {
+        for (uint64_t i = 0; i < snapshot_indices_to_insert.size(); ++i) {
             common::SeqElem seq = seq_reader->get_elem(snapshot_indices_to_insert[i].first);
-            if (snapshot_indices_to_insert[i].second == UINT_MAX) {
+            if (snapshot_indices_to_insert[i].second == ULLONG_MAX) {
                 // is new add
-                seq.prv_db_id = UINT_MAX;
+                seq.prv_db_id = ULLONG_MAX;
             } else {
                 // is modified
                 seq.prv_db_id = snapshot_indices_to_insert[i].second;

@@ -16,25 +16,25 @@ using namespace common;
 
 LocationSorted::LocationSorted(
     const std::string &req_key, 
-    const uint32_t req_database_id,
-    const uint32_t req_num_seq_versions,
-    const std::vector<uint32_t> &req_bp_alterations) : BaseSortedTreap(req_key, req_database_id) {
+    const uint64_t req_database_id,
+    const uint64_t req_num_seq_versions,
+    const std::vector<uint64_t> &req_bp_alterations) : BaseSortedTreap(req_key, req_database_id) {
     this->bp_alterations = req_bp_alterations;
     this->num_sequence_versions = req_num_seq_versions;
 };
 
 LocationSorted::~LocationSorted() {}
 
-std::vector<std::vector<uint32_t>> LocationSorted::alteration_list_SeqElem;
-uint32_t LocationSorted::next_alteration_SeqElem_id = 0;
+std::vector<std::vector<uint64_t>> LocationSorted::alteration_list_SeqElem;
+uint64_t LocationSorted::next_alteration_SeqElem_id = 0;
 
-std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_snapshot_line(const SeqElem &e, const uint32_t req_database_id, const BaseSortedTreap *prv) {
+std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_snapshot_line(const SeqElem &e, const uint64_t req_database_id, const BaseSortedTreap *prv) {
     if (prv == NULL) {
         auto aux = std::make_unique<LocationSorted>(
             e.covv_data[SEQ_FIELDS_TO_ID.at("covv_location")] + "_$_" + e.covv_data[SEQ_FIELDS_TO_ID.at("covv_collection_date")],
             req_database_id,
             0,
-            std::vector<uint32_t>()
+            std::vector<uint64_t>()
         );
 
         std::unique_ptr<BaseSortedTreap> answer = std::move(aux);
@@ -43,10 +43,10 @@ std::unique_ptr<BaseSortedTreap> LocationSorted::get_unique_from_snapshot_line(c
 
     const LocationSorted *location_prv = static_cast<const LocationSorted*>(prv);
 
-    const std::vector<uint32_t> &prv_alterations = location_prv->bp_alterations;
-    const std::vector<uint32_t> &new_alterations = (LocationSorted::alteration_list_SeqElem[LocationSorted::next_alteration_SeqElem_id++]);
-    std::vector<uint32_t> merged_alterations;
-    uint32_t prv_idx = 0, new_idx = 0;
+    const std::vector<uint64_t> &prv_alterations = location_prv->bp_alterations;
+    const std::vector<uint64_t> &new_alterations = (LocationSorted::alteration_list_SeqElem[LocationSorted::next_alteration_SeqElem_id++]);
+    std::vector<uint64_t> merged_alterations;
+    uint64_t prv_idx = 0, new_idx = 0;
 
     while (prv_idx < prv_alterations.size() && new_idx < new_alterations.size()) {
         assert(prv_alterations[prv_idx] + 1 != new_alterations[new_idx]); /*
@@ -87,24 +87,24 @@ void LocationSorted::reset_get_unique_from_snapshot_line(const ds::PS_Treap *acc
                                                         const ds::PS_Treap *accid_snapshot_treap,
                                                         const ds::DB *base_db,
                                                         common::SeqElemReader *snapshot_reader,
-                                                        const std::vector<uint32_t>&, 
-                                                        const std::vector<uint32_t>&, 
-                                                        std::vector<std::pair<uint32_t, uint32_t>> updates_db_ids) {
+                                                        const std::vector<uint64_t>&, 
+                                                        const std::vector<uint64_t>&, 
+                                                        std::vector<std::pair<uint64_t, uint64_t>> updates_db_ids) {
     LocationSorted::alteration_list_SeqElem.clear();
 
-    std::sort(updates_db_ids.begin(), updates_db_ids.end(), [](const std::pair<uint32_t, uint32_t> &a, const std::pair<uint32_t, uint32_t> &b) {
+    std::sort(updates_db_ids.begin(), updates_db_ids.end(), [](const std::pair<uint64_t, uint64_t> &a, const std::pair<uint64_t, uint64_t> &b) {
         if (a.second != b.second) {
             return a.second < b.second;
         }
         return a.first < b.first;
     });
 
-    for (const std::pair<uint32_t, uint32_t> pair_ids : updates_db_ids) {
+    for (const std::pair<uint64_t, uint64_t> pair_ids : updates_db_ids) {
         AccessionIdSorted* ctc_elem = static_cast<AccessionIdSorted*>(accid_base_treap->static_data[pair_ids.first].get());
         AccessionIdSorted* snapshot_elem = static_cast<AccessionIdSorted*>(accid_snapshot_treap->static_data[pair_ids.second].get());
 
         if (ctc_elem->seq_hash == snapshot_elem->seq_hash) {
-            alteration_list_SeqElem.push_back(std::vector<uint32_t>());
+            alteration_list_SeqElem.push_back(std::vector<uint64_t>());
             continue;
         }
 
@@ -115,8 +115,8 @@ void LocationSorted::reset_get_unique_from_snapshot_line(const ds::PS_Treap *acc
             Logger::error("internal error, the sizes of the 2 aligned sequences to compare are different");
         }
 
-        auto curr_bp_alterations = std::vector<uint32_t>();
-        for (uint32_t i = 0; i < seq1.size(); ++i) {
+        auto curr_bp_alterations = std::vector<uint64_t>();
+        for (uint64_t i = 0; i < seq1.size(); ++i) {
             if (seq1[i] != seq2[i]) {
                 curr_bp_alterations.push_back(i * (1<<common::BITS_FOR_STEPS_BACK));
             }
@@ -126,22 +126,22 @@ void LocationSorted::reset_get_unique_from_snapshot_line(const ds::PS_Treap *acc
 }
 
 std::vector<uint64_t> LocationSorted::alteration_sizes;
-std::vector<uint32_t> LocationSorted::merged_alterations;
-std::vector<uint32_t> LocationSorted::num_seq_vers_h5;
-uint32_t LocationSorted::next_node_id;
-uint32_t LocationSorted::next_merged_id;
+std::vector<uint64_t> LocationSorted::merged_alterations;
+std::vector<uint64_t> LocationSorted::num_seq_vers_h5;
+uint64_t LocationSorted::next_node_id;
+uint64_t LocationSorted::next_merged_id;
 
 void LocationSorted::reset_get_new_BaseSortedTreap(const H5::Group &group) {
     LocationSorted::next_node_id = 0;
     LocationSorted::next_merged_id = 0;
     LocationSorted::alteration_sizes = H5Helper::read_h5_int_to_dataset<uint64_t>(group, "alteration_sizes");
-    LocationSorted::merged_alterations = H5Helper::read_h5_int_to_dataset<uint32_t>(group, "merged_alterations");
-    LocationSorted::num_seq_vers_h5 = H5Helper::read_h5_int_to_dataset<uint32_t>(group, "num_seq_vers_h5");
+    LocationSorted::merged_alterations = H5Helper::read_h5_int_to_dataset<uint64_t>(group, "merged_alterations");
+    LocationSorted::num_seq_vers_h5 = H5Helper::read_h5_int_to_dataset<uint64_t>(group, "num_seq_vers_h5");
 }
 
-std::unique_ptr<BaseSortedTreap> LocationSorted::get_new_BaseSortedTreap(const std::string &key, const uint32_t database_id) {
-    uint32_t num_alters = alteration_sizes[next_node_id];
-    std::vector<uint32_t> curr_alterations;
+std::unique_ptr<BaseSortedTreap> LocationSorted::get_new_BaseSortedTreap(const std::string &key, const uint64_t database_id) {
+    uint64_t num_alters = alteration_sizes[next_node_id];
+    std::vector<uint64_t> curr_alterations;
     for (uint64_t i = LocationSorted::next_merged_id; i < LocationSorted::next_merged_id + num_alters; ++i) {
         curr_alterations.push_back(LocationSorted::merged_alterations[i]);
     }
@@ -155,12 +155,12 @@ std::unique_ptr<BaseSortedTreap> LocationSorted::get_new_BaseSortedTreap(const s
 
 void serialize_location_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSortedTreap>> &elems, H5::Group &h5_group) {
     std::vector<std::string> saved_key;
-    std::vector<uint32_t> saved_database_id;
+    std::vector<uint64_t> saved_database_id;
 
     std::vector<uint64_t> alteration_sizes;
-    std::vector<uint32_t> merged_alterations;
-    std::vector<uint32_t> saved_num_seq_vers;
-    for (uint32_t i = 0; i < elems.size(); ++i) {
+    std::vector<uint64_t> merged_alterations;
+    std::vector<uint64_t> saved_num_seq_vers;
+    for (uint64_t i = 0; i < elems.size(); ++i) {
         LocationSorted* elem = static_cast<LocationSorted*>(elems[i].get());
 
         saved_key.push_back(elem->key);
@@ -169,7 +169,7 @@ void serialize_location_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSorte
 
         alteration_sizes.push_back(elem->bp_alterations.size());
 
-        for (uint32_t i = 0; i < elem->bp_alterations.size(); ++i) {
+        for (uint64_t i = 0; i < elem->bp_alterations.size(); ++i) {
             merged_alterations.push_back(elem->bp_alterations[i]);
         }
     }

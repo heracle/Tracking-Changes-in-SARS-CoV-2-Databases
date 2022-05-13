@@ -11,10 +11,10 @@
 
 namespace query_ns {
 
-void FreqBpQuery::add_alters(const std::vector<uint32_t> bp_alterations, uint32_t database_id, const std::string &owner, const ds::DB *db) {
-    for (const uint32_t alteration : bp_alterations) {
-        uint32_t altered_bp = (alteration >> common::BITS_FOR_STEPS_BACK);
-        uint32_t num_versions_back = alteration - (altered_bp << common::BITS_FOR_STEPS_BACK);
+void FreqBpQuery::add_alters(const std::vector<uint64_t> bp_alterations, uint64_t database_id, const std::string &owner, const ds::DB *db) {
+    for (const uint64_t alteration : bp_alterations) {
+        uint64_t altered_bp = (alteration >> common::BITS_FOR_STEPS_BACK);
+        uint64_t num_versions_back = alteration - (altered_bp << common::BITS_FOR_STEPS_BACK);
         alterations_per_bp[altered_bp]++;
         owner_distrib_per_bp[altered_bp][owner]++;
         if (db == NULL) {
@@ -23,14 +23,14 @@ void FreqBpQuery::add_alters(const std::vector<uint32_t> bp_alterations, uint32_
 
         uint64_t curr_mask = (((uint64_t)database_id)<<common::BITS_FOR_STEPS_BACK) + num_versions_back;
         if (prv_sequences.count(curr_mask) == 0) {
-            uint32_t target_database_idx = database_id;
+            uint64_t target_database_idx = database_id;
             while (num_versions_back) {
                 target_database_idx = db->get_element(target_database_idx).prv_db_id;
-                assert(target_database_idx != UINT_MAX);
+                assert(target_database_idx != ULLONG_MAX);
                 --num_versions_back;
             }
-            uint32_t prev_database_idx = db->get_element(target_database_idx).prv_db_id;
-            assert(prev_database_idx != UINT_MAX);
+            uint64_t prev_database_idx = db->get_element(target_database_idx).prv_db_id;
+            assert(prev_database_idx != ULLONG_MAX);
 
             prv_sequences[curr_mask] = std::make_pair(db->get_element(prev_database_idx).covv_data[common::SEQ_FIELDS_TO_ID.at("sequence")], 
                                                       db->get_element(target_database_idx).covv_data[common::SEQ_FIELDS_TO_ID.at("sequence")]);
@@ -47,7 +47,7 @@ void FreqBpQuery::add_alters(const std::vector<uint32_t> bp_alterations, uint32_
     }
 }
 
-FreqBpQuery::FreqBpQuery(const bool req_compute_total_owner_cnt, const uint32_t req_num_to_print) {
+FreqBpQuery::FreqBpQuery(const bool req_compute_total_owner_cnt, const uint64_t req_num_to_print) {
     this->compute_total_owner_cnt = req_compute_total_owner_cnt;
     this->num_to_print = req_num_to_print;
     reset();
@@ -76,7 +76,7 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(const std::string &target_l
     const LocationSorted* elem = static_cast<const LocationSorted*>(elem_unique);
 
     // find lcp between elem->key and config->location
-    uint32_t lcp = 0;
+    uint64_t lcp = 0;
     for (lcp = 0; lcp < target_location_prefix.size() && lcp < elem->key.size(); ++lcp) {
         if (target_location_prefix[lcp] != elem->key[lcp]) {
             break;
@@ -109,13 +109,13 @@ TreeDirectionToGo FreqBpQuery::second_enter_into_node(const std::string &target_
 }
 
 void FreqBpQuery::print_results() {
-    std::vector<std::pair<uint32_t, uint32_t>> top_bp_idx;
+    std::vector<std::pair<uint64_t, uint64_t>> top_bp_idx;
 
-    for (uint32_t i = 0; i < common::ALIGNED_SEQ_SIZE; ++i) {
+    for (uint64_t i = 0; i < common::ALIGNED_SEQ_SIZE; ++i) {
         top_bp_idx.push_back({i, alterations_per_bp[i]});
     }
 
-    std::sort(top_bp_idx.begin(), top_bp_idx.end(), [](const std::pair<uint32_t, uint32_t> &a, const std::pair<uint32_t, uint32_t> &b){
+    std::sort(top_bp_idx.begin(), top_bp_idx.end(), [](const std::pair<uint64_t, uint64_t> &a, const std::pair<uint64_t, uint64_t> &b){
         if (a.second != b.second) {
             return a.second > b.second;
         }
@@ -123,14 +123,14 @@ void FreqBpQuery::print_results() {
     });
 
     std::cout << "\n\ntop " << num_to_print << " bp:\n";
-    for (uint32_t i = 0; i < num_to_print; ++i) {
+    for (uint64_t i = 0; i < num_to_print; ++i) {
         if (top_bp_idx[i].second == 0) {
             break;
         }
-        uint32_t bp_idx = top_bp_idx[i].first;
+        uint64_t bp_idx = top_bp_idx[i].first;
         std::cout << "basepair index = " << bp_idx << "\t total number of edits = " << top_bp_idx[i].second << std::endl;
-        std::vector<std::pair<uint32_t, std::string>> owners_list;
-        uint32_t num_owners = 0, total_edits = 0;
+        std::vector<std::pair<uint64_t, std::string>> owners_list;
+        uint64_t num_owners = 0, total_edits = 0;
         for (const auto x : owner_distrib_per_bp[bp_idx]) {
             owners_list.push_back({x.second, x.first});
             ++num_owners;
@@ -138,13 +138,13 @@ void FreqBpQuery::print_results() {
         }
         std::sort(owners_list.begin(), owners_list.end());
         std::cout << "owner distribution per bp --> #owners=" << num_owners << " #edits=" << total_edits <<":\n";
-        for (int32_t i = owners_list.size() - 1; i >= 0; --i) {
+        for (int64_t i = owners_list.size() - 1; i >= 0; --i) {
             std::cout << "\t" << 100.0 * owners_list[i].first / total_edits << "% (" << owners_list[i].first << ") \t owner=" << owners_list[i].second << "\n";
 
-            std::vector<std::pair<uint32_t, std::string>> bp_distrib;
+            std::vector<std::pair<uint64_t, std::string>> bp_distrib;
 
-            uint32_t num_char_to_char_types = 0;
-            uint32_t total_owner_edits = 0;
+            uint64_t num_char_to_char_types = 0;
+            uint64_t total_owner_edits = 0;
             for (const auto x : char_to_char_distrib_per_bp_per_owner[bp_idx][owners_list[i].second]) {
                 bp_distrib.push_back({x.second, x.first});
                 ++num_char_to_char_types;
@@ -152,7 +152,7 @@ void FreqBpQuery::print_results() {
             }
             std::sort(bp_distrib.begin(), bp_distrib.end());
             // std::cout << "char to char distribution per bp --> #char_to_char_types=" << num_char_to_char_types << " #edits=" << total_edits << ":\n";
-            for (int32_t i = bp_distrib.size() - 1; i >= 0; --i) {
+            for (int64_t i = bp_distrib.size() - 1; i >= 0; --i) {
                 std::cout << "\t\t" << bp_distrib[i].second << " " << 100.0 * bp_distrib[i].first / total_owner_edits << "% (" << bp_distrib[i].first << ") " << "\n";
             }
         }
@@ -160,8 +160,8 @@ void FreqBpQuery::print_results() {
     }
 
     struct OwnerDetails {
-        uint32_t edits;
-        uint32_t uploads;
+        uint64_t edits;
+        uint64_t uploads;
         std::string name;
     };
 
@@ -179,7 +179,7 @@ void FreqBpQuery::print_results() {
     });
 
     std::cout << "\n\ntop " << num_to_print << " owners:\n";
-    for (uint32_t i = 0; i < owners.size() && i < num_to_print; ++i) {
+    for (uint64_t i = 0; i < owners.size() && i < num_to_print; ++i) {
         std::cout << owners[i].edits << "\t";
         if (this->compute_total_owner_cnt) {
             std::cout << owners[i].uploads << "\t";

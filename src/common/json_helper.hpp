@@ -20,7 +20,7 @@ struct SeqElem {
     // covv_data size will be equal to constants.hpp/SEQ_FIELDS
     std::string covv_data[SEQ_FIELDS_SZ];    
     // todo add std::string lab_owner;
-    uint32_t prv_db_id;
+    uint64_t prv_db_id;
 
     SeqElem operator = (const SeqElem &source);
 };
@@ -42,19 +42,19 @@ class SeqElemReader {
     rapidjson::Document document;
     std::ifstream f;
     bool finished;
-    int32_t last_id_read;
+    int64_t last_id_read;
 
     // Always keep the next SeqElem in 'next_elem' for being one step ahead in file and keep 'end_of_file()' up to date.
     SeqElem next_elem;
     SeqElem get_next();
 
   public:
-    std::vector<SeqElem> get_aligned_seq_elements(const uint32_t append_size = common::H5_APPEND_SIZE);
+    std::vector<SeqElem> get_aligned_seq_elements(const uint64_t append_size = common::H5_APPEND_SIZE);
     SeqElemReader(const std::string &input_path);
     ~SeqElemReader();
     bool end_of_file();
 
-    SeqElem get_elem(const int32_t id);
+    SeqElem get_elem(const int64_t id);
 };
 
 } // namespace common

@@ -101,12 +101,12 @@ CTC::CTC(H5::H5File &h5_file) : h5file(h5_file) {
 
         // read data before calling the LocationSorted Treap constructor
         std::vector<std::string> keys = H5Helper::read_h5_dataset(treap_group, "key");
-        std::vector<uint32_t> database_ids = H5Helper::read_h5_int_to_dataset<uint32_t>(treap_group, "database_id");
+        std::vector<uint64_t> database_ids = H5Helper::read_h5_int_to_dataset<uint64_t>(treap_group, "database_id");
         assert(keys.size() == database_ids.size());
 
         std::vector<std::unique_ptr<BaseSortedTreap>> treap_static_data;
         treap_data.reset_get_new_BaseSortedTreap(treap_group);
-        for (uint32_t i = 0; i < keys.size(); ++i) {
+        for (uint64_t i = 0; i < keys.size(); ++i) {
             std::unique_ptr<BaseSortedTreap> curr = treap_data.get_new_BaseSortedTreap(keys[i], database_ids[i]);
             treap_static_data.push_back(std::move(curr));
         }
@@ -129,10 +129,10 @@ CTC::~CTC() {
     }
 }
 
-void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint32_t> > &seq_elems_with_prv) {
+void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint64_t> > &seq_elems_with_prv) {
 
-    std::vector<uint32_t> seq_ids(seq_elems_with_prv.size());
-    for (uint32_t i = 0; i < seq_elems_with_prv.size(); ++i) {
+    std::vector<uint64_t> seq_ids(seq_elems_with_prv.size());
+    for (uint64_t i = 0; i < seq_elems_with_prv.size(); ++i) {
         seq_ids[i] = db->insert_element(seq_elems_with_prv[i].first);
     }
 
@@ -143,9 +143,9 @@ void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint32_t> > &s
         }
 
         std::vector<std::unique_ptr<BaseSortedTreap>> unique_seq_to_insert;
-        for (uint32_t i = 0; i < seq_elems_with_prv.size(); i++) {
+        for (uint64_t i = 0; i < seq_elems_with_prv.size(); i++) {
             BaseSortedTreap *curr_prv = NULL;
-            if (seq_elems_with_prv[i].second != UINT_MAX) {
+            if (seq_elems_with_prv[i].second != ULLONG_MAX) {
                 curr_prv = treap_data.treap->static_data[seq_elems_with_prv[i].second].get();
             }
             unique_seq_to_insert.push_back(std::move(treap_data.get_unique_from_snapshot_line(seq_elems_with_prv[i].first, seq_ids[i], curr_prv)));
@@ -156,7 +156,7 @@ void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint32_t> > &s
     }
 }
 
-void CTC::erase_seq(const std::vector<uint32_t> &deletions_db_ids, const bool was_modified) {
+void CTC::erase_seq(const std::vector<uint64_t> &deletions_db_ids, const bool was_modified) {
     for (auto [treap_name, treap_data] : this->treaps) {
         if (treap_name.find("deleted_") == 0) {
             // don't erase sequences from treaps for deletions.
@@ -168,7 +168,7 @@ void CTC::erase_seq(const std::vector<uint32_t> &deletions_db_ids, const bool wa
             std::vector<std::unique_ptr<BaseSortedTreap>> unique_seq_to_insert;
 
             // save the content of the deleted sequences for copying them into the deleted treap;
-            for (uint32_t i = 0; i < deletions_db_ids.size(); ++i) {
+            for (uint64_t i = 0; i < deletions_db_ids.size(); ++i) {
                 unique_seq_to_insert.push_back(std::move(treap_data.copy_specialized_static_field(treap_data.treap->static_data[deletions_db_ids[i]].get())));
             }
             treaps.at("deleted_" + treap_name).treap->insert(unique_seq_to_insert);
@@ -206,9 +206,9 @@ void CTC::prepare_specific_get_unique_SeqElem(const ds::PS_Treap *accid_base_tre
                                               const ds::PS_Treap *accid_snapshot_treap,
                                               const DB *base_db,
                                               const std::string &file_name,
-                                              const std::vector<uint32_t> &insertions_db_ids, 
-                                              const std::vector<uint32_t> &deletions_db_ids, 
-                                              const std::vector<std::pair<uint32_t, uint32_t>> &updates_db_ids) const {
+                                              const std::vector<uint64_t> &insertions_db_ids, 
+                                              const std::vector<uint64_t> &deletions_db_ids, 
+                                              const std::vector<std::pair<uint64_t, uint64_t>> &updates_db_ids) const {
     for (auto [treap_name, treap_data] : this->treaps) {
         common::SeqElemReader *seq_reader = new common::SeqElemReader(file_name);
         treap_data.reset_get_unique_from_snapshot_line(accid_base_treap, accid_snapshot_treap, base_db, seq_reader, insertions_db_ids, deletions_db_ids, updates_db_ids);

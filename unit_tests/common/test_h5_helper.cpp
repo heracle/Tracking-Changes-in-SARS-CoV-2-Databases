@@ -12,58 +12,8 @@
 const std::string H5_FILENAME = "__tmp_h5_for_unit_tests.h5";
 const std::string H5_GROUPNAME = "/unit_test";
 
-TEST(H5Helper, GetSetAttr_uint32) {
-    std::string test_filename = "uint32" + H5_FILENAME; 
-    H5::H5File h5_file(test_filename, H5F_ACC_TRUNC);
-    H5::Group tmp_group = h5_file.createGroup(H5_GROUPNAME);
-
-    H5Helper::set_uint32_hdf5_attr((uint32_t)50, &tmp_group, "first");
-    H5Helper::set_uint32_hdf5_attr(150, &tmp_group, "second");
-    H5Helper::set_uint32_hdf5_attr((1<<31) + 500, &tmp_group, "third");
-
-    tmp_group.close();
-    h5_file.close();
-
-    h5_file = H5::H5File(test_filename, H5F_ACC_RDONLY);
-    tmp_group = H5Gopen(h5_file.getLocId(), H5_GROUPNAME.c_str(), H5P_DEFAULT);
-
-    EXPECT_EQ(H5Helper::get_uint32_attr_from(tmp_group, "second"), 150);
-    EXPECT_EQ(H5Helper::get_uint32_attr_from(tmp_group, "third"), (1<<31) + 500);
-    EXPECT_EQ(H5Helper::get_uint32_attr_from(tmp_group, "first"), 50);
-
-    tmp_group.close();
-    h5_file.close();
-
-    EXPECT_EQ(remove(test_filename.c_str()), 0);
-}
-
-TEST(H5Helper, GetSetAttr_int32) {
-    std::string test_filename = "int32" + H5_FILENAME;
-    H5::H5File h5_file(test_filename, H5F_ACC_TRUNC);
-    H5::Group tmp_group = h5_file.createGroup(H5_GROUPNAME);
-
-    H5Helper::set_int32_hdf5_attr((int32_t)50, &tmp_group, "first");
-    H5Helper::set_int32_hdf5_attr(150, &tmp_group, "second");
-    H5Helper::set_int32_hdf5_attr((1<<31) + 500, &tmp_group, "third");
-
-    tmp_group.close();
-    h5_file.close();
-
-    h5_file = H5::H5File(test_filename, H5F_ACC_RDONLY);
-    tmp_group = H5Gopen(h5_file.getLocId(), H5_GROUPNAME.c_str(), H5P_DEFAULT);
-
-    EXPECT_EQ(H5Helper::get_int32_attr_from(tmp_group, "second"), 150);
-    EXPECT_EQ(H5Helper::get_int32_attr_from(tmp_group, "third"), (1<<31) + 500);
-    EXPECT_EQ(H5Helper::get_int32_attr_from(tmp_group, "first"), 50);
-
-    tmp_group.close();
-    h5_file.close();
-    EXPECT_EQ(remove(test_filename.c_str()), 0);
-}
-
 TEST(H5Helper, GetSetAttr_uint64) {
-    std::string test_filename = "uint64" + H5_FILENAME;
-
+    std::string test_filename = "uint64" + H5_FILENAME; 
     H5::H5File h5_file(test_filename, H5F_ACC_TRUNC);
     H5::Group tmp_group = h5_file.createGroup(H5_GROUPNAME);
 
@@ -80,6 +30,31 @@ TEST(H5Helper, GetSetAttr_uint64) {
     EXPECT_EQ(H5Helper::get_uint64_attr_from(tmp_group, "second"), 150);
     EXPECT_EQ(H5Helper::get_uint64_attr_from(tmp_group, "third"), (1ULL<<63) + 500);
     EXPECT_EQ(H5Helper::get_uint64_attr_from(tmp_group, "first"), 50);
+
+    tmp_group.close();
+    h5_file.close();
+
+    EXPECT_EQ(remove(test_filename.c_str()), 0);
+}
+
+TEST(H5Helper, GetSetAttr_int64) {
+    std::string test_filename = "int64" + H5_FILENAME;
+    H5::H5File h5_file(test_filename, H5F_ACC_TRUNC);
+    H5::Group tmp_group = h5_file.createGroup(H5_GROUPNAME);
+
+    H5Helper::set_int64_hdf5_attr((int64_t)50, &tmp_group, "first");
+    H5Helper::set_int64_hdf5_attr(150, &tmp_group, "second");
+    H5Helper::set_int64_hdf5_attr((1LL<<62) + 500, &tmp_group, "third");
+
+    tmp_group.close();
+    h5_file.close();
+
+    h5_file = H5::H5File(test_filename, H5F_ACC_RDONLY);
+    tmp_group = H5Gopen(h5_file.getLocId(), H5_GROUPNAME.c_str(), H5P_DEFAULT);
+
+    EXPECT_EQ(H5Helper::get_int64_attr_from(tmp_group, "second"), 150);
+    EXPECT_EQ(H5Helper::get_int64_attr_from(tmp_group, "third"), (1LL<<62) + 500);
+    EXPECT_EQ(H5Helper::get_int64_attr_from(tmp_group, "first"), 50);
 
     tmp_group.close();
     h5_file.close();

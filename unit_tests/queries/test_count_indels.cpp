@@ -20,25 +20,25 @@ TEST(CountIndelsQuery, TestCntIndels) {
 
     std::vector<std::string> seq_keys = {"dcbae", "dcbac", "dcc", "da", "dcbadf", "dcbb", "dcd", "a", "dcbab", "dcbade", "dcbadg", "dcbaz", "dcbba", "dccaa", "ddaaa"};
 
-    for (uint32_t i = 0; i < 15; ++i) {
-        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint32_t>());
+    for (uint64_t i = 0; i < 15; ++i) {
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>());
         treap->static_data.push_back(std::move(unique_node));
     }
 
     Tnode *tnode[15];
     
-    for (uint32_t i = 0; i < 15; ++i) {
+    for (uint64_t i = 0; i < 15; ++i) {
         tnode[i] = LocationTnode::create_new_specialized_tnode(i);
     }    
 
     treap->root = tnode[0];
 
-    for (uint32_t i = 1; i <= 7; ++i) {
+    for (uint64_t i = 1; i <= 7; ++i) {
         tnode[i - 1]->l = tnode[2*i - 1];
         tnode[i - 1]->r = tnode[2*i];
     }
 
-    for (int32_t i = 14; i >= 0; --i) {
+    for (int64_t i = 14; i >= 0; --i) {
         recompute_location_statistics(tnode[i], treap->static_data[i].get());
     }
 
@@ -151,7 +151,7 @@ TEST(CountIndelsQuery, TestCntIndels) {
         query->set_deletion_mode(false);
     }
 
-    for (uint32_t i = 0; i < tests.size(); ++i) {
+    for (uint64_t i = 0; i < tests.size(); ++i) {
         const CntIndelsTestStr &test = tests[i];
         EXPECT_EQ(test.test_id + std::to_string(query->total_inserted_sequences[i]), test.test_id + std::to_string(test.expected_num_sequences));
         EXPECT_EQ(test.test_id + std::to_string(query->total_modified_sequences[i]), test.test_id + std::to_string(test.expected_sum_versions));
@@ -168,14 +168,14 @@ TEST(CountIndelsQuery, TestDeletionsTreap) {
 
     std::vector<std::string> seq_keys = {"dcbae", "dcbac", "dcc", "dcaa", "eee"}; // first 3 are normal sequences, the last 2 are deletions.
 
-    for (uint32_t i = 0; i < 3; ++i) {
-        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint32_t>());
+    for (uint64_t i = 0; i < 3; ++i) {
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>());
         treap->static_data.push_back(std::move(unique_node));
     }
 
     Tnode *tnode[5];
     
-    for (uint32_t i = 0; i < 3; ++i) {
+    for (uint64_t i = 0; i < 3; ++i) {
         tnode[i] = LocationTnode::create_new_specialized_tnode(i);
     }    
 
@@ -189,22 +189,22 @@ TEST(CountIndelsQuery, TestDeletionsTreap) {
                                             treap_types::LocationTnode::copy_specialized_tnode);
 
 
-    for (uint32_t i = 3; i < 5; ++i) {
-        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint32_t>());
+    for (uint64_t i = 3; i < 5; ++i) {
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>());
         deletions_treap->static_data.push_back(std::move(unique_node));
     }
 
-    for (uint32_t i = 3; i < 5; ++i) {
+    for (uint64_t i = 3; i < 5; ++i) {
         tnode[i] = LocationTnode::create_new_specialized_tnode(i-3);
     }
 
     deletions_treap->root = tnode[4];
     tnode[4]->l = tnode[3];
 
-    for (int32_t i = 4; i >= 3; --i) {
+    for (int64_t i = 4; i >= 3; --i) {
         recompute_location_statistics(tnode[i], deletions_treap->static_data[i - 3].get());
     }
-    for (int32_t i = 2; i >= 0; --i) {
+    for (int64_t i = 2; i >= 0; --i) {
         recompute_location_statistics(tnode[i], treap->static_data[i].get());
     }
 

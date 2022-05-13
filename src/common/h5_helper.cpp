@@ -7,23 +7,15 @@
 namespace H5Helper {
 
 H5::Attribute attr;
-H5::IntType uint32_datatype(H5::PredType::STD_U32LE);
-H5::IntType int32_datatype(H5::PredType::STD_I32LE);
+H5::IntType int64_datatype(H5::PredType::STD_I64LE);
 H5::IntType uint64_datatype(H5::PredType::STD_U64LE);
 H5::StrType str_datatype(H5::PredType::C_S1, H5T_VARIABLE);
 H5::DataSpace simple_dataspace(H5S_SCALAR);
 
-uint32_t get_uint32_attr_from(const H5::Group &h5, const std::string &attr_name) {
-    uint32_t value;
+int64_t get_int64_attr_from(const H5::Group &h5, const std::string &attr_name) {
+    int64_t value;
     attr = h5.openAttribute(attr_name);
-    attr.read(uint32_datatype, &value);
-    return value;
-}
-
-int32_t get_int32_attr_from(const H5::Group &h5, const std::string &attr_name) {
-    int32_t value;
-    attr = h5.openAttribute(attr_name);
-    attr.read(int32_datatype, &value);
+    attr.read(int64_datatype, &value);
     return value;
 }
 
@@ -41,13 +33,13 @@ std::string get_string_attr_from(const H5::Group &h5, const std::string &attr_na
     return value;
 }
 
-void set_int32_hdf5_attr(const int32_t value, H5::Group *h5, const std::string &attr_name) {
+void set_int64_hdf5_attr(const int64_t value, H5::Group *h5, const std::string &attr_name) {
     if (h5->attrExists(attr_name)) {
         h5->removeAttr(attr_name);
     }
     
-    attr = h5->createAttribute(attr_name, int32_datatype, simple_dataspace);
-    attr.write(int32_datatype, &value);
+    attr = h5->createAttribute(attr_name, int64_datatype, simple_dataspace);
+    attr.write(int64_datatype, &value);
 }
 
 void set_uint64_hdf5_attr(const uint64_t value, H5::Group *h5, const std::string &attr_name) {
@@ -57,15 +49,6 @@ void set_uint64_hdf5_attr(const uint64_t value, H5::Group *h5, const std::string
 
     attr = h5->createAttribute(attr_name, uint64_datatype, simple_dataspace);
     attr.write(uint64_datatype, &value);
-}
-
-void set_uint32_hdf5_attr(const uint32_t value, H5::Group *h5, const std::string &attr_name) {
-    if (h5->attrExists(attr_name)) {
-        h5->removeAttr(attr_name);
-    }
-
-    attr = h5->createAttribute(attr_name, uint32_datatype, simple_dataspace);
-    attr.write(uint32_datatype, &value);
 }
 
 void set_string_hdf5_attr(const std::string value, H5::Group *h5, const std::string &attr_name) {
@@ -80,8 +63,8 @@ void set_string_hdf5_attr(const std::string value, H5::Group *h5, const std::str
 // write_posstr_to_h5_dataset is an internal function for writing a "std::vector<std::string> v" to a h5 file.
 // it receives a concatenated string for all the strings in the array (str_to_save) and an integer array (same size as v) 
 // with all the indeces where the initial strings are starting in the concatenation.
-void write_posstr_to_h5_dataset(const uint32_t elem_size, const uint64_t positions[], const std::string &str_to_save, H5::Group *h5, const std::string &dataset_name) {
-    uint32_t RANK = 2;
+void write_posstr_to_h5_dataset(const uint64_t elem_size, const uint64_t positions[], const std::string &str_to_save, H5::Group *h5, const std::string &dataset_name) {
+    uint64_t RANK = 2;
     hsize_t dimsf[RANK];
 
     // write positions to hdf5
@@ -119,7 +102,7 @@ void write_posstr_to_h5_dataset(const uint32_t elem_size, const uint64_t positio
 // read_posstr_to_h5_dataset is an internal function for reading the searialization made by 'write_posstr_to_h5_dataset' function.
 // It reads from a h5 file and returns a concatenated str and the indices where the small string are starting inside it.
 // A furhter process will compose the final "std::vector<std::string> v".
-void read_posstr_to_h5_dataset(const H5::Group &h5, const std::string &dataset_name, uint32_t *elem_size, uint64_t *&positions, std::string *loaded_str) {
+void read_posstr_to_h5_dataset(const H5::Group &h5, const std::string &dataset_name, uint64_t *elem_size, uint64_t *&positions, std::string *loaded_str) {
     hsize_t dims_out[2];
     hsize_t max_dims[2];
     
@@ -162,7 +145,7 @@ void read_posstr_to_h5_dataset(const H5::Group &h5, const std::string &dataset_n
 }
 
 void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name) {
-    uint32_t RANK = 2;
+    uint64_t RANK = 2;
     hsize_t dimsf[RANK] = {1, 1};
     hsize_t maxdims[RANK] = {1, H5S_UNLIMITED};
 
@@ -203,14 +186,14 @@ void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name
     assert(status == 0);
 }
 
-std::string get_from_extendable_h5_dataset(uint32_t id, const H5::Group &h5, const std::string &dataset_name) {
-    int32_t RANK = 2;
+std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, const std::string &dataset_name) {
+    int64_t RANK = 2;
 
     hid_t pos_dset = H5Dopen (h5.getId(), (dataset_name + "_$_pos").c_str(), H5P_DEFAULT);
     hid_t pos_space = H5Dget_space (pos_dset);
 
     hsize_t pos_dimsf[RANK];
-    int32_t ndims = H5Sget_simple_extent_dims (pos_space, pos_dimsf, NULL); 
+    int64_t ndims = H5Sget_simple_extent_dims (pos_space, pos_dimsf, NULL); 
     if (ndims == -1) {
         Logger::error("Dataset '" + dataset_name + "' is not properly initialised. Please make sure that you have already created an extendable dataset with this name.");
     }  
@@ -300,7 +283,7 @@ std::string get_from_extendable_h5_dataset(uint32_t id, const H5::Group &h5, con
     assert(status == 0);
 
     std::string result;
-    for (uint32_t i = 0; i < rdata[1] - rdata[0]; ++i) {
+    for (uint64_t i = 0; i < rdata[1] - rdata[0]; ++i) {
         result += str_data[i];
     }
     
@@ -323,7 +306,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
 
     // example: https://bitbucket.hdfgroup.org/projects/HDFFV/repos/hdf5-examples/browse/1_10/C/H5D/h5ex_d_unlimadd.c
     // example2:https://www.asc.ohio-state.edu/wilkins.5/computing/HDF/hdf5tutorial/examples/C/h5_hyperslab.c 
-    int32_t RANK = 2;
+    int64_t RANK = 2;
     hsize_t str_dimsf[RANK];
 
     hid_t str_dset = H5Dopen (h5.getId(), (dataset_name + "_$_str").c_str(), H5P_DEFAULT);
@@ -338,7 +321,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     /* 
       saving space dimensions into str_dimsf.
     */
-    int32_t ndims = H5Sget_simple_extent_dims (str_space, str_dimsf, NULL);
+    int64_t ndims = H5Sget_simple_extent_dims (str_space, str_dimsf, NULL);
     if (ndims == -1) {
         Logger::error("Dataset '" + dataset_name + "' is not properly initialised. Please make sure that you have already created an extendable dataset with this name.");
     }
@@ -351,7 +334,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     */
     uint64_t merged_str_pos[1][elems.size()];
     std::string concat_str;
-    for (uint32_t i = 0; i < elems.size(); ++i) {
+    for (uint64_t i = 0; i < elems.size(); ++i) {
         concat_str += elems[i];
         merged_str_pos[0][i] = str_dimsf[1] + concat_str.size();
     }
@@ -488,7 +471,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
      * Append(write) concat_str data:
     */
     char concat_vchar[concat_str.size()] = {};
-    for (uint32_t i = 0; i < concat_str.size(); ++i) {
+    for (uint64_t i = 0; i < concat_str.size(); ++i) {
         concat_vchar[i] = concat_str[i];
     }
 
@@ -508,7 +491,7 @@ void write_h5_dataset(const std::vector<std::string> &elems, H5::Group *h5, cons
     uint64_t merged_str_pos[elems.size()];
     std::string concat_str;
 
-    for (uint32_t i = 0; i < elems.size(); ++i) {
+    for (uint64_t i = 0; i < elems.size(); ++i) {
         concat_str += elems[i];
         merged_str_pos[i] = concat_str.size();
     }
@@ -516,14 +499,14 @@ void write_h5_dataset(const std::vector<std::string> &elems, H5::Group *h5, cons
 }
 
 std::vector<std::string> read_h5_dataset(const H5::Group &h5, const std::string &dataset_name) {
-    uint32_t elem_size;
+    uint64_t elem_size;
     uint64_t *positions;
     std::string loaded_str;
     read_posstr_to_h5_dataset(h5, dataset_name, &elem_size, positions, &loaded_str);
     std::vector<std::string> answer;
     if (elem_size != 0) {
         answer.push_back(loaded_str.substr(0, positions[0]));
-        for (uint32_t i = 1; i < elem_size; ++i) {
+        for (uint64_t i = 1; i < elem_size; ++i) {
             answer.push_back(loaded_str.substr(positions[i-1], positions[i] - positions[i-1]));
         }
     }
@@ -537,7 +520,7 @@ void write_h5_int_to_dataset(const std::vector<T> elems, H5::Group *h5, const st
         h5->removeAttr(dataset_name.c_str());
     }
 
-    uint32_t RANK = 2;
+    uint64_t RANK = 2;
     hsize_t dimsf[RANK];
 
     /* 
@@ -550,18 +533,15 @@ void write_h5_int_to_dataset(const std::vector<T> elems, H5::Group *h5, const st
     hid_t dataspace = H5Screate_simple(RANK, dimsf, NULL);
     hid_t datatype;
     
-    if constexpr (std::is_same_v<T, uint32_t>) {
-        datatype = H5Tcopy(H5T_STD_U32LE);
-    } 
-    if constexpr (std::is_same_v<T, int32_t>) {
-        datatype = H5Tcopy(H5T_STD_I32LE);
-    }
     if constexpr (std::is_same_v<T, uint64_t>) {
         datatype = H5Tcopy(H5T_STD_U64LE);
+    } 
+    if constexpr (std::is_same_v<T, int64_t>) {
+        datatype = H5Tcopy(H5T_STD_I64LE);
     }
 
     T *elems_carray = new T[elems.size()];
-    for (uint32_t i = 0; i < elems.size(); ++i) {
+    for (uint64_t i = 0; i < elems.size(); ++i) {
         elems_carray[i] = elems[i];
     }
 
@@ -576,13 +556,10 @@ void write_h5_int_to_dataset(const std::vector<T> elems, H5::Group *h5, const st
 }
 
 template
-void write_h5_int_to_dataset(const std::vector<uint32_t> elems, H5::Group *h5, const std::string &dataset_name);
-
-template
 void write_h5_int_to_dataset(const std::vector<uint64_t> elems, H5::Group *h5, const std::string &dataset_name);
 
 template
-void write_h5_int_to_dataset(const std::vector<int32_t> elems, H5::Group *h5, const std::string &dataset_name);
+void write_h5_int_to_dataset(const std::vector<int64_t> elems, H5::Group *h5, const std::string &dataset_name);
 
 template <typename T>
 std::vector<T> read_h5_int_to_dataset(const H5::Group &h5, const std::string &dataset_name) {
@@ -606,7 +583,7 @@ std::vector<T> read_h5_int_to_dataset(const H5::Group &h5, const std::string &da
     assert(status >= 0);
 
     std::vector<T> answer;
-    for (uint32_t i = 0; i < dims_out[1]; ++i) {
+    for (uint64_t i = 0; i < dims_out[1]; ++i) {
         answer.push_back(elems_carray[i]);
     }
 
@@ -619,12 +596,9 @@ std::vector<T> read_h5_int_to_dataset(const H5::Group &h5, const std::string &da
 }
 
 template
-std::vector<uint32_t> read_h5_int_to_dataset(const H5::Group &h5, const std::string &dataset_name);
-
-template
 std::vector<uint64_t> read_h5_int_to_dataset(const H5::Group &h5, const std::string &dataset_name);
 
 template
-std::vector<int32_t> read_h5_int_to_dataset(const H5::Group &h5, const std::string &dataset_name);
+std::vector<int64_t> read_h5_int_to_dataset(const H5::Group &h5, const std::string &dataset_name);
 
 } // namespace H5Helper

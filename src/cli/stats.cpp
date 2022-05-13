@@ -28,14 +28,14 @@ int stats(Config *config) {
     // read data before calling the constructor
     std::vector<std::unique_ptr<BaseSortedTreap>> location_data;
     H5::Group location_group = H5Gopen(h5_file.getLocId(), "/location_treap", H5P_DEFAULT);
-    // uint32_t size_location_data = H5Helper::get_uint32_attr_from(location_group, "static_data_size");
+    // uint64_t size_location_data = H5Helper::get_uint64_attr_from(location_group, "static_data_size");
     std::vector<std::string> location_keys = H5Helper::read_h5_dataset(location_group, "key");
-    std::vector<uint32_t> location_database_ids = H5Helper::read_h5_int_to_dataset<uint32_t>(location_group, "database_id");
+    std::vector<uint64_t> location_database_ids = H5Helper::read_h5_int_to_dataset<uint64_t>(location_group, "database_id");
     assert(location_keys.size() == location_database_ids.size());
 
-    for (uint32_t i = 0; i < location_keys.size(); ++i) {
+    for (uint64_t i = 0; i < location_keys.size(); ++i) {
         // H5::Group curr_data_group = H5Gopen(location_group.getLocId(), ("static_data" + std::to_string(i)).c_str(), H5P_DEFAULT);
-        std::unique_ptr<BaseSortedTreap> curr_location = std::make_unique<LocationSorted>(location_keys[i], location_database_ids[i], 0, std::vector<uint32_t>());
+        std::unique_ptr<BaseSortedTreap> curr_location = std::make_unique<LocationSorted>(location_keys[i], location_database_ids[i], 0, std::vector<uint64_t>());
         // curr_data_group.close();
         location_data.push_back(std::move(curr_location));
     }
@@ -52,8 +52,8 @@ int stats(Config *config) {
     std::cout << "Total number of saved snapshots: " << snapshot_names.size() << "\n";
     std::cout << "Size of 'data' field:" << treap_location->get_data_size() << "\n";
 
-    for (uint32_t i = 0; i < snapshot_names.size(); ++i) {
-        uint32_t total_treap_nodes = 0;
+    for (uint64_t i = 0; i < snapshot_names.size(); ++i) {
+        uint64_t total_treap_nodes = 0;
         treap_location->iterate_ordered([&](const BaseSortedTreap &) {++total_treap_nodes;}, snapshot_names[i]);
         std::cout << "Snapshot '" << snapshot_names[i] << "' contains " << total_treap_nodes << " treap nodes.\n";
     }
