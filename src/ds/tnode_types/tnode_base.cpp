@@ -6,13 +6,13 @@
 
 namespace treap_types {
 
-int Tnode::next_rand_idx = rand_pool_size;
+int64_t Tnode::next_rand_idx = rand_pool_size;
 std::vector<unsigned long long> Tnode::rand_values = std::vector<unsigned long long>(Tnode::rand_pool_size);
 uint64_t Tnode::next_index_tnode = 0;
 // we can delete any tnode with id > TNODE::first_notsaved_index_tnode without losing the persistence property.
 uint64_t Tnode::first_notsaved_index_tnode = 0;
 
-Tnode::Tnode(const uint32_t index) : data_id(index), prio(get_rand_ull()), l(NULL), r(NULL) {
+Tnode::Tnode(const uint64_t index) : data_id(index), prio(get_rand_ull()), l(NULL), r(NULL) {
     this->index_tnode = next_index_tnode++;
 };
 
@@ -20,7 +20,7 @@ Tnode::Tnode(const Tnode *oth) : data_id(oth->data_id), prio(oth->prio), l(oth->
     this->index_tnode = next_index_tnode++;
 };
 
-Tnode::Tnode(const uint32_t rc_data_id, const uint64_t rc_prio, const uint32_t rc_index_tnode = 0xffffffff) : data_id(rc_data_id), prio(rc_prio), l(NULL), r(NULL) {
+Tnode::Tnode(const uint64_t rc_data_id, const uint64_t rc_prio, const uint64_t rc_index_tnode = 0xffffffff) : data_id(rc_data_id), prio(rc_prio), l(NULL), r(NULL) {
     if (rc_index_tnode == 0xffffffff) {
         this->index_tnode = next_index_tnode++;
     } else {
@@ -40,7 +40,7 @@ unsigned long long Tnode::get_rand_ull() {
         std::random_device dev;
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> unif_dist(1, 0xFFFFFFFFFFFFFFFF);
-        for (unsigned int i = 0; i < rand_pool_size; ++i) {
+        for (uint64_t i = 0; i < rand_pool_size; ++i) {
             rand_values[i] = unif_dist(rng);
         }
         next_rand_idx = 0;

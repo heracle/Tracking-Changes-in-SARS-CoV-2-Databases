@@ -9,16 +9,16 @@ const int SEED = 2021;
 const uint64_t MOD1 = 10000000000000061LL;
 const uint64_t MOD2 = 10000000000000069LL;
 const uint64_t HASH_MOD = 257; // make sure that MOD1 * HASH_MOD does not exceed long long.
-const uint32_t BITS_FOR_STEPS_BACK = 8; // assume that there will be at most 2**8 = 256 updates of the same sequence; Can be increased while "ALIGNED_SEQ_SIZE<<BITS_FOR_STEPS_BACK" fits into 32 bits.
+const uint64_t BITS_FOR_STEPS_BACK = 8; // assume that there will be at most 2**8 = 256 updates of the same sequence; Can be increased while "ALIGNED_SEQ_SIZE<<BITS_FOR_STEPS_BACK" fits into 32 bits.
 
 // todo understand more exactly what 'H5_CHUNK_SIZE' is doing. Currently set to be equal to unix page size.
-const uint32_t H5_APPEND_SIZE = 5000;
-const uint32_t ALIGNED_SEQ_SIZE = 40000;
-const uint32_t H5_CHUNK_SIZE = 10 * ALIGNED_SEQ_SIZE;
+const uint64_t H5_APPEND_SIZE = 5000;
+const uint64_t ALIGNED_SEQ_SIZE = 40000;
+const uint64_t H5_CHUNK_SIZE = 10 * ALIGNED_SEQ_SIZE;
 
 const std::string DS_FILE_FORMAT = ".h5";
 
-const uint32_t SEQ_FIELDS_SZ = 5;
+const uint64_t SEQ_FIELDS_SZ = 5;
 const std::vector<std::string> SEQ_FIELDS = {
     "covv_accession_id",
     "covv_collection_date",
@@ -27,7 +27,7 @@ const std::vector<std::string> SEQ_FIELDS = {
     "owner"
 };
 
-const tsl::hopscotch_map<std::string, uint32_t> SEQ_FIELDS_TO_ID = {
+const tsl::hopscotch_map<std::string, uint64_t> SEQ_FIELDS_TO_ID = {
     {"covv_accession_id", 0},
     {"covv_collection_date", 1},
     {"covv_location", 2},

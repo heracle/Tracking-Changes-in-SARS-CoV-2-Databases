@@ -10,7 +10,7 @@
 
 const std::string PROVISION_TEST_FILEPATH = "../test_data/0000-01-01.provision.json";
 
-bool validate_SeqElem(common::SeqElem seq_elem, int32_t id) {
+bool validate_SeqElem(common::SeqElem seq_elem, int64_t id) {
     if (seq_elem.covv_data[0] != "EPI_ISL_" + std::to_string(id)) {
         return false;
     }
@@ -24,13 +24,13 @@ bool validate_SeqElem(common::SeqElem seq_elem, int32_t id) {
 TEST(JsonHelper, SeqElemEqOperator) {
     common::SeqElem x, y;
 
-    for (uint32_t i = 0; i < common::SEQ_FIELDS_SZ; ++i) {
+    for (uint64_t i = 0; i < common::SEQ_FIELDS_SZ; ++i) {
         x.covv_data[i] = "test_" + std::to_string(i);
     }
 
     y = x;
 
-    for (uint32_t i = 0; i < common::SEQ_FIELDS_SZ; ++i) {
+    for (uint64_t i = 0; i < common::SEQ_FIELDS_SZ; ++i) {
         EXPECT_EQ(y.covv_data[i], "test_" + std::to_string(i));
     }
 }
@@ -48,8 +48,8 @@ TEST(JsonHelper, GetSeqElemFromJson) {
 
 TEST(JsonHelper, SeqElemReaderAlignedElems) {
     common::SeqElemReader *reader = new common::SeqElemReader(PROVISION_TEST_FILEPATH);
-    const uint32_t num_append_cst = 6;
-    uint32_t num_seq_read = 0;
+    const uint64_t num_append_cst = 6;
+    uint64_t num_seq_read = 0;
     while(! reader->end_of_file()) {
         std::vector<common::SeqElem> sequences = reader->get_aligned_seq_elements(num_append_cst);
 
@@ -69,7 +69,7 @@ TEST(JsonHelper, SeqElemReaderAlignedElems) {
 TEST(JsonHelper, SeqElemReaderGetElem) {
     common::SeqElemReader *reader = new common::SeqElemReader(PROVISION_TEST_FILEPATH);
 
-    for (int32_t id = 0; id < 20; ++id) {
+    for (int64_t id = 0; id < 20; ++id) {
         EXPECT_EQ(reader->end_of_file(), false);
         common::SeqElem seq = reader->get_elem(id);
         EXPECT_EQ(validate_SeqElem(seq, id), true);

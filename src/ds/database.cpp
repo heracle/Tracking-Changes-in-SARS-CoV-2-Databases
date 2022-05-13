@@ -13,13 +13,13 @@ namespace ds {
 
 using namespace common;
 
-SeqElem DB::get_element(uint32_t id) const {
+SeqElem DB::get_element(uint64_t id) const {
     if (id >= data_size) {
         throw std::runtime_error("ERROR -> requested element in DB with id that doesn't exist.");
     }
     SeqElem answer;
 
-    for (uint32_t i = 0; i < db_str_fields.size(); ++i) {
+    for (uint64_t i = 0; i < db_str_fields.size(); ++i) {
         answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id, group, db_str_fields[i]);
     }
     answer.prv_db_id = std::stoul(H5Helper::get_from_extendable_h5_dataset(id, group, "prv_list"));
@@ -27,7 +27,7 @@ SeqElem DB::get_element(uint32_t id) const {
     return answer;
 }
 
-uint32_t DB::insert_element(const SeqElem seq) {
+uint64_t DB::insert_element(const SeqElem seq) {
     buff_data.push_back(seq);
 
     this->data_size++;
@@ -43,12 +43,12 @@ void DB::init() {
     }
 }
 
-DB::DB(H5::H5File *h5_file, const uint32_t req_flush_size)  {
+DB::DB(H5::H5File *h5_file, const uint64_t req_flush_size)  {
     flush_size = req_flush_size;
     init();
     if (H5Lexists(h5_file->getId(), "/database", H5P_DEFAULT ) > 0) {
         this->group = H5Gopen(h5_file->getLocId(), "/database", H5P_DEFAULT);
-        this->data_size = H5Helper::get_uint32_attr_from(this->group, "data_size");
+        this->data_size = H5Helper::get_uint64_attr_from(this->group, "data_size");
 
         // todo move these variables (next_index_tnode and first_notsaved_index_tnode) to a different place
         treap_types::Tnode::next_index_tnode = H5Helper::get_uint64_attr_from(this->group, "next_index_tnode");
@@ -84,13 +84,13 @@ void DB::write_buff_data() {
     }
     buff_data.clear();
 
-    H5Helper::set_uint32_hdf5_attr(this->data_size, &(this->group), "data_size");
+    H5Helper::set_uint64_hdf5_attr(this->data_size, &(this->group), "data_size");
     H5Helper::set_uint64_hdf5_attr(treap_types::Tnode::next_index_tnode, &(this->group), "next_index_tnode");
     H5Helper::set_uint64_hdf5_attr(treap_types::Tnode::first_notsaved_index_tnode, &(this->group), "first_notsaved_index_tnode");
 }
 
 void DB::clone_db(const ds::DB &source) {
-    for (uint32_t i = 0; i < source.data_size; ++i) {
+    for (uint64_t i = 0; i < source.data_size; ++i) {
         common::SeqElem curr = source.get_element(i);
         this->insert_element(curr);
     }

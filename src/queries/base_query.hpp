@@ -17,7 +17,7 @@ enum TreeDirectionToGo {
 class BaseQuery {
   public:
     bool deletions_mode = false;
-    uint32_t snapshot_idx = 0;
+    uint64_t snapshot_idx = 0;
     // init does some initialisation for the specific query and returns the name of the treap to run.
     virtual std::string get_treap_name() = 0;
     virtual void reset() = 0;

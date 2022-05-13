@@ -13,7 +13,7 @@
 namespace common {
 
 SeqElem SeqElem::operator = (const SeqElem &source) {
-    for (uint32_t i = 0; i < SEQ_FIELDS_SZ; ++i) {
+    for (uint64_t i = 0; i < SEQ_FIELDS_SZ; ++i) {
         this->covv_data[i] = source.covv_data[i];
     }
     return *this;
@@ -25,20 +25,20 @@ uint64_t get_hash(std::string s, uint64_t seed) {
 
 SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj) {
     SeqElem answer;
-    for (uint32_t i = 0; i < SEQ_FIELDS_SZ; ++i) {
+    for (uint64_t i = 0; i < SEQ_FIELDS_SZ; ++i) {
         answer.covv_data[SEQ_FIELDS_TO_ID.at(SEQ_FIELDS[i])] = j_obj[SEQ_FIELDS[i].c_str()].GetString();
     }
 
     // Masking leading and tailing deletions because they are often actually unknowns but appear here as
     // deletions due to aligning.
     std::string &seq = answer.covv_data[SEQ_FIELDS_TO_ID.at("sequence")];
-    for (uint32_t i = 0; i < seq.size(); ++i) {
+    for (uint64_t i = 0; i < seq.size(); ++i) {
         if (seq[i] != '-') {
             break;
         }
         seq[i] = 'N';
     }
-    for (int32_t i = seq.size() - 1; i >= 0; --i) {
+    for (int64_t i = seq.size() - 1; i >= 0; --i) {
         if (seq[i] != '-') {
             break;
         }
@@ -87,7 +87,7 @@ common::SeqElem SeqElemReader::get_next() {
     return to_return;
 }
 
-common::SeqElem SeqElemReader::get_elem(const int32_t id) {
+common::SeqElem SeqElemReader::get_elem(const int64_t id) {
     common::SeqElem elem;
     if (last_id_read > id) {
         Logger::error("Elem reader requests elems in not ascending order.");
@@ -102,10 +102,10 @@ common::SeqElem SeqElemReader::get_elem(const int32_t id) {
     exit(1);
 }
 
-std::vector<common::SeqElem> SeqElemReader::get_aligned_seq_elements(const uint32_t append_size) {
+std::vector<common::SeqElem> SeqElemReader::get_aligned_seq_elements(const uint64_t append_size) {
     std::vector<common::SeqElem> seq_elems;
 
-    for (uint32_t i = 0; i < append_size; ++i) {
+    for (uint64_t i = 0; i < append_size; ++i) {
         SeqElem seqelem_val = get_next();
         seq_elems.push_back(seqelem_val);
         if (this->finished) {

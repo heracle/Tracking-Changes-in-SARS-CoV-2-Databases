@@ -13,7 +13,7 @@ using namespace common;
 
 AccessionIdSorted::AccessionIdSorted(
     const std::string &req_key, 
-    const uint32_t req_database_id, 
+    const uint64_t req_database_id, 
     const int64_t req_seq_hash, 
     const int64_t req_metadata_hash
 ) : BaseSortedTreap(req_key, req_database_id) {
@@ -28,7 +28,7 @@ AccessionIdSorted::AccessionIdSorted(const H5::Group &h5_group) : BaseSortedTrea
 
 AccessionIdSorted::~AccessionIdSorted() {}
 
-std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_unique_from_snapshot_line(const SeqElem &e, const uint32_t req_database_id, const BaseSortedTreap *) {
+std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_unique_from_snapshot_line(const SeqElem &e, const uint64_t req_database_id, const BaseSortedTreap *) {
     return std::make_unique<AccessionIdSorted>(
         e.covv_data[SEQ_FIELDS_TO_ID.at("covv_accession_id")],
         req_database_id,
@@ -47,15 +47,15 @@ void AccessionIdSorted::reset_get_unique_from_snapshot_line(const ds::PS_Treap*,
                                                             const ds::PS_Treap*,
                                                             const ds::DB *,
                                                             common::SeqElemReader*,
-                                                            const std::vector<uint32_t>&, 
-                                                            const std::vector<uint32_t>&, 
-                                                            std::vector<std::pair<uint32_t, uint32_t>>) {
+                                                            const std::vector<uint64_t>&, 
+                                                            const std::vector<uint64_t>&, 
+                                                            std::vector<std::pair<uint64_t, uint64_t>>) {
 
 }
 
 std::vector<uint64_t> AccessionIdSorted::seq_hash_database_ids;
 std::vector<uint64_t> AccessionIdSorted::metadata_hash_database_ids;
-uint32_t AccessionIdSorted::next_hash_id;
+uint64_t AccessionIdSorted::next_hash_id;
 
 void AccessionIdSorted::reset_get_new_BaseSortedTreap(const H5::Group &group) {
     AccessionIdSorted::next_hash_id = 0;
@@ -64,7 +64,7 @@ void AccessionIdSorted::reset_get_new_BaseSortedTreap(const H5::Group &group) {
     assert(AccessionIdSorted::seq_hash_database_ids.size() == AccessionIdSorted::metadata_hash_database_ids.size());
 }
 
-std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_new_BaseSortedTreap(const std::string &key, const uint32_t database_id) {
+std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_new_BaseSortedTreap(const std::string &key, const uint64_t database_id) {
     auto aux = std::make_unique<AccessionIdSorted>(key, database_id, 
                                                                     AccessionIdSorted::seq_hash_database_ids[AccessionIdSorted::next_hash_id], 
                                                                     AccessionIdSorted::metadata_hash_database_ids[AccessionIdSorted::next_hash_id]);
@@ -75,10 +75,10 @@ std::unique_ptr<BaseSortedTreap> AccessionIdSorted::get_new_BaseSortedTreap(cons
 
 void serialize_acc_id_elem_to_hdf5(const std::vector<std::unique_ptr<BaseSortedTreap>> &elems, H5::Group &h5_group) {
     std::vector<std::string> saved_key;
-    std::vector<uint32_t> saved_database_id;
+    std::vector<uint64_t> saved_database_id;
     std::vector<uint64_t> saved_seq_hash;
     std::vector<uint64_t> saved_metadata_hash;
-    for (uint32_t i = 0; i < elems.size(); ++i) {
+    for (uint64_t i = 0; i < elems.size(); ++i) {
         AccessionIdSorted* elem = static_cast<AccessionIdSorted*>(elems[i].get());
 
         saved_key.push_back(elem->key);

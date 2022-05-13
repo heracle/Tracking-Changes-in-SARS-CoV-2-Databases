@@ -36,7 +36,7 @@ int query(Config *config) {
     std::vector<std::string> snapshot_list;
     std::string curr_snapshot = "";
     std::cout << "Snapshots:\n";
-    for (uint32_t i = 0; i < config->snapshot.size(); ++i) {
+    for (uint64_t i = 0; i < config->snapshot.size(); ++i) {
         if (config->snapshot[i] == ',') {
             std::cout << snapshot_list.size() << ".\t" << curr_snapshot << "\n";
             snapshot_list.push_back(curr_snapshot);
@@ -63,7 +63,7 @@ int query(Config *config) {
 
     const std::string treap_name = query->get_treap_name();
 
-    for (uint32_t i = 0; i < config->fnames.size(); ++i) {
+    for (uint64_t i = 0; i < config->fnames.size(); ++i) {
         std::cout << "\nTarget key '" << config->fnames[i] << "'\n";
         
         query->reset();

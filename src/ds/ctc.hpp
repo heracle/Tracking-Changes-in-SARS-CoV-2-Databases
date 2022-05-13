@@ -12,10 +12,10 @@ namespace ds {
 struct CTCData {
     ds::PS_Treap* treap;
     // Function for creating or copying a specialized tnode.
-    std::function<Tnode*(const uint32_t)> create_new_specialized_tnode;
+    std::function<Tnode*(const uint64_t)> create_new_specialized_tnode;
     std::function<Tnode*(const Tnode*)> copy_specialized_tnode;
     // Regarding tnode data, read from h5.
-    std::function<Tnode*(const uint32_t, const uint64_t, const uint32_t)> get_h5_tnode;
+    std::function<Tnode*(const uint64_t, const uint64_t, const uint64_t)> get_h5_tnode;
     std::function<void(const H5::Group&)> reset_get_h5_tnode;
     // Regarding tnode data, write to h5.
     std::function<void(Tnode*)> append_tnode_data;
@@ -26,17 +26,17 @@ struct CTCData {
     
     // Regarding static treap data, read from h5.
     std::function<std::unique_ptr<BaseSortedTreap>(const BaseSortedTreap*)> copy_specialized_static_field;
-    std::function<std::unique_ptr<BaseSortedTreap>(const std::string&, const uint32_t)> get_new_BaseSortedTreap;
+    std::function<std::unique_ptr<BaseSortedTreap>(const std::string&, const uint64_t)> get_new_BaseSortedTreap;
     std::function<void(const H5::Group&)> reset_get_new_BaseSortedTreap;
     // Regarding static treap data, read from seqElem.
-    std::function<std::unique_ptr<BaseSortedTreap>(const common::SeqElem&, const uint32_t, const BaseSortedTreap *)> get_unique_from_snapshot_line;
+    std::function<std::unique_ptr<BaseSortedTreap>(const common::SeqElem&, const uint64_t, const BaseSortedTreap *)> get_unique_from_snapshot_line;
     std::function<void(const ds::PS_Treap*, 
                        const ds::PS_Treap*, 
                        const ds::DB *, 
                        common::SeqElemReader*, 
-                       const std::vector<uint32_t>&, 
-                       const std::vector<uint32_t>&, 
-                       std::vector<std::pair<uint32_t, uint32_t>>)> reset_get_unique_from_snapshot_line;
+                       const std::vector<uint64_t>&, 
+                       const std::vector<uint64_t>&, 
+                       std::vector<std::pair<uint64_t, uint64_t>>)> reset_get_unique_from_snapshot_line;
 
     // Regarding static treap data, write to h5
     std::function<void(const std::vector<std::unique_ptr<BaseSortedTreap>>&, H5::Group&)> serialize_elem_to_hdf5;
@@ -56,8 +56,8 @@ class CTC {
     CTC(H5::H5File *h5_file, CTC* source = NULL);
     CTC(H5::H5File &h5_file);
     ~CTC();
-    void insert_seq(const std::vector<std::pair<common::SeqElem, uint32_t> > &seq_elems_with_prv);
-    void erase_seq(const std::vector<uint32_t> &deletions_db_ids, const bool was_modified);
+    void insert_seq(const std::vector<std::pair<common::SeqElem, uint64_t> > &seq_elems_with_prv);
+    void erase_seq(const std::vector<uint64_t> &deletions_db_ids, const bool was_modified);
     void save_snapshot(const std::string &name);
     void export_to_h5();
 
@@ -66,9 +66,9 @@ class CTC {
                                             const ds::PS_Treap *accid_snapshot_treap,
                                             const DB *base_db,
                                             const std::string &file_name,
-                                            const std::vector<uint32_t> &insertions_db_ids, 
-                                            const std::vector<uint32_t> &deletions_db_ids, 
-                                            const std::vector<std::pair<uint32_t, uint32_t>> &updates_db_ids) const;
+                                            const std::vector<uint64_t> &insertions_db_ids, 
+                                            const std::vector<uint64_t> &deletions_db_ids, 
+                                            const std::vector<std::pair<uint64_t, uint64_t>> &updates_db_ids) const;
 };
 
 } // namespace ds

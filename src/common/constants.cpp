@@ -4,7 +4,7 @@
 
 namespace common {
 
-// const uint32_t SEQ_FIELDS_SZ = 4;
+// const uint64_t SEQ_FIELDS_SZ = 4;
 // const std::vector<std::string> SEQ_FIELDS = {
 //     "covv_accession_id",
 //     "covv_collection_date",
@@ -17,7 +17,7 @@ void validate_seq_fields() {
         Logger::error("Sequence fields to parse are not properly set : size ");
     }
 
-    for (uint32_t i = 0; i < SEQ_FIELDS.size(); ++i) {
+    for (uint64_t i = 0; i < SEQ_FIELDS.size(); ++i) {
         auto it = SEQ_FIELDS_TO_ID.find(SEQ_FIELDS[i]);
         if (it == SEQ_FIELDS_TO_ID.end()) {
             Logger::error("Sequence fields to parse are not properly set : can't find " + SEQ_FIELDS[i]);

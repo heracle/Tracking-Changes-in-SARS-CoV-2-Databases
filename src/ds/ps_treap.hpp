@@ -18,7 +18,7 @@ class PS_Treap {
   //todo fix this private field
   public:
       std::vector<std::unique_ptr<BaseSortedTreap>> static_data;
-      std::vector<uint32_t> prv_static_data;
+      std::vector<uint64_t> prv_static_data;
   private:
   // Pieces of code taken from: https://cp-algorithms.com/data_structures/treap.html
     /* The 'data' field stores all the sequences which have been previously inserted to the treap.
@@ -28,14 +28,14 @@ class PS_Treap {
   public: //todo fix in private
     Tnode *root = NULL;
   private:
-    tsl::hopscotch_map<std::string, uint32_t> date_to_root_idx;
+    tsl::hopscotch_map<std::string, uint64_t> date_to_root_idx;
     std::vector<Tnode*> root_history;
 
     // make this a static/normal method inside Tnode.
     std::function<void(Tnode *, const BaseSortedTreap*)> recompute_tnode_statistics;
-    std::function<Tnode*(const uint32_t)> create_new_specialized_tnode;
+    std::function<Tnode*(const uint64_t)> create_new_specialized_tnode;
     std::function<Tnode*(const Tnode*)> copy_specialized_tnode;
-    // todo replace int with uint32_t and long long with uint64_t.
+    // todo replace long long with uint64_t.
 
     friend class Tnode;
 
@@ -43,7 +43,7 @@ class PS_Treap {
     void split(Tnode *&tnode, const BaseSortedTreap &key, Tnode *&left, Tnode *&right);
     void merge(Tnode *&tnode, Tnode *left, Tnode *right);
     void insert_tnode(Tnode *&tnode, Tnode *to_add);
-    void erase_node(Tnode *&node, const BaseSortedTreap &to_delete, int &deleted_key_index);
+    void erase_node(Tnode *&node, const BaseSortedTreap &to_delete, int64_t &deleted_key_index);
     void run_tnode_callback(const Tnode *tnode, const std::function<void(const BaseSortedTreap &)> &callback) const;
     void run_treap_query_callback_subtree(const std::string &target_key, Tnode *tnode, const ds::DB *db, query_ns::BaseQuery *query) const;
     void delete_subtree(Tnode *&node);
@@ -52,14 +52,14 @@ class PS_Treap {
   public:
     // todo use unique pointer get and send "BaseSortedTreap*".
     PS_Treap(const std::function<void(Tnode *, const BaseSortedTreap*)> &recompute_tnode_statistics,
-             const std::function<Tnode*(const uint32_t)> &req_create_new_specialized_tnode,
+             const std::function<Tnode*(const uint64_t)> &req_create_new_specialized_tnode,
              const std::function<Tnode*(const Tnode*)> &req_copy_specialized_tnode);
     PS_Treap(const H5::Group &treap_group,
              std::vector<std::unique_ptr<BaseSortedTreap>> &treap_data,
              const std::function<void(Tnode *, const BaseSortedTreap*)> &recompute_tnode_statistics,
-             const std::function<Tnode*(const uint32_t)> &req_create_new_specialized_tnode,
+             const std::function<Tnode*(const uint64_t)> &req_create_new_specialized_tnode,
              const std::function<Tnode*(const Tnode*)> &req_copy_specialized_tnode,
-             const std::function<Tnode*(const uint32_t, const uint64_t, const uint32_t)> &get_h5_tnode);
+             const std::function<Tnode*(const uint64_t, const uint64_t, const uint64_t)> &get_h5_tnode);
     PS_Treap(PS_Treap *source);
 
     ~PS_Treap();
@@ -67,12 +67,12 @@ class PS_Treap {
     /*
       insert method: only .second is used from 'seq_elems_with_prv'.
     */
-    void insert(std::vector<std::unique_ptr<BaseSortedTreap>> &nodes, const std::vector<std::pair<common::SeqElem, uint32_t> > &seq_elems_with_prv = std::vector<std::pair<common::SeqElem, uint32_t> >());
-    void erase(const std::vector<uint32_t> &nodes_indices); // delete list of indeces returned by 'get_differences()' method.
+    void insert(std::vector<std::unique_ptr<BaseSortedTreap>> &nodes, const std::vector<std::pair<common::SeqElem, uint64_t> > &seq_elems_with_prv = std::vector<std::pair<common::SeqElem, uint64_t> >());
+    void erase(const std::vector<uint64_t> &nodes_indices); // delete list of indeces returned by 'get_differences()' method.
     void save_snapshot(const std::string &name);
 
     std::vector<std::string> get_snapshots_names();
-    uint32_t get_data_size();
+    uint64_t get_data_size();
 
     Tnode* find(const BaseSortedTreap &target);
     // void upper_bound(const T& target);
@@ -96,9 +96,9 @@ class PS_Treap {
 
     static void get_differences(const PS_Treap *first_treap,
                                 const PS_Treap *second_treap,
-                                std::vector<uint32_t> &insertions_db_ids,
-                                std::vector<uint32_t> &deletions_db_ids,
-                                std::vector<std::pair<uint32_t, uint32_t>> &updates_db_ids);
+                                std::vector<uint64_t> &insertions_db_ids,
+                                std::vector<uint64_t> &deletions_db_ids,
+                                std::vector<std::pair<uint64_t, uint64_t>> &updates_db_ids);
 };
 
 } // namespace ds

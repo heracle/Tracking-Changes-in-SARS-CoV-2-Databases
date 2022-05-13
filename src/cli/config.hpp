@@ -30,7 +30,7 @@ class Config {
     bool verbosity = false;
     bool compute_total_owner_cnt = false;
     bool exclude_deleted = false;
-    uint32_t num_to_print = 50;
+    uint64_t num_to_print = 50;
 
     std::string location_prefix = "";
   

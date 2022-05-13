@@ -11,7 +11,7 @@
 
 namespace query_ns {
 
-CountIndelsQuery::CountIndelsQuery(const uint32_t num_total_snapshots) {
+CountIndelsQuery::CountIndelsQuery(const uint64_t num_total_snapshots) {
     total_inserted_sequences.resize(num_total_snapshots);
     total_modified_sequences.resize(num_total_snapshots);
     total_deleted_sequences.resize(num_total_snapshots);
@@ -30,7 +30,7 @@ TreeDirectionToGo CountIndelsQuery::first_enter_into_node(const std::string &tar
 
     const LocationSorted* elem = static_cast<const LocationSorted*>(elem_unique);
     // find lcp between elem->key and config->location
-    uint32_t lcp = 0;
+    uint64_t lcp = 0;
     for (lcp = 0; lcp < target_location_prefix.size() && lcp < elem->key.size(); ++lcp) {
         if (target_location_prefix[lcp] != elem->key[lcp]) {
             break;
@@ -84,7 +84,7 @@ TreeDirectionToGo CountIndelsQuery::second_enter_into_node(const std::string &ta
     }
     const LocationSorted* elem = static_cast<const LocationSorted*>(elem_unique);
     // find lcp between elem->key and config->location
-    uint32_t lcp = 0;
+    uint64_t lcp = 0;
     for (lcp = 0; lcp < target_location_prefix.size() && lcp < elem->key.size(); ++lcp) {
         if (target_location_prefix[lcp] != elem->key[lcp]) {
             break;
@@ -105,30 +105,30 @@ TreeDirectionToGo CountIndelsQuery::second_enter_into_node(const std::string &ta
 void CountIndelsQuery::print_results() {
     std::cout << "Insertions:\t";
 
-    for (uint32_t i = 0; i < total_inserted_sequences.size(); ++i) {
+    for (uint64_t i = 0; i < total_inserted_sequences.size(); ++i) {
         std::cout << total_inserted_sequences[i] << "\t";
     }
 
     std::cout << "\nDeletions:\t";
-    for (uint32_t i = 0; i < total_deleted_sequences.size(); ++i) {
+    for (uint64_t i = 0; i < total_deleted_sequences.size(); ++i) {
         std::cout << total_deleted_sequences[i] << "\t";
     }
 
     std::cout << "\nModified:\t";
-    for (uint32_t i = 0; i < total_modified_sequences.size(); ++i) {
+    for (uint64_t i = 0; i < total_modified_sequences.size(); ++i) {
         std::cout << total_modified_sequences[i] << "\t";
     }
     std::cout << std::endl;
 }
 
 void CountIndelsQuery::reset() {    
-    for (uint32_t i = 0; i < total_inserted_sequences.size(); ++i) {
+    for (uint64_t i = 0; i < total_inserted_sequences.size(); ++i) {
         total_inserted_sequences[i] = 0;
     }
-    for (uint32_t i = 0; i < total_modified_sequences.size(); ++i) {
+    for (uint64_t i = 0; i < total_modified_sequences.size(); ++i) {
         total_modified_sequences[i] = 0;
     }
-    for (uint32_t i = 0; i < total_deleted_sequences.size(); ++i) {
+    for (uint64_t i = 0; i < total_deleted_sequences.size(); ++i) {
         total_deleted_sequences[i] = 0;
     }
 }
