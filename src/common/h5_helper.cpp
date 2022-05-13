@@ -186,6 +186,8 @@ void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name
     assert(status == 0);
 }
 
+// todo create a get_entire_extendable_h5_dataset
+
 std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, const std::string &dataset_name) {
     int64_t RANK = 2;
 
