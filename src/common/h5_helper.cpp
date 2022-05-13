@@ -339,6 +339,8 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
         merged_str_pos[0][i] = str_dimsf[1] + concat_str.size();
     }
 
+    std::cerr << "serialiaze a concat of =" << concat_str.size() << "\n";
+
     /* 
     --------------------------------------------------------------------------------------------------------------------
             appending the list of starting indices

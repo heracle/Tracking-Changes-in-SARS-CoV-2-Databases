@@ -130,6 +130,7 @@ CTC::~CTC() {
 }
 
 void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint64_t> > &seq_elems_with_prv) {
+
     std::vector<uint64_t> seq_ids(seq_elems_with_prv.size());
     for (uint64_t i = 0; i < seq_elems_with_prv.size(); ++i) {
         seq_ids[i] = db->insert_element(seq_elems_with_prv[i].first);

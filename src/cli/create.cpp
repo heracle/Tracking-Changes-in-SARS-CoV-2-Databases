@@ -35,7 +35,7 @@ int create(Config *config) {
         ctc->insert_seq(seq_elems_to_insert);
     }
     ctc->save_snapshot(input_fname);
-    // ctc->export_to_h5();
+    ctc->export_to_h5();
 
     delete ctc;
     h5_file.close();
