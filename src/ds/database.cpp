@@ -64,6 +64,7 @@ DB::DB(H5::H5File *h5_file, const uint64_t req_flush_size)  {
 }
 
 void DB::write_buff_data() {
+    std::cerr << "inside write_buff_data when buff_size=" << buff_data.size() << std::endl;
     if (buff_data.size() == 0) {
         return;
     }

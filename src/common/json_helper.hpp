@@ -38,8 +38,8 @@ SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj);
  * SeqElemReader is a handler for reading the snapshot file.
  */
 class SeqElemReader {
-  private:
-    rapidjson::Document document;
+  private: 
+    rapidjson::Document *document = NULL;
     std::ifstream f;
     bool finished;
     int64_t last_id_read;
