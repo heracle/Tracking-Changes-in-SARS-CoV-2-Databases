@@ -51,8 +51,8 @@ DB::DB(H5::H5File *h5_file, const uint32_t req_flush_size)  {
         this->data_size = H5Helper::get_uint32_attr_from(this->group, "data_size");
 
         // todo move these variables (next_index_tnode and first_notsaved_index_tnode) to a different place
-        treap_types::Tnode::next_index_tnode = H5Helper::get_uint32_attr_from(this->group, "next_index_tnode");
-        treap_types::Tnode::first_notsaved_index_tnode = H5Helper::get_uint32_attr_from(this->group, "first_notsaved_index_tnode");
+        treap_types::Tnode::next_index_tnode = H5Helper::get_uint64_attr_from(this->group, "next_index_tnode");
+        treap_types::Tnode::first_notsaved_index_tnode = H5Helper::get_uint64_attr_from(this->group, "first_notsaved_index_tnode");
         return;
     }
     
@@ -85,8 +85,8 @@ void DB::write_buff_data() {
     buff_data.clear();
 
     H5Helper::set_uint32_hdf5_attr(this->data_size, &(this->group), "data_size");
-    H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::next_index_tnode, &(this->group), "next_index_tnode");
-    H5Helper::set_uint32_hdf5_attr(treap_types::Tnode::first_notsaved_index_tnode, &(this->group), "first_notsaved_index_tnode");
+    H5Helper::set_uint64_hdf5_attr(treap_types::Tnode::next_index_tnode, &(this->group), "next_index_tnode");
+    H5Helper::set_uint64_hdf5_attr(treap_types::Tnode::first_notsaved_index_tnode, &(this->group), "first_notsaved_index_tnode");
 }
 
 void DB::clone_db(const ds::DB &source) {

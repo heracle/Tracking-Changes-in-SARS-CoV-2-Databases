@@ -377,7 +377,7 @@ void PS_Treap::save_snapshot(const std::string &name) {
 
 void PS_Treap::export_to_hdf5(H5::Group &treap_group, 
                               const std::function<void(const std::vector<std::unique_ptr<BaseSortedTreap>> &, H5::Group &)> &write_static_data_to_h5,
-                              const std::function<void(Tnode*)> &append_tnode_data) {    
+                              const std::function<void(Tnode*)> &append_tnode_data) {
     if (root_history.size() && root != root_history.back()) {
         Logger::warn("The last root version was not saved");
     }
@@ -396,6 +396,10 @@ void PS_Treap::export_to_hdf5(H5::Group &treap_group,
     uint32_t counter_saved_size = 0;
     for (Tnode* tnode : tnodes_to_save) {
         tnodes_to_h5id[tnode] = counter_saved_size++;
+    }
+
+    if (tnodes_to_h5id.size() > 100000000) {
+        Logger::error("There are too many tnodes and soon will exceed the int32 limit. Please contact an administrator.");
     }
 
     std::vector<uint32_t> saved_data_id;

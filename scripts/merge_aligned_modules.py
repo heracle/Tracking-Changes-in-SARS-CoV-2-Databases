@@ -70,11 +70,10 @@ def main(argv):
         inputdir = inputdir + "/"
     
     print("outputfile:", outputfile)
-    output = open(outputfile, "w")
 
     # Append the sequences which were aligned via the lookup table.    
-    for line in open(inputdir + "prv_aligned.provision.json", "r"):
-        output.write(line)
+    os.system("mv " + inputdir + "prv_aligned.provision.json " + outputfile)
+    output = open(outputfile, "a")
 
     if lookup_output_filepath != "":
         lookup_align_hashes = constants.get_hash_lookup(constants.LOOKUP_ALIGN_BASENAME)
