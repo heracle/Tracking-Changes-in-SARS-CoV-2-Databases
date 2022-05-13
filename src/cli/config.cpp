@@ -231,8 +231,11 @@ void Config::validate_config() {
         }
     }
 
-    if(module != ModuleType::QUERY) {
+    if(module != ModuleType::QUERY && module != ModuleType::STATS) {
         for (const std::string &filepath : fnames) {
+            if (filepath.substr(filepath.find_last_of(".") + 1) != "json") {
+                Logger::error("One input file is not in '.json' format: " + filepath);
+            }
             if (access(filepath.c_str(), F_OK ) == -1) {
                 Logger::error("One input file cannot be accessed " + filepath);
             }

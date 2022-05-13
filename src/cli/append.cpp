@@ -106,6 +106,8 @@ int append(Config *config) {
         Logger::trace("Inserting the new/modified elements from the main treap...");
         seq_reader = new common::SeqElemReader(config->fnames[i]);
 
+        std::vector<std::pair<common::SeqElem, uint32_t> > elems_to_insert;
+        
         for (uint32_t i = 0; i < snapshot_indices_to_insert.size(); ++i) {
             common::SeqElem seq = seq_reader->get_elem(snapshot_indices_to_insert[i].first);
             if (snapshot_indices_to_insert[i].second == UINT_MAX) {
@@ -115,9 +117,14 @@ int append(Config *config) {
                 // is modified
                 seq.prv_db_id = snapshot_indices_to_insert[i].second;
             }
-
-            std::vector<std::pair<common::SeqElem, uint32_t> > curr = {std::make_pair(seq, snapshot_indices_to_insert[i].second)};
-            ctc_out->insert_seq(curr);
+            elems_to_insert.push_back(std::make_pair(seq, snapshot_indices_to_insert[i].second));
+            if (elems_to_insert.size() == common::H5_APPEND_SIZE) {
+                ctc_out->insert_seq(elems_to_insert);
+                elems_to_insert.clear();
+            }
+        }
+        if (elems_to_insert.size()) {
+            ctc_out->insert_seq(elems_to_insert);
         }
         delete seq_reader;
 
@@ -127,6 +134,8 @@ int append(Config *config) {
     }
 
     Logger::trace("Exporting the ctc file...");
+
+    std::cerr << "\n\ntnode next=" << Tnode::next_index_tnode << std::endl;
 
     ctc_out->export_to_h5();
     delete ctc_out;

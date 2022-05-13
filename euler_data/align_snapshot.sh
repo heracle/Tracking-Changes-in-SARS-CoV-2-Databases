@@ -53,4 +53,3 @@ bsub -W 24:00 -J "add_onwer_${bs_name}" -w "done(merge_${bs_name})" -R "rusage[m
 
 bsub -w "done(add_onwer_${bs_name})" rm -rf "${tmp_dir}"
 bsub  -W 24:00 -J "xz_${bs_name}" -w "done(add_onwer_${bs_name})" xz "${output_filepath}"
-bsub -J "copy_${bs_name}" -w "done(xz_${bs_name})" cp "${output_filepath}.xz" "/cluster/home/rmuntean/cevo/data/"

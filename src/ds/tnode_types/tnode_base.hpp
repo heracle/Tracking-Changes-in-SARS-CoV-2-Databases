@@ -18,8 +18,8 @@ class Tnode {
     static const int rand_pool_size = (1 << 16);
     static int next_rand_idx;
     static std::vector<unsigned long long> rand_values;
-    static uint32_t next_index_tnode;
-    static uint32_t first_notsaved_index_tnode;
+    static uint64_t next_index_tnode;
+    static uint64_t first_notsaved_index_tnode;
 
     static unsigned long long get_rand_ull();
 

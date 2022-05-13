@@ -8,8 +8,9 @@ namespace treap_types {
 
 int Tnode::next_rand_idx = rand_pool_size;
 std::vector<unsigned long long> Tnode::rand_values = std::vector<unsigned long long>(Tnode::rand_pool_size);
-uint32_t Tnode::next_index_tnode = 0;
-uint32_t Tnode::first_notsaved_index_tnode = 0;
+uint64_t Tnode::next_index_tnode = 0;
+// we can delete any tnode with id > TNODE::first_notsaved_index_tnode without losing the persistence property.
+uint64_t Tnode::first_notsaved_index_tnode = 0;
 
 Tnode::Tnode(const uint32_t index) : data_id(index), prio(get_rand_ull()), l(NULL), r(NULL) {
     this->index_tnode = next_index_tnode++;
