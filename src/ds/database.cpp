@@ -22,7 +22,7 @@ SeqElem DB::get_element(uint64_t id) const {
     SeqElem answer;
 
     for (uint64_t i = 0; i < db_str_fields.size(); ++i) {
-        answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id, group, db_str_fields[i] + std::to_string(num_cluster_to_read));
+        answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id % flush_size, group, db_str_fields[i] + std::to_string(num_cluster_to_read));
     }
     answer.prv_db_id = std::stoul(H5Helper::get_from_extendable_h5_dataset(id, group, "prv_list"));
 
@@ -73,8 +73,6 @@ void DB::write_buff_data() {
 
     uint64_t num_cluster_to_write = (data_size - 1) / flush_size;
     
-    std::cerr << "buff_data size=" << buff_data.size() << " \t " << "num_cluster_to_write=" << num_cluster_to_write << "\n";
-
     std::vector<std::string> prv_linked_list;
     for (const common::SeqElem &elem : buff_data) {
         prv_linked_list.push_back(std::to_string(elem.prv_db_id));
