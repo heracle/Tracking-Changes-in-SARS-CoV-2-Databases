@@ -27,6 +27,8 @@ class DB {
     uint64_t insert_element(const common::SeqElem seq);
     // get_element() returns a copy of the sequence stored at the database's 'id' index.
     common::SeqElem get_element(uint64_t id) const;
+    std::vector<common::SeqElem> get_multiple_element(const uint64_t start_id, const uint64_t num_elements) const;
+
     // export_to_hdf5() return a serialization (in hdf5 format) for 'this' object.
     // void export_to_hdf5(H5::Group &database_group);
 
