@@ -60,10 +60,11 @@ SeqElemReader::SeqElemReader(const std::string &input_path) {
     finished = false;
     last_id_read = -1;
 
+    document = new rapidjson::Document();
     std::string json_line;
     std::getline(f, json_line);
-    document.Parse(json_line.c_str());
-    this->next_elem = get_SeqElem_from_json(document);
+    (*document).Parse(json_line.c_str());
+    this->next_elem = get_SeqElem_from_json(*document);
 }
 
 bool SeqElemReader::end_of_file() {
@@ -82,8 +83,8 @@ common::SeqElem SeqElemReader::get_next() {
         }
     }
 
-    document.Parse(json_line.c_str());
-    this->next_elem = get_SeqElem_from_json(document);
+    (*document).Parse(json_line.c_str());
+    this->next_elem = get_SeqElem_from_json(*document);
     return to_return;
 }
 
@@ -103,6 +104,12 @@ common::SeqElem SeqElemReader::get_elem(const int64_t id) {
 }
 
 std::vector<common::SeqElem> SeqElemReader::get_aligned_seq_elements(const uint64_t append_size) {
+    // This document objects stores sums up all the previous parsed json. For reducing the RAM usage, we need to constantly delete and reallocate.
+    if (document != NULL) {
+        delete document;
+    }
+    document = new rapidjson::Document();
+
     std::vector<common::SeqElem> seq_elems;
 
     for (uint64_t i = 0; i < append_size; ++i) {
