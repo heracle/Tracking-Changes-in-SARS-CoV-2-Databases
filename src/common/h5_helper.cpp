@@ -246,6 +246,7 @@ std::vector<std::string> get_from_extendable_h5_dataset(uint64_t id_left, uint64
         for (uint64_t i = id_left; i < id_right; ++i) {
             answer.push_back("");
         }
+        free(rdata);
         return answer;
     }
 
