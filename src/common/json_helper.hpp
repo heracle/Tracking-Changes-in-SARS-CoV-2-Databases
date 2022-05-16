@@ -39,7 +39,7 @@ SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj);
  */
 class SeqElemReader {
   private:
-    rapidjson::Document document;
+    rapidjson::Document *document = NULL;
     std::ifstream f;
     bool finished;
     int64_t last_id_read;
