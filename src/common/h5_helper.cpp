@@ -145,15 +145,15 @@ void read_posstr_to_h5_dataset(const H5::Group &h5, const std::string &dataset_n
 }
 
 void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name) {
-    uint64_t RANK = 2;
-    hsize_t dimsf[RANK] = {1, 1};
-    hsize_t maxdims[RANK] = {1, H5S_UNLIMITED};
+    uint64_t RANK = 1;
+    hsize_t dimsf[RANK] = {1};
+    hsize_t maxdims[RANK] = {H5S_UNLIMITED};
 
     /*
      set contiguous chuck size used for storing H5 into the memory;
     */
     hid_t cparms;
-    hsize_t chunk_dims[RANK] = {1, common::H5_CHUNK_SIZE};
+    hsize_t chunk_dims[RANK] = {common::H5_CHUNK_SIZE};
 
     cparms = H5Pcreate (H5P_DATASET_CREATE);
     herr_t status = H5Pset_chunk(cparms, RANK, chunk_dims);
@@ -164,6 +164,7 @@ void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name
     */
     hid_t dataspace = H5Screate_simple(RANK, dimsf, maxdims);
     hid_t dataset = H5Dcreate(h5.getId(), (dataset_name + "_$_pos").c_str(), H5T_NATIVE_LLONG, dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
+    assert (dataset != H5I_INVALID_HID);
 
     uint64_t tmp[1];
     tmp[0] = 1;
@@ -174,9 +175,11 @@ void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name
     create h5 space for storing the concatenated string.
     */
     dataset = H5Dcreate(h5.getId(), (dataset_name + "_$_str").c_str(), H5T_NATIVE_CHAR, dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
+    assert (dataset != H5I_INVALID_HID);
     char tmp_ch[1];
     tmp_ch[0] = '$';
     status = H5Dwrite(dataset, H5T_NATIVE_CHAR, H5S_ALL, H5S_ALL, H5P_DEFAULT, tmp_ch);
+    assert(status == 0);
 
     status = H5Pclose (cparms);
     assert(status == 0);
@@ -187,7 +190,7 @@ void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name
 }
 
 std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, const std::string &dataset_name) {
-    int64_t RANK = 2;
+    int64_t RANK = 1;
 
     hid_t pos_dset = H5Dopen (h5.getId(), (dataset_name + "_$_pos").c_str(), H5P_DEFAULT);
     hid_t pos_space = H5Dget_space (pos_dset);
@@ -199,7 +202,7 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     }  
     assert(ndims == RANK);
 
-    if (id + 1 >= pos_dimsf[1]) {
+    if (id + 1 >= pos_dimsf[0]) {
         Logger::error("internal error: request id that exceds the current size of extandable dataset");
     }
 
@@ -209,8 +212,8 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     */
     herr_t status = H5Sselect_all (pos_space);
     assert(status == 0);
-    hsize_t start[2]; start[0] = 0, start[1] = id;
-    hsize_t count[2]; count[0] = 1, count[1] = 2;
+    hsize_t start[1]; start[0] = id;
+    hsize_t count[1]; count[0] = 2;
     status = H5Sselect_hyperslab (pos_space, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
 
@@ -260,8 +263,8 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     */
     status = H5Sselect_all (str_space);
     assert(status == 0);
-    start[0] = 0, start[1] = rdata[0];
-    count[0] = 1, count[1] = rdata[1] - rdata[0];
+    start[0] = rdata[0];
+    count[0] = rdata[1] - rdata[0];
     status = H5Sselect_hyperslab (str_space, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
 
@@ -283,7 +286,7 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     assert(status == 0);
 
     std::string result;
-    for (uint64_t i = 0; i < rdata[1] - rdata[0]; ++i) {
+    for (int64_t i = 0; i < rdata[1] - rdata[0]; ++i) {
         result += str_data[i];
     }
     
@@ -306,7 +309,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
 
     // example: https://bitbucket.hdfgroup.org/projects/HDFFV/repos/hdf5-examples/browse/1_10/C/H5D/h5ex_d_unlimadd.c
     // example2:https://www.asc.ohio-state.edu/wilkins.5/computing/HDF/hdf5tutorial/examples/C/h5_hyperslab.c 
-    int64_t RANK = 2;
+    int64_t RANK = 1;
     hsize_t str_dimsf[RANK];
 
     hid_t str_dset = H5Dopen (h5.getId(), (dataset_name + "_$_str").c_str(), H5P_DEFAULT);
@@ -332,11 +335,11 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
          * a concatenated string for the received strings
          * an integer vector for all the indices of the starting positions.
     */
-    uint64_t merged_str_pos[1][elems.size()];
+    uint64_t merged_str_pos[elems.size()];
     std::string concat_str;
     for (uint64_t i = 0; i < elems.size(); ++i) {
         concat_str += elems[i];
-        merged_str_pos[0][i] = str_dimsf[1] + concat_str.size();
+        merged_str_pos[i] = str_dimsf[0] + concat_str.size();
     }
 
     /* 
@@ -368,7 +371,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     /*
      * Extending the dataset.
      */
-    hsize_t extdims[RANK] = {pos_dimsf[0], pos_dimsf[1] + elems.size()};
+    hsize_t extdims[RANK] = {pos_dimsf[0] + elems.size()};
 
     status = H5Dset_extent (pos_dset, extdims);
     assert(status == 0);
@@ -389,24 +392,20 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
      * selection.  The selection now contains only the newly extended
      * portions of the dataset.
      */
-    hsize_t start[2], count[2], stride[2], block[2];
-    start[0] = 0;
-    start[1] = pos_dimsf[1];
-    stride[0] = 1;
-    stride[1] = elems.size();
+    hsize_t start[1], count[1], stride[1], block[1];
+    start[0] = pos_dimsf[0];
+    stride[0] = elems.size();
     count[0] = 1;
-    count[1] = 1;
-    block[0] = 1;
-    block[1] = elems.size();
+    block[0] = elems.size();
     status = H5Sselect_hyperslab (pos_space, H5S_SELECT_SET, start, stride, count, block);
     assert(status == 0);
 
     /*
      * Initialize data for writing to the extended dataset.
      */
-    hsize_t memdims[RANK] = {1, elems.size()};
-    start[0] = 0, start[1] = 0;
-    count[0] = 1, count[1] = elems.size();
+    hsize_t memdims[RANK] = {elems.size()};
+    start[0] = 0;
+    count[0] = elems.size();
     hid_t memspace = H5Screate_simple (RANK, memdims, NULL);
     status = H5Sselect_hyperslab (memspace, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
@@ -414,7 +413,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     /*
      * Write the data to the selected portion of the dataset.
      */
-    status = H5Dwrite (pos_dset, H5T_NATIVE_LLONG, memspace, pos_space, H5P_DEFAULT, merged_str_pos[0]);
+    status = H5Dwrite (pos_dset, H5T_NATIVE_LLONG, memspace, pos_space, H5P_DEFAULT, merged_str_pos);
     assert(status == 0);
 
     /*
@@ -438,8 +437,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     /*
      * Extend the dataset.
      */
-    extdims[0] = str_dimsf[0];
-    extdims[1] = str_dimsf[1] + concat_str.size();
+    extdims[0] = str_dimsf[0] + concat_str.size();
 
     status = H5Dset_extent (str_dset, extdims);
     assert(status == 0);
@@ -450,19 +448,19 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     str_space = H5Dget_space (str_dset);
     status = H5Sselect_all (str_space);
     assert(status == 0);
-    start[0] = 0, start[1] = str_dimsf[1];
-    stride[0] = 1, stride[1] = concat_str.size();
-    count[0] = 1, count[1] = 1;
-    block[0] = 1, block[1] = concat_str.size();
+    start[0] = str_dimsf[0];
+    stride[0] = concat_str.size();
+    count[0]  = 1;
+    block[0] = concat_str.size();
     status = H5Sselect_hyperslab (str_space, H5S_SELECT_SET, start, stride, count, block);
     assert(status == 0);
 
     /*
         select hyperslab for transfering data from concat_str
     */
-    memdims[0] = 1, memdims[1] = concat_str.size();
-    start[0] = 0, start[1] = 0;
-    count[0] = 1, count[1] = concat_str.size();
+    memdims[0] = concat_str.size();
+    start[0] = 0;
+    count[0] = concat_str.size();
     memspace = H5Screate_simple (RANK, memdims, NULL);
     status = H5Sselect_hyperslab (memspace, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
