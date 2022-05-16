@@ -3,6 +3,7 @@
 #include "constants.hpp"
 #include "logger.hpp"
 #include <iostream>
+#include <cstring>
 
 namespace H5Helper {
 
@@ -145,40 +146,69 @@ void read_posstr_to_h5_dataset(const H5::Group &h5, const std::string &dataset_n
 }
 
 void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name) {
-    uint64_t RANK = 2;
-    hsize_t dimsf[RANK] = {1, 1};
-    hsize_t maxdims[RANK] = {1, H5S_UNLIMITED};
+    uint64_t RANK = 1;
+    hsize_t dimsf[RANK] = {1};
+    hsize_t maxdims[RANK] = {H5S_UNLIMITED};
 
     /*
      set contiguous chuck size used for storing H5 into the memory;
     */
     hid_t cparms;
-    hsize_t chunk_dims[RANK] = {1, common::H5_CHUNK_SIZE};
-
+    hsize_t chunk_dims[RANK];
+    
+    if (dataset_name.find("sequence") == 0) {
+        chunk_dims[0] = common::H5_CHUNK_SIZE_SEQUENCE;
+    } else {
+        chunk_dims[0] = common::H5_CHUNK_SIZE_METADATA;
+    }
+    
     cparms = H5Pcreate (H5P_DATASET_CREATE);
     herr_t status = H5Pset_chunk(cparms, RANK, chunk_dims);
     assert(status == 0);
+    hid_t access_plist = H5Pcreate(H5P_DATASET_ACCESS);
+    // H5Pset_chunk_cache(access_plist,  H5D_CHUNK_CACHE_NSLOTS_DEFAULT, H5D_CHUNK_CACHE_NBYTES_DEFAULT, H5D_CHUNK_CACHE_W0_DEFAULT);
+    status = H5Pset_chunk_cache(access_plist, 0, 0, H5D_CHUNK_CACHE_W0_DEFAULT);
+    assert(status == 0);
+
+    // status = H5Pset_deflate(cparms, common::COMPRESSION_DEFLATE);
+    // assert(status == 0);
 
     /* 
      create h5 space for storing the positions array.
     */
     hid_t dataspace = H5Screate_simple(RANK, dimsf, maxdims);
-    hid_t dataset = H5Dcreate(h5.getId(), (dataset_name + "_$_pos").c_str(), H5T_NATIVE_LLONG, dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
+    hid_t dataset = H5Dcreate(h5.getId(), (dataset_name + "_$_pos").c_str(), H5T_NATIVE_LLONG, dataspace, H5P_DEFAULT, cparms, access_plist);
+    assert (dataset != H5I_INVALID_HID);
+
 
     uint64_t tmp[1];
     tmp[0] = 1;
     status = H5Dwrite(dataset, H5T_NATIVE_LLONG, H5S_ALL, H5S_ALL, H5P_DEFAULT, tmp);
     assert(status >= 0);
 
+    status = H5Pclose (cparms);
+    assert(status == 0);
+    status = H5Dclose (dataset);
+    assert(status == 0);
+    status = H5Sclose (dataspace);
+    assert(status == 0);
+
     /* 
     create h5 space for storing the concatenated string.
     */
-    dataset = H5Dcreate(h5.getId(), (dataset_name + "_$_str").c_str(), H5T_NATIVE_CHAR, dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
+    cparms = H5Pcreate (H5P_DATASET_CREATE);
+    status = H5Pset_chunk(cparms, RANK, chunk_dims);
+    assert(status == 0);
+
+    dataspace = H5Screate_simple(RANK, dimsf, maxdims);
+    dataset = H5Dcreate(h5.getId(), (dataset_name + "_$_str").c_str(), H5T_NATIVE_CHAR, dataspace, H5P_DEFAULT, cparms, access_plist);
     char tmp_ch[1];
     tmp_ch[0] = '$';
     status = H5Dwrite(dataset, H5T_NATIVE_CHAR, H5S_ALL, H5S_ALL, H5P_DEFAULT, tmp_ch);
 
     status = H5Pclose (cparms);
+    assert(status == 0);
+    status = H5Pclose (access_plist);
     assert(status == 0);
     status = H5Dclose (dataset);
     assert(status == 0);
@@ -189,7 +219,7 @@ void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name
 // todo create a get_entire_extendable_h5_dataset
 
 std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, const std::string &dataset_name) {
-    int64_t RANK = 2;
+    int64_t RANK = 1;
 
     hid_t pos_dset = H5Dopen (h5.getId(), (dataset_name + "_$_pos").c_str(), H5P_DEFAULT);
     hid_t pos_space = H5Dget_space (pos_dset);
@@ -201,7 +231,7 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     }  
     assert(ndims == RANK);
 
-    if (id + 1 >= pos_dimsf[1]) {
+    if (id + 1 >= pos_dimsf[0]) {
         Logger::error("internal error: request id that exceds the current size of extandable dataset");
     }
 
@@ -211,8 +241,8 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     */
     herr_t status = H5Sselect_all (pos_space);
     assert(status == 0);
-    hsize_t start[2]; start[0] = 0, start[1] = id;
-    hsize_t count[2]; count[0] = 1, count[1] = 2;
+    hsize_t start[1]; start[0] = id;
+    hsize_t count[1]; count[0] = 2;
     status = H5Sselect_hyperslab (pos_space, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
 
@@ -262,8 +292,8 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     */
     status = H5Sselect_all (str_space);
     assert(status == 0);
-    start[0] = 0, start[1] = rdata[0];
-    count[0] = 1, count[1] = rdata[1] - rdata[0];
+    start[0] = rdata[0];
+    count[0] = rdata[1] - rdata[0];
     status = H5Sselect_hyperslab (str_space, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
 
@@ -285,7 +315,7 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     assert(status == 0);
 
     std::string result;
-    for (uint64_t i = 0; i < rdata[1] - rdata[0]; ++i) {
+    for (int64_t i = 0; i < rdata[1] - rdata[0]; ++i) {
         result += str_data[i];
     }
     
@@ -306,12 +336,16 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
         return;
     }
 
+    hid_t access_plist = H5Pcreate(H5P_DATASET_ACCESS);
+    herr_t status = H5Pset_chunk_cache(access_plist, 0, 0, H5D_CHUNK_CACHE_W0_DEFAULT);
+    assert(status == 0);
+
     // example: https://bitbucket.hdfgroup.org/projects/HDFFV/repos/hdf5-examples/browse/1_10/C/H5D/h5ex_d_unlimadd.c
     // example2:https://www.asc.ohio-state.edu/wilkins.5/computing/HDF/hdf5tutorial/examples/C/h5_hyperslab.c 
-    int64_t RANK = 2;
+    int64_t RANK = 1;
     hsize_t str_dimsf[RANK];
 
-    hid_t str_dset = H5Dopen (h5.getId(), (dataset_name + "_$_str").c_str(), H5P_DEFAULT);
+    hid_t str_dset = H5Dopen (h5.getId(), (dataset_name + "_$_str").c_str(), access_plist);
 
     /*
      * Get dataspace and allocate memory for read buffer.  This is a
@@ -329,16 +363,20 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     }
     assert(ndims == RANK);
 
+    status = H5Sclose (str_space);
+    assert(status == 0);
+
     /* 
         compose the two objects which will be further encoded and appended:
          * a concatenated string for the received strings
          * an integer vector for all the indices of the starting positions.
     */
-    uint64_t merged_str_pos[1][elems.size()];
+    uint64_t merged_str_pos[elems.size()];
+    memset(merged_str_pos, 0, sizeof merged_str_pos);
     std::string concat_str;
     for (uint64_t i = 0; i < elems.size(); ++i) {
         concat_str += elems[i];
-        merged_str_pos[0][i] = str_dimsf[1] + concat_str.size();
+        merged_str_pos[i] = str_dimsf[0] + concat_str.size();
     }
 
     /* 
@@ -347,7 +385,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     --------------------------------------------------------------------------------------------------------------------
     */
 
-    hid_t pos_dset = H5Dopen (h5.getId(), (dataset_name + "_$_pos").c_str(), H5P_DEFAULT);
+    hid_t pos_dset = H5Dopen (h5.getId(), (dataset_name + "_$_pos").c_str(), access_plist);
     hsize_t pos_dimsf[RANK];
     /*
      * Get dataspace and allocate memory for read buffer.  This is a
@@ -355,7 +393,9 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
      * in steps.
      */
     hid_t pos_space = H5Dget_space (pos_dset);
-    herr_t status = H5Sselect_all (pos_space);
+    status = H5Sselect_all (pos_space);
+    assert(status == 0);
+    status = H5Pclose (access_plist);
     assert(status == 0);
 
     /* 
@@ -370,7 +410,7 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     /*
      * Extending the dataset.
      */
-    hsize_t extdims[RANK] = {pos_dimsf[0], pos_dimsf[1] + elems.size()};
+    hsize_t extdims[RANK] = {pos_dimsf[0] + elems.size()};
 
     status = H5Dset_extent (pos_dset, extdims);
     assert(status == 0);
@@ -391,24 +431,20 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
      * selection.  The selection now contains only the newly extended
      * portions of the dataset.
      */
-    hsize_t start[2], count[2], stride[2], block[2];
-    start[0] = 0;
-    start[1] = pos_dimsf[1];
-    stride[0] = 1;
-    stride[1] = elems.size();
+    hsize_t start[RANK], count[RANK], stride[RANK], block[RANK];
+    start[0] = pos_dimsf[0];
+    stride[0] = elems.size();
     count[0] = 1;
-    count[1] = 1;
-    block[0] = 1;
-    block[1] = elems.size();
+    block[0] = elems.size();
     status = H5Sselect_hyperslab (pos_space, H5S_SELECT_SET, start, stride, count, block);
     assert(status == 0);
 
     /*
      * Initialize data for writing to the extended dataset.
      */
-    hsize_t memdims[RANK] = {1, elems.size()};
-    start[0] = 0, start[1] = 0;
-    count[0] = 1, count[1] = elems.size();
+    hsize_t memdims[RANK] = {elems.size()};
+    start[0] = 0;
+    count[0] = elems.size();
     hid_t memspace = H5Screate_simple (RANK, memdims, NULL);
     status = H5Sselect_hyperslab (memspace, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
@@ -416,12 +452,15 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     /*
      * Write the data to the selected portion of the dataset.
      */
-    status = H5Dwrite (pos_dset, H5T_NATIVE_LLONG, memspace, pos_space, H5P_DEFAULT, merged_str_pos[0]);
+    // https://www.rdocumentation.org/packages/hdf5r/versions/1.3.4/topics/H5P_DATASET_XFER-class
+    status = H5Dwrite (pos_dset, H5T_NATIVE_LLONG, memspace, pos_space, H5P_DEFAULT, merged_str_pos);
     assert(status == 0);
 
     /*
      * Close and release resources.
      */
+    status = H5Sclose (memspace);
+    assert(status == 0);
     status = H5Dclose (pos_dset);
     assert(status == 0);
     status = H5Sclose (pos_space);
@@ -436,37 +475,12 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
         return;
     }
 
-
     /*
      * Extend the dataset.
      */
-    extdims[0] = str_dimsf[0];
-    extdims[1] = str_dimsf[1] + concat_str.size();
+    extdims[0] = str_dimsf[0] + concat_str.size();
 
     status = H5Dset_extent (str_dset, extdims);
-    assert(status == 0);
-
-    /*
-        select hyperslab where to write:
-    */
-    str_space = H5Dget_space (str_dset);
-    status = H5Sselect_all (str_space);
-    assert(status == 0);
-    start[0] = 0, start[1] = str_dimsf[1];
-    stride[0] = 1, stride[1] = concat_str.size();
-    count[0] = 1, count[1] = 1;
-    block[0] = 1, block[1] = concat_str.size();
-    status = H5Sselect_hyperslab (str_space, H5S_SELECT_SET, start, stride, count, block);
-    assert(status == 0);
-
-    /*
-        select hyperslab for transfering data from concat_str
-    */
-    memdims[0] = 1, memdims[1] = concat_str.size();
-    start[0] = 0, start[1] = 0;
-    count[0] = 1, count[1] = concat_str.size();
-    memspace = H5Screate_simple (RANK, memdims, NULL);
-    status = H5Sselect_hyperslab (memspace, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
 
     /*
@@ -476,16 +490,83 @@ void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Gro
     for (uint64_t i = 0; i < concat_str.size(); ++i) {
         concat_vchar[i] = concat_str[i];
     }
-
-    status = H5Dwrite (str_dset, H5T_NATIVE_CHAR, memspace, str_space, H5P_DEFAULT, concat_vchar);
+    hid_t xfer = H5Pcreate(H5P_DATASET_XFER);
+    status = H5Pset_buffer(xfer, 10, NULL, NULL);
+    assert(status == 0);
+    status = H5Pset_hyper_vector_size(xfer, 1);
     assert(status == 0);
 
+    // if (dataset_name.find("sequence") == 0) {
+    //     // this is the bottleneck of the implementation.
+    //     // Use an optimized function to improve the performance (copy chunk by chunk).
+
+    //     // check why if (==1) is not enough !!!
+    //     if (str_dimsf[0] % common::H5_CHUNK_SIZE == 1) {
+    //         str_dimsf[0] --;
+    //     }
+
+    //     for (hsize_t offset = str_dimsf[0]; offset < str_dimsf[0] + concat_str.size(); offset += common::H5_CHUNK_SIZE) {
+    //         uint64_t num_bytest_to_copy = concat_str.size() - (offset - str_dimsf[0]);
+    //         if (common::H5_CHUNK_SIZE < num_bytest_to_copy) {
+    //             num_bytest_to_copy = common::H5_CHUNK_SIZE;
+    //         }
+    //         std::cerr << "offset=" << offset << std::endl;
+    //         status = H5Dwrite_chunk (str_dset, xfer, 0, &offset, num_bytest_to_copy, concat_vchar + offset - str_dimsf[0]);
+    //     }
+    // } else {
+        /*
+            select hyperslab where to write:
+        */
+        str_space = H5Dget_space (str_dset);
+        // status = H5Sselect_all (str_space);
+        // assert(status == 0);
+        start[0] = str_dimsf[0];
+        stride[0] = concat_str.size();
+        count[0] = 1;
+        block[0] = concat_str.size();
+        status = H5Sselect_hyperslab (str_space, H5S_SELECT_SET, start, stride, count, block);
+        assert(status == 0);
+
+        /*
+            select hyperslab for transfering data from concat_str
+        */
+        memdims[0] = concat_str.size();
+        start[0] = 0;
+        count[0] = concat_str.size();
+        memspace = H5Screate_simple (RANK, memdims, NULL);
+        status = H5Sselect_hyperslab (memspace, H5S_SELECT_SET, start, NULL, count, NULL);
+        assert(status == 0);
+        
+        // print the cache ----------------------------------------------------------------------------------------------------------------
+        hid_t str_acc_plist = H5Dget_access_plist (str_dset);
+        assert (str_acc_plist != H5I_INVALID_HID);
+        size_t nsolts, nbytes;
+        double w0;
+        int aux;
+        status = H5Pget_chunk_cache (str_acc_plist, &nsolts, &nbytes, &w0);
+        assert(status == 0);
+        std::cerr << "before write nsolts=" << nsolts << " nbytes=" << nbytes << " wo=" << w0 << std::endl;
+
+        // status = H5Pclose (str_acc_plist);
+        // assert(status == 0);
+        // end print the cache ----------------------------------------------------------------------------------------------------------------
+
+
+        status = H5Dwrite (str_dset, H5T_NATIVE_CHAR, memspace, str_space, xfer, concat_vchar);
+        // https://forum.hdfgroup.org/t/how-to-free-memory-after-h5fclose/3998
+        assert(status == 0);
+
+        status = H5Sclose (memspace);
+        assert(status == 0);
+        status = H5Sclose (str_space);
+        assert(status == 0);
+    // }
     /*
      * Close and release resources.
      */
     status = H5Dclose (str_dset);
     assert(status == 0);
-    status = H5Sclose (str_space);
+    status = H5Pclose (xfer);
     assert(status == 0);
 }
 

@@ -31,17 +31,16 @@ int append(Config *config) {
     Logger::trace("Importing input file '" + config->indb_filepath + "'...");
 
     // we need this H5F_ACC_RDWR for append to the existent file.
-    H5::H5File h5_file_in = H5::H5File(config->indb_filepath, H5F_ACC_RDONLY);    
-    ds::CTC *ctc_in = new ds::CTC(h5_file_in);
+    // H5::H5File h5_file_in = H5::H5File(config->indb_filepath, H5F_ACC_RDONLY);    
+    ds::CTC *ctc_in = new ds::CTC(config->indb_filepath, true);
 
-    H5::H5File h5_file_out = H5::H5File(config->outdb_filepath, H5F_ACC_TRUNC);    
-    ds::CTC *ctc_out = new ds::CTC(&h5_file_out, ctc_in);
+    ds::CTC *ctc_out = new ds::CTC(ctc_in, config->outdb_filepath);
     ds::PS_Treap *hash_treap = ctc_out->hash_treap;
     
     delete ctc_in; // it is also made unusable by the previous constructor.
-    h5_file_in.close();
 
     for (uint64_t i = 0; i < config->fnames.size(); ++i) {
+
         Logger::trace("Parsing snapshot '" + config->fnames[i] + "'...");
         std::vector<common::SeqElem> seq_elems;
         Logger::trace("Composing snapshot treap to compute the diferences...");
@@ -123,9 +122,11 @@ int append(Config *config) {
                 elems_to_insert.clear();
             }
         }
+        // break;
         if (elems_to_insert.size()) {
             ctc_out->insert_seq(elems_to_insert);
         }
+        // break;
         delete seq_reader;
 
         hash_treap = ctc_out->hash_treap;
@@ -139,7 +140,6 @@ int append(Config *config) {
 
     ctc_out->export_to_h5();
     delete ctc_out;
-    h5_file_out.close();
     return 0;
 }
 

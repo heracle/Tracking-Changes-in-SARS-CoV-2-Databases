@@ -16,10 +16,8 @@ namespace cli {
 
 int create(Config *config) {
     Logger::trace("Starting 'create' CLI...");
-
-    // Create a new file using the default property lists.
-    H5::H5File h5_file(config->outdb_filepath, H5F_ACC_TRUNC);
-    ds::CTC *ctc = new ds::CTC(&h5_file);
+    
+    ds::CTC *ctc = new ds::CTC(NULL, config->outdb_filepath);
 
     std::string input_fname = config->fnames[0];
 
@@ -35,9 +33,7 @@ int create(Config *config) {
     }
     ctc->save_snapshot(input_fname);
     ctc->export_to_h5();
-
     delete ctc;
-    h5_file.close();
     return 0;
 }   
 

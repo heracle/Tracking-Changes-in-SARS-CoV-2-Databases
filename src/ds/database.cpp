@@ -17,12 +17,14 @@ SeqElem DB::get_element(uint64_t id) const {
     if (id >= data_size) {
         throw std::runtime_error("ERROR -> requested element in DB with id that doesn't exist.");
     }
-    uint64_t num_cluster_to_read = id / flush_size;
+    // uint64_t num_cluster_to_read = id / flush_size;
 
     SeqElem answer;
 
     for (uint64_t i = 0; i < db_str_fields.size(); ++i) {
-        answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id % flush_size, group, db_str_fields[i] + std::to_string(num_cluster_to_read));
+        std::string field_dataset_label = db_str_fields[i];// + std::to_string(num_cluster_to_read);
+        answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id /*% flush_size*/, group, field_dataset_label);
+        // answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id, group, db_str_fields[i]);
     }
     answer.prv_db_id = std::stoul(H5Helper::get_from_extendable_h5_dataset(id, group, "prv_list"));
 
@@ -31,11 +33,7 @@ SeqElem DB::get_element(uint64_t id) const {
 
 uint64_t DB::insert_element(const SeqElem seq) {
     buff_data.push_back(seq);
-
     this->data_size++;
-    if (buff_data.size() == flush_size) {
-        write_buff_data();
-    }
     return this->data_size - 1;
 }
 
@@ -59,9 +57,9 @@ DB::DB(H5::H5File *h5_file, const uint64_t req_flush_size)  {
     }
     
     this->group = h5_file->createGroup("/database");
-    // for (const std::string &field : db_str_fields) {
-    //     H5Helper::create_extendable_h5_dataset(group, field);
-    // }
+    for (const std::string &field : db_str_fields) {
+        H5Helper::create_extendable_h5_dataset(group, field);
+    }
     H5Helper::create_extendable_h5_dataset(group, "prv_list");
 }
 
@@ -71,7 +69,7 @@ void DB::write_buff_data() {
         return;
     }
 
-    uint64_t num_cluster_to_write = (data_size - 1) / flush_size;
+    // uint64_t num_cluster_to_write = (data_size - 1) / flush_size;
     
     std::vector<std::string> prv_linked_list;
     for (const common::SeqElem &elem : buff_data) {
@@ -80,8 +78,12 @@ void DB::write_buff_data() {
     H5Helper::append_extendable_h5_dataset(prv_linked_list, group, "prv_list");
 
     for (const std::string &field : db_str_fields) {
-        std::string field_dataset_label = field + std::to_string(num_cluster_to_write);
-        H5Helper::create_extendable_h5_dataset(group, field_dataset_label);
+        std::string field_dataset_label = field;// + std::to_string(num_cluster_to_write);
+
+        // this field can already exists in case that we are now appending the new sequences and it was created while DB clone. 
+        // if (H5Lexists( group.getId(), (field_dataset_label + "_$_pos").c_str(), H5P_DEFAULT ) == 0) {
+        //     H5Helper::create_extendable_h5_dataset(group, field_dataset_label);
+        // }
 
         std::vector<std::string> field_data;
         uint64_t field_id = SEQ_FIELDS_TO_ID.at(field);
@@ -89,6 +91,7 @@ void DB::write_buff_data() {
             field_data.push_back(elem.covv_data[field_id]);
         }
 
+        // check if we need to append these new data to 2 different (and consecutive) dataspaces (the same reason like the one why we check the existence of the file)
         H5Helper::append_extendable_h5_dataset(field_data, group, field_dataset_label);
     }
     buff_data.clear();
@@ -96,12 +99,17 @@ void DB::write_buff_data() {
     H5Helper::set_uint64_hdf5_attr(this->data_size, &(this->group), "data_size");
     H5Helper::set_uint64_hdf5_attr(treap_types::Tnode::next_index_tnode, &(this->group), "next_index_tnode");
     H5Helper::set_uint64_hdf5_attr(treap_types::Tnode::first_notsaved_index_tnode, &(this->group), "first_notsaved_index_tnode");
+
+    H5garbage_collect();
 }
 
 void DB::clone_db(const ds::DB &source) {
     for (uint64_t i = 0; i < source.data_size; ++i) {
         common::SeqElem curr = source.get_element(i);
         this->insert_element(curr);
+        if (buff_data.size() == flush_size) {
+            write_buff_data();
+        }
     }
     write_buff_data();
 }

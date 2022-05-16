@@ -30,8 +30,8 @@ int query(Config *config) {
         Logger::error("Can't open output file " + config->indb_filepath);
     }
 
-    H5::H5File h5_file_read = H5::H5File(config->indb_filepath, H5F_ACC_RDONLY);    
-    ds::CTC *ctc = new ds::CTC(h5_file_read);
+    // H5::H5File h5_file_read = H5::H5File(, H5F_ACC_RDONLY);    
+    ds::CTC *ctc = new ds::CTC(config->indb_filepath, true);
 
     std::vector<std::string> snapshot_list;
     std::string curr_snapshot = "";

@@ -70,9 +70,11 @@ void CTC::ctc_init() {
 }
 
 // todo fix constructor duplication (used by append)
-CTC::CTC(H5::H5File *h5_file, CTC* source) : h5file(*h5_file) {
+CTC::CTC(CTC* source, const std::string &req_h5_filepath) : h5_filepath(req_h5_filepath) {
+    h5file = H5::H5File(h5_filepath, H5F_ACC_TRUNC); 
+
     this->ctc_init();
-    this->db = new ds::DB(h5_file);
+    this->db = new ds::DB(&h5file);
     
     if (source != NULL) {
         this->db->clone_db(*(source->db));
@@ -92,12 +94,19 @@ CTC::CTC(H5::H5File *h5_file, CTC* source) : h5file(*h5_file) {
 
 // todo keep only one h5 constructor..
 // todo fix constructor duplication (used by append open h5)
-CTC::CTC(H5::H5File &h5_file) : h5file(h5_file) {
+CTC::CTC(const std::string &req_h5_filepath, const bool read_only) : h5_filepath(req_h5_filepath) {
+    // Create a new file using the default property lists.
+    if (read_only) {
+        h5file = H5::H5File(h5_filepath, H5F_ACC_RDONLY); 
+    } else {
+        h5file = H5::H5File(h5_filepath, H5F_ACC_TRUNC); 
+    }
+
     this->ctc_init();
-    this->db = new ds::DB(&h5_file);
+    this->db = new ds::DB(&h5file);
     
     for (auto [treap_name, treap_data] : this->treaps) {
-        H5::Group treap_group = H5Gopen(h5_file.getLocId(), ("/" + treap_name).c_str(), H5P_DEFAULT);
+        H5::Group treap_group = H5Gopen(h5file.getLocId(), ("/" + treap_name).c_str(), H5P_DEFAULT);
 
         // read data before calling the LocationSorted Treap constructor
         std::vector<std::string> keys = H5Helper::read_h5_dataset(treap_group, "key");
@@ -127,6 +136,7 @@ CTC::~CTC() {
     for (auto [treap_name, treap_data] : this->treaps) {
         delete treap_data.treap;
     }
+    h5file.close();
 }
 
 void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint64_t> > &seq_elems_with_prv) {
@@ -134,6 +144,16 @@ void CTC::insert_seq(const std::vector<std::pair<common::SeqElem, uint64_t> > &s
     std::vector<uint64_t> seq_ids(seq_elems_with_prv.size());
     for (uint64_t i = 0; i < seq_elems_with_prv.size(); ++i) {
         seq_ids[i] = db->insert_element(seq_elems_with_prv[i].first);
+        if (db->buff_data.size() == db->flush_size) {
+            db->write_buff_data();
+            db->group.close();
+            herr_t status = H5Fflush(h5file.getId(), H5F_SCOPE_GLOBAL);
+            assert(status == 0);
+            h5file.close();
+            H5garbage_collect();
+            h5file = H5::H5File(h5_filepath, H5F_ACC_RDWR);
+            db->group = H5Gopen(h5file.getLocId(), "/database", H5P_DEFAULT);
+        }
     }
 
     for (auto [treap_name, treap_data] : this->treaps) {
@@ -186,20 +206,34 @@ void CTC::save_snapshot(const std::string &name) {
 }
 
 void CTC::export_to_h5() {
+    std::cerr << "before proc any treap " <<  std::endl;
     for (auto [treap_name, treap_data] : this->treaps) {
+        std::cerr << "proc treap = " << treap_name << std::endl;
+        std::cerr << "h5file =" << &h5file << std::endl;
         H5::Group treap_group;
         if (H5Lexists( h5file.getId(), ("/" + treap_name).c_str(), H5P_DEFAULT ) > 0) {
+            std::cerr << "before open group treap_name=" << treap_name << std::endl;
             treap_group = h5file.openGroup(("/" + treap_name).c_str());            
+            std::cerr << "opened group treap_name=" << treap_name << std::endl;
         } else {
+            std::cerr << "before create group treap_name=" << treap_name << std::endl;
             treap_group = h5file.createGroup(("/" + treap_name).c_str());
+            std::cerr << "created group treap_name=" << treap_name << std::endl;
         }
         treap_data.reset_append_tnode_data();
         treap_data.treap->export_to_hdf5(treap_group, treap_data.serialize_elem_to_hdf5, treap_data.append_tnode_data);
         treap_data.write_tnode_data_to_h5(treap_group);
         treap_group.close();
     }
-
+    // exit(0);
     db->write_buff_data();
+    db->group.close();
+    herr_t status = H5Fflush(h5file.getId(), H5F_SCOPE_GLOBAL);
+    assert(status == 0);
+    h5file.close();
+    H5garbage_collect();
+    h5file = H5::H5File(h5_filepath, H5F_ACC_RDWR);
+    db->group = H5Gopen(h5file.getLocId(), "/database", H5P_DEFAULT);
 }
 
 void CTC::prepare_specific_get_unique_SeqElem(const ds::PS_Treap *accid_base_treap,

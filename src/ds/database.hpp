@@ -13,13 +13,13 @@ class DB {
   private:
     // TODO add previous version for data!
     // std::vector<common::SeqElem> data;
-    std::vector<common::SeqElem> buff_data;
     std::vector<std::string> db_str_fields;
     void init();
-    uint64_t flush_size;
 
   public:
     //todo make private
+    uint64_t flush_size;
+    std::vector<common::SeqElem> buff_data;
     uint64_t data_size = 0;
     H5::Group group;
     void write_buff_data();

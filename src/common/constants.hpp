@@ -10,11 +10,14 @@ const uint64_t MOD1 = 10000000000000061LL;
 const uint64_t MOD2 = 10000000000000069LL;
 const uint64_t HASH_MOD = 257; // make sure that MOD1 * HASH_MOD does not exceed long long.
 const uint64_t BITS_FOR_STEPS_BACK = 8; // assume that there will be at most 2**8 = 256 updates of the same sequence; Can be increased while "ALIGNED_SEQ_SIZE<<BITS_FOR_STEPS_BACK" fits into 32 bits.
+// const uint64_t COMPRESSION_CHUNK_DIMS = 20;
+const uint64_t COMPRESSION_DEFLATE = 0;
 
 // todo understand more exactly what 'H5_CHUNK_SIZE' is doing. Currently set to be equal to unix page size.
-const uint64_t H5_APPEND_SIZE = 10000;
-const uint64_t ALIGNED_SEQ_SIZE = 40000;
-const uint64_t H5_CHUNK_SIZE = 10 * ALIGNED_SEQ_SIZE;
+const uint64_t H5_APPEND_SIZE = 2000;
+const uint64_t ALIGNED_SEQ_SIZE = 29904;
+const uint64_t H5_CHUNK_SIZE_METADATA = H5_APPEND_SIZE * 500;
+const uint64_t H5_CHUNK_SIZE_SEQUENCE = H5_APPEND_SIZE * ALIGNED_SEQ_SIZE;
 
 const std::string DS_FILE_FORMAT = ".h5";
 

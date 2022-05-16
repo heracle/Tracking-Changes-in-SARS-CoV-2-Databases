@@ -45,7 +45,8 @@ struct CTCData {
 class CTC {
   private:
     void ctc_init();
-    H5::H5File &h5file;
+    H5::H5File h5file;
+    std::string h5_filepath;
   
   public:
     // TODO make this db and treaps private.
@@ -53,8 +54,8 @@ class CTC {
     ds::PS_Treap *hash_treap;
     tsl::hopscotch_map<std::string, CTCData> treaps;
   
-    CTC(H5::H5File *h5_file, CTC* source = NULL);
-    CTC(H5::H5File &h5_file);
+    CTC(CTC* source, const std::string &req_h5_filepath);
+    CTC(const std::string &h5_filepath, const bool read_only);
     ~CTC();
     void insert_seq(const std::vector<std::pair<common::SeqElem, uint64_t> > &seq_elems_with_prv);
     void erase_seq(const std::vector<uint64_t> &deletions_db_ids, const bool was_modified);

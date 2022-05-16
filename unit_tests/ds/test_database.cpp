@@ -45,7 +45,7 @@ TEST(Database, WriteBuffData) {
     H5::Group tmp_group = H5Gopen(h5_file.getLocId(), "/database", H5P_DEFAULT);
     for (uint64_t field_id = 0; field_id < db->db_str_fields.size(); ++field_id) {
         for (uint64_t i = 0; i < 20; ++i) {
-            std::string x = H5Helper::get_from_extendable_h5_dataset(i, tmp_group, db->db_str_fields[field_id] + "0");
+            std::string x = H5Helper::get_from_extendable_h5_dataset(i, tmp_group, db->db_str_fields[field_id]/* + "0"*/);
             EXPECT_EQ(x, file_SeqElem[i].covv_data[field_id]);
         }
     }

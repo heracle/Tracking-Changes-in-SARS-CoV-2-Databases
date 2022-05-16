@@ -23,6 +23,7 @@ class TestCli(unittest.TestCase):
         res = subprocess.run([create_command], shell=True)
         self.assertEqual(res.returncode, 0)
 
+        print("append?")
         append_command = '{exe} append -i {input_h5} -o {output_h5} {snapshots}'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/first.h5',
