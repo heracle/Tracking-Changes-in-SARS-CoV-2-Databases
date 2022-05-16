@@ -19,10 +19,13 @@ using namespace treap_types;
 
 #include <fstream>
 #include <iostream>
+#include <ctime>
+#include <chrono>
 
 namespace cli {
 
 int append(Config *config) {
+    auto start_tstamp = std::chrono::system_clock::now();
     std::ifstream instrm(config->indb_filepath, std::ios::in | std::ios::binary);
     if (!instrm.is_open()) {
         Logger::error("Can't open output file " + config->indb_filepath);
@@ -40,6 +43,14 @@ int append(Config *config) {
     
     delete ctc_in; // it is also made unusable by the previous constructor.
     h5_file_in.close();
+
+    auto end_tstamp = std::chrono::system_clock::now();
+ 
+    std::chrono::duration<double> elapsed_seconds = end_tstamp - start_tstamp;
+    std::time_t end_time_t = std::chrono::system_clock::to_time_t(end_tstamp);
+ 
+    std::cerr << "finished DB clone at " << std::ctime(&end_time_t)
+              << "elapsed time: " << elapsed_seconds.count() << "s" << std::endl;
 
     for (uint64_t i = 0; i < config->fnames.size(); ++i) {
         Logger::trace("Parsing snapshot '" + config->fnames[i] + "'...");
@@ -138,7 +149,16 @@ int append(Config *config) {
     std::cerr << "\n\ntnode next=" << Tnode::next_index_tnode << std::endl;
 
     ctc_out->export_to_h5();
+
+    end_tstamp = std::chrono::system_clock::now();
+ 
+    elapsed_seconds = end_tstamp - start_tstamp;
+    end_time_t = std::chrono::system_clock::to_time_t(end_tstamp);
+ 
+    std::cerr << "finished snapshot proc at " << std::ctime(&end_time_t)
+              << "elapsed time: " << elapsed_seconds.count() << "s" << std::endl;
     delete ctc_out;
+
     h5_file_out.close();
     return 0;
 }

@@ -51,6 +51,9 @@ SeqElem get_SeqElem_from_json(rapidjson::Document &j_obj) {
 
 SeqElemReader::~SeqElemReader() {
     f.close();
+    if (document != NULL) {
+        delete document;
+    }
 }
 
 SeqElemReader::SeqElemReader(const std::string &input_path) {
@@ -89,6 +92,16 @@ common::SeqElem SeqElemReader::get_next() {
 }
 
 common::SeqElem SeqElemReader::get_elem(const int64_t id) {
+    if (document == NULL) {
+        document = new rapidjson::Document();
+    }
+    get_elem_counter++;
+    if (get_elem_counter == common::H5_APPEND_SIZE) {
+        get_elem_counter = 0;
+        delete document;
+        document = new rapidjson::Document();
+    }
+
     common::SeqElem elem;
     if (last_id_read > id) {
         Logger::error("Elem reader requests elems in not ascending order.");

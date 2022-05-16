@@ -43,6 +43,7 @@ class SeqElemReader {
     std::ifstream f;
     bool finished;
     int64_t last_id_read;
+    uint64_t get_elem_counter = 0;
 
     // Always keep the next SeqElem in 'next_elem' for being one step ahead in file and keep 'end_of_file()' up to date.
     SeqElem next_elem;
