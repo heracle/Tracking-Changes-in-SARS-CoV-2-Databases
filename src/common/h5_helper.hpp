@@ -23,8 +23,8 @@ std::vector<std::string> read_h5_dataset(const H5::Group &h5, const std::string 
 void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name);
 // append_extendable_h5_dataset appends a list of strings to the existent extendable "std::vector<std::string> v".
 void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Group &h5, const std::string &dataset_name);
-// get_from_extendable_h5_dataset returns the string with index 'id' stored as an extendable string array.
-std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, const std::string &dataset_name);
+// get_from_extendable_h5_dataset returns the strings stored between index 'id_left' and 'id_right - 1'.
+std::vector<std::string> get_from_extendable_h5_dataset(uint64_t id_left, uint64_t id_right, const H5::Group &h5, const std::string &dataset_name);
 
 template <typename T>
 // write_h5_int_to_dataset stores an entire list of integers.

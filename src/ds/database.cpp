@@ -20,10 +20,11 @@ SeqElem DB::get_element(uint64_t id) const {
     SeqElem answer;
 
     for (uint64_t i = 0; i < db_str_fields.size(); ++i) {
-        answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id, group, db_str_fields[i]);
+        std::vector<std::string> data = H5Helper::get_from_extendable_h5_dataset(id, id + 1, group, db_str_fields[i]);
+        answer.covv_data[i] = data[0];
     }
-    answer.prv_db_id = std::stoul(H5Helper::get_from_extendable_h5_dataset(id, group, "prv_list"));
-
+    std::vector<std::string> data = H5Helper::get_from_extendable_h5_dataset(id, id + 1, group, "prv_list");
+    answer.prv_db_id = std::stoul(data[0]);
     return answer;
 }
 

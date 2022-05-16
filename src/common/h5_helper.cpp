@@ -189,7 +189,10 @@ void create_extendable_h5_dataset(H5::Group &h5, const std::string &dataset_name
     assert(status == 0);
 }
 
-std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, const std::string &dataset_name) {
+std::vector<std::string> get_from_extendable_h5_dataset(uint64_t id_left, uint64_t id_right, const H5::Group &h5, const std::string &dataset_name) {
+    if (id_right <= id_left) {
+        Logger::error("Bad call to get string from hdf5 (left >= right): left=" + std::to_string(id_left) + " and right=" + std::to_string(id_right));
+    }
     int64_t RANK = 1;
 
     hid_t pos_dset = H5Dopen (h5.getId(), (dataset_name + "_$_pos").c_str(), H5P_DEFAULT);
@@ -202,7 +205,7 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     }  
     assert(ndims == RANK);
 
-    if (id + 1 >= pos_dimsf[0]) {
+    if (id_right >= pos_dimsf[0]) {
         Logger::error("internal error: request id that exceds the current size of extandable dataset");
     }
 
@@ -212,8 +215,8 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     */
     herr_t status = H5Sselect_all (pos_space);
     assert(status == 0);
-    hsize_t start[1]; start[0] = id;
-    hsize_t count[1]; count[0] = 2;
+    hsize_t start[1]; start[0] = id_left;
+    hsize_t count[1]; count[0] = id_right - id_left + 1;
     status = H5Sselect_hyperslab (pos_space, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
 
@@ -221,9 +224,9 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
      * select hyperslab for specifing the place inside "long long *rdata" where to put what is read (mandatory for mentioning rdata[0] and rdata[1], 
        otherwise there would be something like rdata[id], rdata[id+1]).
      */
-    hsize_t memdims[1] = {2};
+    hsize_t memdims[1] = {id_right - id_left + 1};
     start[0] = 0;
-    count[0] = 2;
+    count[0] = id_right - id_left + 1;
     hid_t memspace = H5Screate_simple (1, memdims, NULL);
     status = H5Sselect_hyperslab (memspace, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
@@ -231,14 +234,19 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     /*
         the proper reading from pos
     */
-    long long *rdata =  (long long *) malloc (2 * sizeof (long long));
+    long long *rdata =  (long long *) malloc ((id_right - id_left + 1) * sizeof (long long));
     rdata[0] = -1;
     status = H5Dread (pos_dset, H5T_NATIVE_LLONG, memspace, pos_space, H5P_DEFAULT, rdata);
     assert(status == 0);
 
-    assert(rdata[1] - rdata[0] >= 0);
-    if (rdata[1] == rdata[0]) {
-        return "";
+    assert(rdata[id_right - id_left] - rdata[0] >= 0);
+
+    std::vector<std::string> answer;
+    if (rdata[id_right - id_left] == rdata[0]) {
+        for (uint64_t i = id_left; i < id_right; ++i) {
+            answer.push_back("");
+        }
+        return answer;
     }
 
     status = H5Dclose (pos_dset);
@@ -264,14 +272,14 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     status = H5Sselect_all (str_space);
     assert(status == 0);
     start[0] = rdata[0];
-    count[0] = rdata[1] - rdata[0];
+    count[0] = rdata[id_right - id_left] - rdata[0];
     status = H5Sselect_hyperslab (str_space, H5S_SELECT_SET, start, NULL, count, NULL);
     assert(status == 0);
 
     /*
      * select hyperslab for 'char *str_data ' (mandatory for making sure that the data is assigned to the prefix of str_data: str_data[0], str_data[1], str_data[2] etc.):
      */
-    memdims[0] = rdata[1] - rdata[0];
+    memdims[0] = rdata[id_right - id_left] - rdata[0];
     start[0] = 0;
     count[0] = memdims[0];
     memspace = H5Screate_simple (1, memdims, NULL);
@@ -281,14 +289,20 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     /*
         the proper reading from str
     */
-    char *str_data =  (char *) malloc ((rdata[1] - rdata[0]) * sizeof (char));
+    char *str_data =  (char *) malloc ((rdata[id_right - id_left] - rdata[0]) * sizeof (char));
     status = H5Dread (str_dset, H5T_NATIVE_CHAR, memspace, str_space, H5P_DEFAULT, str_data);
     assert(status == 0);
 
-    std::string result;
-    for (int64_t i = 0; i < rdata[1] - rdata[0]; ++i) {
-        result += str_data[i];
-    }
+    
+    for (uint64_t id = id_left; id < id_right; ++id) {
+        std::string curr;
+        for (int64_t i = rdata[id - id_left] - rdata[0]; i < rdata[id - id_left + 1] - rdata[0]; ++i) {
+            curr += str_data[i];
+        }
+        
+        answer.push_back(curr);
+        curr.clear();
+    } 
     
     free(rdata);
     free(str_data);
@@ -299,7 +313,7 @@ std::string get_from_extendable_h5_dataset(uint64_t id, const H5::Group &h5, con
     status = H5Sclose (memspace);
     assert(status == 0);
 
-    return result;
+    return answer;
 }
 
 void append_extendable_h5_dataset(const std::vector<std::string> &elems, H5::Group &h5, const std::string &dataset_name) {
