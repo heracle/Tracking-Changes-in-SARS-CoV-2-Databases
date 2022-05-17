@@ -7,6 +7,8 @@
 #include "../ds/tnode_types/tnode_base.hpp"
 #include "../ds/static_types/static_base.hpp"
 
+#include <map>
+
 namespace query_ns {
 
 class FreqBpQuery : public BaseQuery {
@@ -21,15 +23,21 @@ class FreqBpQuery : public BaseQuery {
     tsl::hopscotch_map<std::string, uint64_t> owner_edit_cnt;
     tsl::hopscotch_map<std::string, uint64_t> owner_total_cnt;
 
+    std::vector<uint64_t> num_alter_more_precise;
+    std::vector<uint64_t> num_alter_less_precise;
+    std::vector<uint64_t> num_problem_alter_precise;
+    std::vector<uint64_t> num_alter_n_dash;
+
     tsl::hopscotch_map<std::string, uint64_t> owner_distrib_per_bp[common::ALIGNED_SEQ_SIZE];
     tsl::hopscotch_map<std::string, tsl::hopscotch_map<std::string, uint64_t>> char_to_char_distrib_per_bp_per_owner[common::ALIGNED_SEQ_SIZE];
     tsl::hopscotch_map<std::string, tsl::hopscotch_map<std::string, uint64_t>> char_to_char_final_result_per_bp_per_owner[common::ALIGNED_SEQ_SIZE];
     tsl::hopscotch_map<uint64_t, std::pair<std::string, std::string>> prv_sequences;
 
+    void eval_alteration_type(char prv, char act);
     void add_alters(const std::vector<uint64_t> bp_alterations, uint64_t database_id, const std::string &owner, const ds::DB *db);
 
   public:
-    FreqBpQuery(const bool req_compute_total_owner_cnt, const uint64_t req_num_to_print);
+    FreqBpQuery(const bool req_compute_total_owner_cnt, const uint64_t req_num_to_print, const uint64_t num_total_snapshots);
     void reset();
     void set_deletion_mode(const bool is_deletion_mode);
     std::string get_treap_name();

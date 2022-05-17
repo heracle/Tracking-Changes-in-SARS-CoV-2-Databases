@@ -11,6 +11,90 @@
 
 namespace query_ns {
 
+bool is_string_included(const std::string &small, const std::string &large) {
+    if (small.size() > large.size()) {
+        return false;
+    }
+
+    for (char x : small) {
+        bool is_in_large = false;
+        for (char y : large) {
+            if (y == x) {
+                is_in_large = true;
+                break;
+            }
+        }
+        if (is_in_large == false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::string get_bp_code(char x) {
+    if (x == 'A') {
+        return "A";
+    } else if (x == 'G') {
+        return "G";
+    } else if (x == 'C') {
+        return "C";
+    } else if (x == 'T') {
+        return "T";
+    } else if (x == 'Y') {
+        return "CT";
+    } else if (x == 'R') {
+        return "AG";
+    } else if (x == 'W') {
+        return "AT";
+    } else if (x == 'S') {
+        return "GC";
+    } else if (x == 'K') {
+        return "TG";
+    } else if (x == 'M') {
+        return "CA";
+    } else if (x == 'D') {
+        return "AGT";
+    } else if (x == 'V') {
+        return "ACG";
+    } else if (x == 'H') {
+        return "ACT";
+    } else if (x == 'B') {
+        return "CGT";
+    } else if (x == 'N') {
+        return "AGCT";
+    } 
+    Logger::error("not recognised char");
+}
+
+void FreqBpQuery::eval_alteration_type(char prv, char act) {
+    if (prv == act) {
+        Logger::error("eval alteration type for equal chars");
+    }
+
+    if (prv == 'X' || prv == '-') {
+        prv = 'N';
+    }
+    if (act == 'X' || act == '-') {
+        act = 'N';
+    }
+
+    if (prv == 'N' && act == 'N') {
+        num_alter_n_dash[snapshot_idx]++;
+        return;
+    }
+
+    std::string prv_s = get_bp_code(prv);
+    std::string act_s = get_bp_code(act);
+
+    if (is_string_included(prv_s, act_s)) {
+        num_alter_less_precise[snapshot_idx]++;
+    } else if (is_string_included(act_s, prv_s)) {
+        num_alter_more_precise[snapshot_idx]++;
+    } else {
+        num_problem_alter_precise[snapshot_idx]++;
+    }
+}
+
 void FreqBpQuery::add_alters(const std::vector<uint64_t> bp_alterations, uint64_t database_id, const std::string &owner, const ds::DB *db) {
     uint64_t last_version_id = 0;
     for (const uint64_t alteration : bp_alterations) {
@@ -47,6 +131,8 @@ void FreqBpQuery::add_alters(const std::vector<uint64_t> bp_alterations, uint64_
         char prv_char = prv_sequences[curr_mask].first[altered_bp];
         char act_char = prv_sequences[curr_mask].second[altered_bp];
 
+        eval_alteration_type(prv_char, act_char);
+
         std::string char_to_char;
         char_to_char.push_back(prv_char);
         char_to_char = char_to_char + ">";
@@ -63,9 +149,14 @@ void FreqBpQuery::add_alters(const std::vector<uint64_t> bp_alterations, uint64_
     }
 }
 
-FreqBpQuery::FreqBpQuery(const bool req_compute_total_owner_cnt, const uint64_t req_num_to_print) {
+FreqBpQuery::FreqBpQuery(const bool req_compute_total_owner_cnt, const uint64_t req_num_to_print, const uint64_t num_total_snapshots) {
     this->compute_total_owner_cnt = req_compute_total_owner_cnt;
     this->num_to_print = req_num_to_print;
+
+    num_alter_more_precise.resize(num_total_snapshots);
+    num_alter_less_precise.resize(num_total_snapshots);
+    num_problem_alter_precise.resize(num_total_snapshots);
+    num_alter_n_dash.resize(num_total_snapshots);
     reset();
 }
 
@@ -125,6 +216,26 @@ TreeDirectionToGo FreqBpQuery::second_enter_into_node(const std::string &target_
 }
 
 void FreqBpQuery::print_results() {
+    std::cout << "More precise alterations:\n";
+    for (uint64_t i = 0; i < num_alter_more_precise.size(); ++i) {
+        std::cout << "(" << i+1 << ", " << num_alter_more_precise[i] << ")\n";
+    }
+    std::cout << "Less precise alterations:\n";
+    for (uint64_t i = 0; i < num_alter_less_precise.size(); ++i) {
+        std::cout << "(" << i+1 << ", " << num_alter_less_precise[i] << ")\n";
+    }
+    std::cout << "Problematic alterations:\n";
+    for (uint64_t i = 0; i < num_problem_alter_precise.size(); ++i) {
+        std::cout << "(" << i+1 << ", " << num_problem_alter_precise[i] << ")\n";
+    }
+
+    std::cout << "Null alterations:\n";
+    for (uint64_t i = 0; i < num_alter_n_dash.size(); ++i) {
+        std::cout << "(" << i+1 << ", " << num_alter_n_dash[i] << ")\n";
+    }
+
+    return;
+
     std::vector<std::pair<uint64_t, uint64_t>> top_bp_idx;
 
     for (uint64_t i = 0; i < common::ALIGNED_SEQ_SIZE; ++i) {

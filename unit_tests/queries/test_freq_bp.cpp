@@ -80,7 +80,7 @@ TEST(FreqBpQuery, TestResultOneSnapshot) {
         ASSERT_EQ(test.target_prefixes.size(), test.expected_answers.size());
 
         for (uint64_t id_target_prefix = 0; id_target_prefix < test.target_prefixes.size(); ++id_target_prefix) {
-            query_ns::FreqBpQuery *freq_bp_query = new query_ns::FreqBpQuery(false, 0);
+            query_ns::FreqBpQuery *freq_bp_query = new query_ns::FreqBpQuery(false, 0, 1);
 
             treap->query_callback_subtree(freq_bp_query, test.target_prefixes[id_target_prefix], NULL, "");
 
@@ -288,7 +288,7 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
     };
 
     for (const query_insert_erase_elem &test : tests) {
-        query_ns::FreqBpQuery *freq_bp_query = new query_ns::FreqBpQuery(false, 0);
+        query_ns::FreqBpQuery *freq_bp_query = new query_ns::FreqBpQuery(false, 0, 1);
         treap->query_callback_subtree(freq_bp_query, test.target_prefixes, NULL, test.snapshot);
 
         for (uint64_t i = 0; i < test.expected_answers.size(); ++i) {

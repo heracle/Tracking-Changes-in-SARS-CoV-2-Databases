@@ -53,7 +53,7 @@ int query(Config *config) {
         if (config->fnames.size() != 1) {
             Logger::error("Frequent Basepair query must receive exactly one target key.");
         }
-        query = new query_ns::FreqBpQuery(config->compute_total_owner_cnt, config->num_to_print);
+        query = new query_ns::FreqBpQuery(config->compute_total_owner_cnt, config->num_to_print, snapshot_list.size());
     } else if (config->query_type == CNT_INDELS) {
         query = new query_ns::CountIndelsQuery(snapshot_list.size());
     } else {
