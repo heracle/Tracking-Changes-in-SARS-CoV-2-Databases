@@ -106,17 +106,19 @@ void CountIndelsQuery::print_results() {
     std::cout << "Insertions:\t";
 
     for (uint64_t i = 0; i < total_inserted_sequences.size(); ++i) {
-        std::cout << total_inserted_sequences[i] << "\t";
+        std::cout << "(" << i + 1 << ", " << total_inserted_sequences[i] << ")\n";
     }
 
     std::cout << "\nDeletions:\t";
     for (uint64_t i = 0; i < total_deleted_sequences.size(); ++i) {
-        std::cout << total_deleted_sequences[i] << "\t";
+        // std::cout << total_deleted_sequences[i] << "\t";
+        std::cout << "(" << i + 1 << ", " << total_deleted_sequences[i] << ")\n";
     }
 
     std::cout << "\nModified:\t";
     for (uint64_t i = 0; i < total_modified_sequences.size(); ++i) {
-        std::cout << total_modified_sequences[i] << "\t";
+        // std::cout << total_modified_sequences[i] << "\t";
+        std::cout << "(" << i + 1 << ", " << total_modified_sequences[i] << ")\n";
     }
     std::cout << std::endl;
 }
