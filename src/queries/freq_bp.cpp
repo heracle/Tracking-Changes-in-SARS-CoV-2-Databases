@@ -251,13 +251,41 @@ void FreqBpQuery::print_results() {
     for (uint64_t i = 0; i < num_stable_sequences.size(); ++i) {
         std::cout << "week=" << i + 1 << " " << num_stable_sequences[i] << " out of " << num_total_sequences[i] << "\t" << ((double) num_stable_sequences[i]) / num_total_sequences[i] << "\n";
     }
-
-    std::cout << "Seq modified after X weeks:\n";
+    std::cout << "Percent of stable sequences\n"; 
     for (uint64_t i = 0; i < num_stable_sequences.size(); ++i) {
-        std::cout << "week=" << i + 1 << " " << num_seq_modified_after_X_weeks[i] << "\n";
+        std::cout << "(" << i + 1 << ", " << (int((1 - ((double) num_stable_sequences[i]) / num_total_sequences[i]) * 100000)) / 1000.0 << ")\n";
     }
 
-    uint64_t clusters = 50;
+    std::cout << "Seq modified after X weeks:\n";
+    double total_edits = 0;
+    for (uint64_t i = 0; i < num_stable_sequences.size(); ++i) {
+        std::cout << "week=" << i + 1 << " " << num_seq_modified_after_X_weeks[i] << "\n";
+        total_edits += num_seq_modified_after_X_weeks[i];
+    }
+    std::cout << "Percent of edits after X weeks since the first submission:\n";
+    for (uint64_t i = 0; i < num_stable_sequences.size(); ++i) {
+        std::cout << "(" << i + 1 << ", " << (int((((double)num_seq_modified_after_X_weeks[i]) / total_edits) * 100000)) / 1000.0 << ")\n";
+    }
+
+    std::vector<std::pair<std::pair<uint64_t, uint64_t>, double>> updates_bp_clusters;
+
+    std::cout << "Number of changes per clusters of bp ";
+    uint64_t clusters = 200;
+    std::cout << "cluster=" << clusters << "\n";
+    for (uint64_t bp = 0; bp < common::ALIGNED_SEQ_SIZE; bp += clusters) {
+        double total_changes = 0;
+        for (uint64_t i = bp; i < bp + clusters; ++i) {
+            for (uint64_t week = 0; week < 40; ++week) {
+                total_changes += ((double)num_seq_modified_after_X_weeks_per_bp[i][week]) / processed_database_ids.size();
+            }
+        }
+        total_changes /= clusters;
+        total_changes *= 100; //to make a percent
+        std::cout << "(" << bp + clusters << ", " << total_changes << ")\n";
+    }
+
+    std::cout << "Avg. number of weeks until bp cluster is stable ";
+    std::cout << "cluster=" << clusters << "\n";
     for (uint64_t bp = 0; bp < common::ALIGNED_SEQ_SIZE; bp += clusters) {
         double total_changes = 0;
         double weighted_changes = 0;
@@ -267,10 +295,23 @@ void FreqBpQuery::print_results() {
                 weighted_changes += num_seq_modified_after_X_weeks_per_bp[i][week] * week;
             }
         }
-        if (total_changes) {
-            std::cout << bp << "-" << bp + clusters << "\t" << weighted_changes / total_changes << "\n";
+        double ratio = 1;
+        if (total_changes != 0) {
+            ratio = weighted_changes / total_changes;
         }
+        std::cout << "(" << bp + clusters << ", " << ratio << ")\n";
+        updates_bp_clusters.push_back(std::make_pair(std::make_pair(bp, bp+clusters), ratio));
     }
+
+    // std::sort(updates_bp_clusters.begin(), updates_bp_clusters.end(), [](std::pair<std::pair<uint64_t, uint64_t>, double> &a, std::pair<std::pair<uint64_t, uint64_t>, double> &b) {
+    //     return a.second > b.second;
+    // });
+
+    // std::cout << "\n\ntop " << num_to_print << " bp clusters:\n";
+    // for (uint64_t i = 0; i < updates_bp_clusters.size(); ++i) {
+    //     std::cout << updates_bp_clusters[i].first.first << "-" << updates_bp_clusters[i].first.second << "\t" << updates_bp_clusters[i].second << "\n";
+    // }
+
 
     return;
     std::cout << "More precise alterations:\n";

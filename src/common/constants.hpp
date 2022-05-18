@@ -13,7 +13,7 @@ const uint64_t BITS_FOR_STEPS_BACK = 8; // assume that there will be at most 2**
 
 // todo understand more exactly what 'H5_CHUNK_SIZE' is doing. Currently set to be equal to unix page size.
 const uint64_t H5_APPEND_SIZE = 5000;
-const uint64_t ALIGNED_SEQ_SIZE = 40000;
+const uint64_t ALIGNED_SEQ_SIZE = 30000;
 const uint64_t H5_CHUNK_SIZE = 10 * ALIGNED_SEQ_SIZE;
 
 const std::string DS_FILE_FORMAT = ".h5";
