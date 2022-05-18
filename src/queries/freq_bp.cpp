@@ -157,6 +157,10 @@ FreqBpQuery::FreqBpQuery(const bool req_compute_total_owner_cnt, const uint64_t 
     num_alter_less_precise.resize(num_total_snapshots);
     num_problem_alter_precise.resize(num_total_snapshots);
     num_alter_n_dash.resize(num_total_snapshots);
+
+    num_total_sequences.resize(num_total_snapshots);
+    num_stable_sequences.resize(num_total_snapshots);
+    num_seq_modified_after_X_weeks.resize(num_total_snapshots);
     reset();
 }
 
@@ -191,17 +195,44 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(const std::string &target_l
     }
 
     if (lcp == target_location_prefix.size()) {
-        std::string owner = "";
-        if (db != NULL && (this->compute_total_owner_cnt || elem->bp_alterations.size())) {
-            owner = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("owner")]; 
+        if (processed_database_ids.count(elem->database_id) == 0) {
+            processed_database_ids.insert(elem->database_id);
+
+            std::string acc_id = db->get_element(elem_unique->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("covv_accession_id")];
+            num_total_sequences[snapshot_idx]++;
+            num_stable_sequences[snapshot_idx]++;
+
+            if (acc_id_to_last_label.count(acc_id) == 0) {
+                acc_id_to_last_label[acc_id] = snapshot_idx;
+                return LeftChild;
+            }
+
+            uint64_t prv_snap = acc_id_to_last_label.at(acc_id);
+            acc_id_to_last_label[acc_id] = snapshot_idx;
+
+            num_seq_modified_after_X_weeks[snapshot_idx - prv_snap]++;
+            num_stable_sequences[prv_snap]--;
+            
+            for (const uint64_t alteration : elem->bp_alterations) {
+                uint64_t altered_bp = (alteration >> common::BITS_FOR_STEPS_BACK);
+                uint64_t num_versions_back = alteration - (altered_bp << common::BITS_FOR_STEPS_BACK);
+                if (num_versions_back != 0) {
+                    continue;
+                }
+                num_seq_modified_after_X_weeks_per_bp[altered_bp][snapshot_idx - prv_snap]++;
+            }
         }
-        if (elem->bp_alterations.size()) {
-            add_alters(elem->bp_alterations, elem->database_id, owner, db);
-            owner_edit_cnt[owner]++;
-        }
-        if (this->compute_total_owner_cnt) {
-            owner_total_cnt[owner]++;
-        }
+        // std::string owner = "";
+        // if (db != NULL && (this->compute_total_owner_cnt || elem->bp_alterations.size())) {
+        //     owner = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("owner")]; 
+        // }
+        // if (elem->bp_alterations.size()) {
+        //     add_alters(elem->bp_alterations, elem->database_id, owner, db);
+        //     owner_edit_cnt[owner]++;
+        // }
+        // if (this->compute_total_owner_cnt) {
+        //     owner_total_cnt[owner]++;
+        // }
     }
     
     return LeftChild;
@@ -216,6 +247,32 @@ TreeDirectionToGo FreqBpQuery::second_enter_into_node(const std::string &target_
 }
 
 void FreqBpQuery::print_results() {
+    std::cout << "Num stable sequences:\n";
+    for (uint64_t i = 0; i < num_stable_sequences.size(); ++i) {
+        std::cout << "week=" << i + 1 << " " << num_stable_sequences[i] << " out of " << num_total_sequences[i] << "\t" << ((double) num_stable_sequences[i]) / num_total_sequences[i] << "\n";
+    }
+
+    std::cout << "Seq modified after X weeks:\n";
+    for (uint64_t i = 0; i < num_stable_sequences.size(); ++i) {
+        std::cout << "week=" << i + 1 << " " << num_seq_modified_after_X_weeks[i] << "\n";
+    }
+
+    uint64_t clusters = 50;
+    for (uint64_t bp = 0; bp < common::ALIGNED_SEQ_SIZE; bp += clusters) {
+        double total_changes = 0;
+        double weighted_changes = 0;
+        for (uint64_t i = bp; i < bp + clusters; ++i) {
+            for (uint64_t week = 0; week < 40; ++week) {
+                total_changes += num_seq_modified_after_X_weeks_per_bp[i][week];
+                weighted_changes += num_seq_modified_after_X_weeks_per_bp[i][week] * week;
+            }
+        }
+        if (total_changes) {
+            std::cout << bp << "-" << bp + clusters << "\t" << weighted_changes / total_changes << "\n";
+        }
+    }
+
+    return;
     std::cout << "More precise alterations:\n";
     for (uint64_t i = 0; i < num_alter_more_precise.size(); ++i) {
         std::cout << "(" << i+1 << ", " << num_alter_more_precise[i] << ")\n";

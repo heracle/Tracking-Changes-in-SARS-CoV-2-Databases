@@ -28,6 +28,13 @@ class FreqBpQuery : public BaseQuery {
     std::vector<uint64_t> num_problem_alter_precise;
     std::vector<uint64_t> num_alter_n_dash;
 
+    tsl::hopscotch_map<std::string, uint64_t> acc_id_to_last_label;
+    tsl::hopscotch_set<uint64_t> processed_database_ids;
+    std::vector<uint64_t> num_total_sequences;
+    std::vector<uint64_t> num_stable_sequences;
+    std::vector<uint64_t> num_seq_modified_after_X_weeks;
+    uint64_t num_seq_modified_after_X_weeks_per_bp[common::ALIGNED_SEQ_SIZE][40] = {};
+
     tsl::hopscotch_map<std::string, uint64_t> owner_distrib_per_bp[common::ALIGNED_SEQ_SIZE];
     tsl::hopscotch_map<std::string, tsl::hopscotch_map<std::string, uint64_t>> char_to_char_distrib_per_bp_per_owner[common::ALIGNED_SEQ_SIZE];
     tsl::hopscotch_map<std::string, tsl::hopscotch_map<std::string, uint64_t>> char_to_char_final_result_per_bp_per_owner[common::ALIGNED_SEQ_SIZE];
