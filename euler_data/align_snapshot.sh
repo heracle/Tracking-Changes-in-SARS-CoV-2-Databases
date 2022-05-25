@@ -51,5 +51,5 @@ bsub -W 24:00 -J "merge_${bs_name}" -w "done(align_${bs_name})" -R "rusage[mem=2
 
 bsub -W 24:00 -J "add_onwer_${bs_name}" -w "done(merge_${bs_name})" -R "rusage[mem=280000]" python "/cluster/home/rmuntean/git/tracking-changes/scripts/add_owner.py" -i "${tmp_dir}no_owner_aligned.provision.json" -o "${output_filepath}" --submitter-info "/cluster/scratch/rmuntean/gisaid_data/2022-03-15_gisaid_submitter_information.csv"
 
-bsub -w "done(add_onwer_${bs_name})" rm -rf "${tmp_dir}"
-bsub  -W 24:00 -J "xz_${bs_name}" -w "done(add_onwer_${bs_name})" xz "${output_filepath}"
+# bsub -w "done(add_onwer_${bs_name})" rm -rf "${tmp_dir}"
+# bsub  -W 24:00 -J "xz_${bs_name}" -w "done(add_onwer_${bs_name})" xz "${output_filepath}"
