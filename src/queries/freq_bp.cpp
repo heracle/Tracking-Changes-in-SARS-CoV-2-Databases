@@ -53,13 +53,6 @@ void FreqBpQuery::add_alters(const std::vector<uint64_t> bp_alterations, uint64_
         char_to_char.push_back(act_char);
 
         char_to_char_distrib_per_bp_per_owner[altered_bp][owner][char_to_char]++;
-
-        std::string final_char;
-        final_char.push_back(act_char);
-        if (alteration - (altered_bp << common::BITS_FOR_STEPS_BACK) == last_version_id) {
-            // if the latest version, increment the map for the final state of that bp.
-            char_to_char_final_result_per_bp_per_owner[altered_bp][owner][final_char]++;
-        }
     }
 }
 
@@ -171,19 +164,6 @@ void FreqBpQuery::print_results() {
             for (int64_t i = bp_distrib.size() - 1; i >= 0; --i) {
                 std::cout << "\t\t" << bp_distrib[i].second << " " << 100.0 * bp_distrib[i].first / total_owner_edits << "% (" << bp_distrib[i].first << ") " << "\n";
             }
-
-            bp_distrib.clear();
-            total_owner_edits = 0;
-            for (const auto x : char_to_char_final_result_per_bp_per_owner[bp_idx][owners_list[i].second]) {
-                bp_distrib.push_back({x.second, x.first});
-                total_owner_edits += x.second;
-            }
-            std::sort(bp_distrib.begin(), bp_distrib.end());
-            std::cout << "\t\t" << "Final base pair state\n";
-            for (int64_t i = bp_distrib.size() - 1; i >= 0; --i) {
-                std::cout << "\t\t" << bp_distrib[i].second << " " << 100.0 * bp_distrib[i].first / total_owner_edits << "% (" << bp_distrib[i].first << ") " << "\n";
-            }
-
         }
         std::cout << "\n" << std::endl;
     }
