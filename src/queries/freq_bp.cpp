@@ -93,16 +93,49 @@ TreeDirectionToGo FreqBpQuery::first_enter_into_node(const std::string &target_l
     }
 
     if (lcp == target_location_prefix.size()) {
-        std::string owner = "";
-        if (db != NULL && (this->compute_total_owner_cnt || elem->bp_alterations.size())) {
-            owner = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("owner")]; 
-        }
-        if (elem->bp_alterations.size()) {
-            add_alters(elem->bp_alterations, elem->database_id, owner, db);
-            owner_edit_cnt[owner]++;
-        }
-        if (this->compute_total_owner_cnt) {
-            owner_total_cnt[owner]++;
+        // std::string owner = "";
+        // if (db != NULL && (this->compute_total_owner_cnt || elem->bp_alterations.size())) {
+        //     owner = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("owner")]; 
+        // }
+        // if (elem->bp_alterations.size()) {
+        //     add_alters(elem->bp_alterations, elem->database_id, owner, db);
+        //     owner_edit_cnt[owner]++;
+        // }
+        // if (this->compute_total_owner_cnt) {
+        //     owner_total_cnt[owner]++;
+        // }
+        if (processed_database_ids.count(elem->database_id) == 0) {
+            // first enter in this sequence version;
+            processed_database_ids.insert(elem->database_id);
+            std::string acc_id = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("covv_accession_id")];
+
+            if (elem->bp_alterations.size() == 0 && acc_id_version.count(acc_id) == 0) {
+                acc_id_version[acc_id] = 1;
+                db_ids_for_exact_version[1].push_back({});
+                return LeftChild;
+            }
+
+            uint64_t prv_database_id = db->get_element(elem->database_id).prv_db_id;
+            if (prv_database_id < 0 || prv_database_id > db->data_size) {
+                return LeftChild;
+            }
+            std::string s1 = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("sequence")];
+            std::string s2 = db->get_element(prv_database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("sequence")];
+
+            std::vector<uint64_t> diff_indices;
+            std::string w1, w2;
+            for (uint64_t bp = 0; bp < s1.size() && bp < s2.size(); ++bp) {
+                if (s1[bp] != s2[bp]) {
+                    w1.push_back(s1[bp]);
+                    w2.push_back(s2[bp]);
+                    diff_indices.push_back(bp);
+                }
+            }
+            if (diff_indices.size() == 0) {
+                return LeftChild;
+            }
+            acc_id_version[acc_id]++;
+            db_ids_for_exact_version[acc_id_version[acc_id]].push_back(std::make_pair(acc_id, std::make_pair(diff_indices, std::make_pair(w1, w2))));
         }
     }
     
@@ -118,6 +151,47 @@ TreeDirectionToGo FreqBpQuery::second_enter_into_node(const std::string &target_
 }
 
 void FreqBpQuery::print_results() {
+    std::cerr << "sequences with exact V versions:\n";
+
+    uint64_t greatest_version = 0;
+    for (uint64_t i = 1; i < 40; ++i) {
+        std::cerr << i << " -> " << db_ids_for_exact_version[i].size() - db_ids_for_exact_version[i + 1].size() << "\n";
+        if (db_ids_for_exact_version[i].size()) {
+            greatest_version = i;
+        }
+    }
+
+    while(greatest_version > 1) {
+        std::cerr << "\n\n-----------------------------------------------------------------------------------------------------------\n";
+        std::cerr << "\n\n-----------------------------------------------------------------------------------------------------------\n";
+        std::cerr << "\n\n-----------------------------------------------------------------------------------------------------------\n";
+        std::cerr << "\n \t\t\t more details about the sequences with " << greatest_version << " versions \n";
+        std::cerr << "\n\n-----------------------------------------------------------------------------------------------------------\n";
+        std::cerr << "\n\n-----------------------------------------------------------------------------------------------------------\n";
+        std::cerr << "\n\n-----------------------------------------------------------------------------------------------------------\n";
+        for (uint64_t i = 0; i < 100 && i < db_ids_for_exact_version[greatest_version].size(); ++i) {
+            std::cerr << "AccId=" << db_ids_for_exact_version[greatest_version][i].first << " totalVersions=" << greatest_version << "\n";
+
+            std::cerr << "differences on " << db_ids_for_exact_version[greatest_version][i].second.first.size() << " bp:\n";
+
+            for (uint64_t bp_id = 0; bp_id < db_ids_for_exact_version[greatest_version][i].second.first.size(); ++bp_id) {
+                std::cerr << db_ids_for_exact_version[greatest_version][i].second.first[bp_id] << " ";
+            }
+            std::cerr << "\n" << db_ids_for_exact_version[greatest_version][i].second.second.first << "\n" << db_ids_for_exact_version[greatest_version][i].second.second.second << "\n\n";
+
+            // for (const uint64_t alteration : db_ids_for_exact_version[greatest_version][i].second) {
+            //     uint64_t altered_bp = (alteration >> common::BITS_FOR_STEPS_BACK);
+            //     uint64_t num_versions_back = alteration - (altered_bp << common::BITS_FOR_STEPS_BACK);
+
+            //     std::cerr << "altered_bp=" << altered_bp << " vb=" << num_versions_back << "\n";
+            // }
+            // std::cerr << "\n\n";
+        }
+        greatest_version--;
+    }
+
+    return;
+
     std::vector<std::pair<uint64_t, uint64_t>> top_bp_idx;
 
     for (uint64_t i = 0; i < common::ALIGNED_SEQ_SIZE; ++i) {

@@ -25,6 +25,10 @@ class FreqBpQuery : public BaseQuery {
     tsl::hopscotch_map<std::string, tsl::hopscotch_map<std::string, uint64_t>> char_to_char_distrib_per_bp_per_owner[common::ALIGNED_SEQ_SIZE];
     tsl::hopscotch_map<uint64_t, std::pair<std::string, std::string>> prv_sequences;
 
+    tsl::hopscotch_set<uint64_t> processed_database_ids;
+    tsl::hopscotch_map<std::string, uint64_t> acc_id_version;
+    std::vector<std::pair<std::string, std::pair<std::vector<uint64_t>, std::pair<std::string, std::string>>>> db_ids_for_exact_version[50];
+
     void add_alters(const std::vector<uint64_t> bp_alterations, uint64_t database_id, const std::string &owner, const ds::DB *db);
 
   public:
