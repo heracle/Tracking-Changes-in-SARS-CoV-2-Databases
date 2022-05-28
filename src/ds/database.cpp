@@ -20,10 +20,30 @@ SeqElem DB::get_element(uint64_t id) const {
     SeqElem answer;
 
     for (uint64_t i = 0; i < db_str_fields.size(); ++i) {
-        answer.covv_data[i] = H5Helper::get_from_extendable_h5_dataset(id, group, db_str_fields[i]);
+        std::vector<std::string> data = H5Helper::get_from_extendable_h5_dataset(id, id + 1, group, db_str_fields[i]);
+        answer.covv_data[i] = data[0];
     }
-    answer.prv_db_id = std::stoul(H5Helper::get_from_extendable_h5_dataset(id, group, "prv_list"));
+    std::vector<std::string> data = H5Helper::get_from_extendable_h5_dataset(id, id + 1, group, "prv_list");
+    answer.prv_db_id = std::stoul(data[0]);
+    return answer;
+}
 
+std::vector<SeqElem> DB::get_multiple_element(const uint64_t start_id, const uint64_t num_elements) const {
+    if (start_id + num_elements - 1 >= data_size) {
+        throw std::runtime_error("ERROR -> requested element in DB with id that doesn't exist.");
+    }
+    std::vector<SeqElem> answer(num_elements);
+
+    for (uint64_t field_id = 0; field_id < db_str_fields.size(); ++field_id) {
+        std::vector<std::string> data = H5Helper::get_from_extendable_h5_dataset(start_id, start_id + num_elements, group, db_str_fields[field_id]);
+        for (uint64_t i = 0; i < num_elements; ++i) {
+            answer[i].covv_data[field_id] = data[i];
+        }
+    }
+    std::vector<std::string> data = H5Helper::get_from_extendable_h5_dataset(start_id, start_id + num_elements, group, "prv_list");
+    for (uint64_t i = 0; i < num_elements; ++i) {
+        answer[i].prv_db_id = std::stoul(data[i]);
+    }
     return answer;
 }
 
@@ -90,9 +110,12 @@ void DB::write_buff_data() {
 }
 
 void DB::clone_db(const ds::DB &source) {
-    for (uint64_t i = 0; i < source.data_size; ++i) {
-        common::SeqElem curr = source.get_element(i);
-        this->insert_element(curr);
+    for (uint64_t i = 0; i < source.data_size; i += common::H5_APPEND_SIZE) {
+        uint64_t num_seq_to_get = std::min(common::H5_APPEND_SIZE, source.data_size - i);
+        std::vector<common::SeqElem> sequences = source.get_multiple_element(i, num_seq_to_get);
+        for (const common::SeqElem &seq : sequences) {
+            this->insert_element(seq);
+        }
     }
     write_buff_data();
 }
