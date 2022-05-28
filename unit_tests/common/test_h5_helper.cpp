@@ -159,16 +159,18 @@ TEST(H5Helper, GetSetElem_ext_h5dataset) {
     h5_file = H5::H5File(test_filename, H5F_ACC_RDONLY);
     tmp_group = H5Gopen(h5_file.getLocId(), H5_GROUPNAME.c_str(), H5P_DEFAULT);
 
-    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(2, tmp_group, dataset_name), v_tmp[2]);
-    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(4, tmp_group, dataset_name), v_tmp[4]);
-    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(1, tmp_group, dataset_name), v_tmp[1]);
-    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(3, tmp_group, dataset_name), v_tmp[3]);
-    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(0, tmp_group, dataset_name), v_tmp[0]);
+    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(2, 3, tmp_group, dataset_name), std::vector<std::string>{v_tmp[2]});
+    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(4, 5, tmp_group, dataset_name), std::vector<std::string>{v_tmp[4]});
+    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(1, 2, tmp_group, dataset_name), std::vector<std::string>{v_tmp[1]});
+    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(3, 4, tmp_group, dataset_name), std::vector<std::string>{v_tmp[3]});
+    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(0, 1, tmp_group, dataset_name), std::vector<std::string>{v_tmp[0]});
+    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(0, 4, tmp_group, dataset_name), (std::vector<std::string>{v_tmp[0], v_tmp[1], v_tmp[2], v_tmp[3]}));
+    EXPECT_EQ(H5Helper::get_from_extendable_h5_dataset(2, 5, tmp_group, dataset_name), (std::vector<std::string>{v_tmp[2], v_tmp[3], v_tmp[4]}));
 
     EXPECT_THROW({
         try
         {
-            H5Helper::get_from_extendable_h5_dataset(5, tmp_group, dataset_name);
+            H5Helper::get_from_extendable_h5_dataset(5, 6, tmp_group, dataset_name);
         }
         catch( const std::range_error& e )
         {
@@ -180,7 +182,7 @@ TEST(H5Helper, GetSetElem_ext_h5dataset) {
     EXPECT_THROW({
         try
         {
-            H5Helper::get_from_extendable_h5_dataset(0, tmp_group, "empty");
+            H5Helper::get_from_extendable_h5_dataset(3, 6, tmp_group, dataset_name);
         }
         catch( const std::range_error& e )
         {
@@ -192,7 +194,19 @@ TEST(H5Helper, GetSetElem_ext_h5dataset) {
     EXPECT_THROW({
         try
         {
-            H5Helper::get_from_extendable_h5_dataset(0, tmp_group, "empty_insert");
+            H5Helper::get_from_extendable_h5_dataset(0, 1, tmp_group, "empty");
+        }
+        catch( const std::range_error& e )
+        {
+            EXPECT_STREQ( "ERROR -> internal error: request id that exceds the current size of extandable dataset", e.what() );
+            throw;
+        }
+    }, std::range_error);
+
+    EXPECT_THROW({
+        try
+        {
+            H5Helper::get_from_extendable_h5_dataset(0, 1, tmp_group, "empty_insert");
         }
         catch( const std::range_error& e )
         {
