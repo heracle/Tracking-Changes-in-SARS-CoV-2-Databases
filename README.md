@@ -1,18 +1,36 @@
-# Tracking Changes
+# Tool for Tracking Changes in Viral Databases (TCVD)
 
-## Install
+## How to install
+
+### Clone this repository
+
+### Install all git submodules
 
 ```
-mkdir build
-cd build
-cmake ..
+git clone https://gitlab.ethz.ch/rmuntean/tracking-changes.git
+```
+
+### Install all the external libraries: 
+ - curl
+ - libtool
+ - hdf5
+
+ For the Euler cluster
+
+ ```
+module load cmake/3.11.0 libtool/2.4
+module load gcc/8.2.0
+module load python/3.8.5
+module load hdf5
+```
+
+### Make the TCVD binary:
+
+```
+mkdir <project root path>/build
+cd <project root path>/build
+cmake -D CMAKE_BUILD_TYPE=Release ..
 make
-
-../src/external_libraries/nextclade-Linux-x86_64 dataset get --name='sars-cov-2' --output-dir='../sars_cov_dataset'
-
-wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.13/hdf5-1.13.0/src/hdf5-1.13.0.tar.gz -o ../src/external_libraries/
-gzip -cd hdf5-1.13.0.tar.gz | tar xvf -
-
 ```
 
 ## Run unit tests:

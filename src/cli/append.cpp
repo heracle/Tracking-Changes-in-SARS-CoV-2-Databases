@@ -141,7 +141,7 @@ int append(Config *config) {
 
         hash_treap = ctc_out->hash_treap;
         Logger::trace("Saving a current treap status/snapshot...");
-        ctc_out->save_snapshot(config->fnames[i]);
+        ctc_out->save_snapshot(config->fnames[i].substr(config->fnames[i].find_last_of('/') + 1));
     }
 
     Logger::trace("Exporting the ctc file...");

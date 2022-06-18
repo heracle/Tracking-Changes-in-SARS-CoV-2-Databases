@@ -41,9 +41,9 @@ class TestCli(unittest.TestCase):
 
         expected_stdout = """Total number of saved snapshots: 4
 Size of 'data' field:24
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/0000-01-01.provision.json' contains 20 treap nodes.
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/0000-01-01_with_2_changes.provision.json' contains 20 treap nodes.
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/0000-01-01_with_4_changes.provision.json' contains 18 treap nodes.
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/0000-01-01_with_6_changes.provision.json' contains 20 treap nodes."""
+Snapshot '0000-01-01.provision.json' contains 20 treap nodes.
+Snapshot '0000-01-01_with_2_changes.provision.json' contains 20 treap nodes.
+Snapshot '0000-01-01_with_4_changes.provision.json' contains 18 treap nodes.
+Snapshot '0000-01-01_with_6_changes.provision.json' contains 20 treap nodes."""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
