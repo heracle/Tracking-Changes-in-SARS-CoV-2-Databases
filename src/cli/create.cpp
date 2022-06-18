@@ -33,7 +33,7 @@ int create(Config *config) {
         }
         ctc->insert_seq(seq_elems_to_insert);
     }
-    ctc->save_snapshot(input_fname);
+    ctc->save_snapshot(input_fname.substr(input_fname.find_last_of('/') + 1));
     ctc->export_to_h5();
 
     delete ctc;

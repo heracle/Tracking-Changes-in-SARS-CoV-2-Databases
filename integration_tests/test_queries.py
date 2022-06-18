@@ -50,9 +50,9 @@ class TestQueries(unittest.TestCase):
 
         expected_stdout = """Total number of saved snapshots: 3
 Size of 'data' field:12
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json' contains 5 treap nodes.
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json' contains 5 treap nodes.
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v3.provision.json' contains 4 treap nodes."""
+Snapshot 'modified_sequence_v1.provision.json' contains 5 treap nodes.
+Snapshot 'modified_sequence_v2.provision.json' contains 5 treap nodes.
+Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
@@ -61,13 +61,13 @@ Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_
         stats_command = '{exe} query -q bp_freq -i {input_h5} --num-to-print 34 --snapshot {snapshot} --exclude-deleted ""'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/second.h5',
-            snapshot="/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json"
+            snapshot="modified_sequence_v2.provision.json"
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
         expected_stdout = """Snapshots:
-0.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json
+0.	modified_sequence_v2.provision.json
 
 Target key ''
 
@@ -120,13 +120,13 @@ top 34 owners:
         stats_command = '{exe} query -q bp_freq -i {input_h5} --compute-total-owner-cnt --snapshot {snapshot} --exclude-deleted ""'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/second.h5',
-            snapshot="/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json"
+            snapshot="modified_sequence_v2.provision.json"
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
         expected_stdout = """Snapshots:
-0.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json
+0.	modified_sequence_v2.provision.json
 
 Target key ''
 
@@ -179,13 +179,13 @@ top 50 owners:
         stats_command = '{exe} query --compute-total-owner-cnt -q bp_freq -i {input_h5} --snapshot {snapshot} --exclude-deleted "Oceania"'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/second.h5',
-            snapshot="/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json"
+            snapshot="modified_sequence_v2.provision.json"
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
         expected_stdout = """Snapshots:
-0.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json
+0.	modified_sequence_v2.provision.json
 
 Target key 'Oceania'
 
@@ -226,13 +226,13 @@ top 50 owners:
         stats_command = '{exe} query -q bp_freq -i {input_h5} --compute-total-owner-cnt --snapshot {snapshot} --exclude-deleted "Europe"'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/second.h5',
-            snapshot="/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json"
+            snapshot="modified_sequence_v2.provision.json"
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
         expected_stdout = """Snapshots:
-0.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json
+0.	modified_sequence_v2.provision.json
 
 Target key 'Europe'
 
@@ -272,13 +272,13 @@ top 50 owners:
         stats_command = '{exe} query -q bp_freq --compute-total-owner-cnt -i {input_h5} --snapshot {snapshot} --exclude-deleted "America"'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/second.h5',
-            snapshot="/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json"
+            snapshot="modified_sequence_v2.provision.json"
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
         expected_stdout = """Snapshots:
-0.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json
+0.	modified_sequence_v2.provision.json
 
 Target key 'America'
 
@@ -448,9 +448,9 @@ top 50 owners:
 
         expected_stdout = """Total number of saved snapshots: 3
 Size of 'data' field:12
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json' contains 5 treap nodes.
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json' contains 5 treap nodes.
-Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v3.provision.json' contains 4 treap nodes."""
+Snapshot 'modified_sequence_v1.provision.json' contains 5 treap nodes.
+Snapshot 'modified_sequence_v2.provision.json' contains 5 treap nodes.
+Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
@@ -459,15 +459,15 @@ Snapshot '/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_
         stats_command = '{exe} query -q cnt_indels -i {input_h5} --snapshot {snapshot} "" "Europe" "Oceania" "Void"'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/third.h5',
-            snapshot="/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json,/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json,/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v3.provision.json"
+            snapshot="modified_sequence_v1.provision.json,modified_sequence_v2.provision.json,modified_sequence_v3.provision.json"
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
         expected_stdout = """Snapshots:
-0.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json
-1.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json
-2.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v3.provision.json
+0.	modified_sequence_v1.provision.json
+1.	modified_sequence_v2.provision.json
+2.	modified_sequence_v3.provision.json
 
 Target key ''
 Insertions:	5	5	4	
@@ -497,15 +497,15 @@ Modified:	0	0	0"""
         stats_command = '{exe} query -q cnt_indels -i {input_h5} --snapshot {snapshot} "Void" "Oceania" "Europe" "" '.format( # shuffle queries
             exe=CTC,
             input_h5=self.tempdir.name + '/third.h5',
-            snapshot="/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json,/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json,/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v3.provision.json"
+            snapshot="modified_sequence_v1.provision.json,modified_sequence_v2.provision.json,modified_sequence_v3.provision.json"
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
         expected_stdout = """Snapshots:
-0.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json
-1.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json
-2.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v3.provision.json
+0.	modified_sequence_v1.provision.json
+1.	modified_sequence_v2.provision.json
+2.	modified_sequence_v3.provision.json
 
 Target key 'Void'
 Insertions:	0	0	0	
@@ -535,14 +535,14 @@ Modified:	0	4	7"""
         stats_command = '{exe} query -q cnt_indels -i {input_h5} --snapshot {snapshot} --exclude-deleted "Void" "Oceania" "Europe" "" '.format( # shuffle queries
             exe=CTC,
             input_h5=self.tempdir.name + '/third.h5',
-            snapshot="/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json,/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json,/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v3.provision.json"
+            snapshot="modified_sequence_v1.provision.json,modified_sequence_v2.provision.json,modified_sequence_v3.provision.json"
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
         expected_stdout = """Snapshots:
-0.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v1.provision.json
-1.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v2.provision.json
-2.	/cluster/home/rmuntean/git/tracking-changes/integration_tests/../test_data/modified_sequence_v3.provision.json
+0.	modified_sequence_v1.provision.json
+1.	modified_sequence_v2.provision.json
+2.	modified_sequence_v3.provision.json
 
 Target key 'Void'
 Insertions:	0	0	0	
