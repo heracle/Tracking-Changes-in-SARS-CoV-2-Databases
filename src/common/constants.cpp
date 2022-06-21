@@ -4,14 +4,6 @@
 
 namespace common {
 
-// const uint64_t SEQ_FIELDS_SZ = 4;
-// const std::vector<std::string> SEQ_FIELDS = {
-//     "covv_accession_id",
-//     "covv_collection_date",
-//     "covv_location",
-//     "sequence"
-// };
-
 void validate_seq_fields() {
     if (SEQ_FIELDS.size() != SEQ_FIELDS_TO_ID.size()) {
         Logger::error("Sequence fields to parse are not properly set : size ");
