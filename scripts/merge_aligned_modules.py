@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # # Taken from https://www.tutorialspoint.com/python/python_command_line_arguments.htm
 
-# This script merges together all the aligned sequences (via the lookup table of by running NextAlign).
-# It will save the final aligned sequences file to the 'outputpath.provision.json' and the updated lookup table to the 'lookup_outputpath.xz'.
+# This script merges together all the aligned chunked files.
+
+# If lookup_output_filepath not empty: the script will save the final aligned sequences file to the 'outputpath.provision.json' and the updated lookup table to the 'lookup_outputpath.xz'.
 
 import sys, getopt, json, subprocess, os
 import constants

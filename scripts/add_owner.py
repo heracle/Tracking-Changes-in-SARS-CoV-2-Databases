@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# This script adds the 'owner' field to an existent GISAID snapshot
+# This script adds the 'owner' field as one GISAID snapshot preprocessing step.
 
 import sys, getopt, csv, json
 

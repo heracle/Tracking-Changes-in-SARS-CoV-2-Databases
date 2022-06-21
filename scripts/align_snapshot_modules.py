@@ -2,13 +2,12 @@
 
 # Taken from https://www.tutorialspoint.com/python/python_command_line_arguments.htm
 
-# This script runs nextalign agains each snapshot module.
+# This script runs Nextalign against each snapshot module.
+
+import constants
 
 import sys, getopt, json, os
 import multiprocessing
-
-NEXTALIGN_EXE_PATH = "/cluster/home/rmuntean/git/tracking-changes/src/external_libraries/nextclade-Linux-x86_64"
-COVID_NEXTALIGN_DATASET = "/cluster/home/rmuntean/git/tracking-changes/sars_cov_dataset/"
 
 def print_helper():
     print ('align_snapshot_modules.py -d <working_dir> -n <num_files>')
@@ -19,7 +18,7 @@ def run_file(i, w_dir):
     input_fasta = w_dir + str(i) + ".fasta"
     output_fasta = w_dir + "AL_" + str(i)
 
-    nextalign_cmd = NEXTALIGN_EXE_PATH + " run -i " + input_fasta + " --input-dataset " + COVID_NEXTALIGN_DATASET + " --output-basename " + output_fasta;
+    nextalign_cmd = constants.NEXTALIGN_EXE_PATH + " run -i " + input_fasta + " --input-dataset " + constants.COVID_NEXTALIGN_DATASET + " --output-basename " + output_fasta;
     os.system(nextalign_cmd)
 
     input_json = w_dir + str(i) + ".noseq_provision.json"
@@ -36,7 +35,6 @@ def run_file(i, w_dir):
     for line in open(input_json, 'r'):
         json_seq = json.loads(line)
         raw_json_data[json_seq["covv_accession_id"]] = json_seq
-        # print(json_seq["covv_accession_id"])
 
     last_seqid = ""
     curr_sequence = ""
@@ -99,19 +97,3 @@ def main(argv):
 
 if __name__ == "__main__":
    main(sys.argv[1:])
-
-
-# bsub -W 24:00 -R "rusage[mem=3000]" -n 64 python align.py -i /cluster/scratch/rmuntean/gisaid_data/tmp_2021-06-27 -o /cluster/scratch/rmuntean/gisaid_data/2021-06-27_aligned.provision.json -n 64
-
-# bsub -R "rusage[mem=20000]" python split_provision_json.py -i /cluster/scratch/rmuntean/gisaid_data/2021-06-27.provision.json -o /cluster/scratch/rmuntean/gisaid_data/tmp_2021-06-27 -n 64
-
-# ls -lah tmp_2021-06*.aligned.fasta.aligned*
-
-# (base) [rmuntean@eu-login-30 gisaid_data]$ ls -lah tmp_2021-06-270.fasta 
-# -rw-r----- 1 rmuntean rmuntean-group 935M Jan  9 16:05 tmp_2021-06-270.fasta
-
-
-# (base) [rmuntean@eu-login-30 gisaid_data]$ ls -lah tmp_2021-07-110.fasta 
-# -rw-r----- 1 rmuntean rmuntean-group 1017M Jan  9 16:48 tmp_2021-07-110.fasta
-
-# (base) [rmuntean@eu-login-15 scripts]$ python merge_aligned_provision_jsons.py -i /cluster/scratch/rmuntean/gisaid_data/2021-06-27_aligned.provision.json -o /cluster/scratch/rmuntean/gisaid_data/2021-06-27_aligned -n 64
