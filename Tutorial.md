@@ -86,10 +86,10 @@ make
 Now, let's suppose that `ls -lah /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/` returns:
 
 ```
--rw-r----- 1 rmuntean rmuntean-group  61G Jun 21 12:54 aligned_owner_2021-06-27.provision.json.xz
--rw-r----- 1 rmuntean rmuntean-group  11G Jun 21 12:58 aligned_owner_2021-07-04.provision.json.xz
--rw-r----- 1 rmuntean rmuntean-group  67G Jun 21 12:06 aligned_owner_2021-07-11.provision.json.xz
--rw-r----- 1 rmuntean rmuntean-group  70G Jun 21 12:06 aligned_owner_2021-07-18.provision.json.xz
+-rw-r----- 1 rmuntean rmuntean-group 254M Jun 21 14:14 aligned_owner_2021-06-27.provision.json.xz
+-rw-r----- 1 rmuntean rmuntean-group 262M Jun 21 14:15 aligned_owner_2021-07-04.provision.json.xz
+-rw-r----- 1 rmuntean rmuntean-group 272M Jun 21 14:15 aligned_owner_2021-07-11.provision.json.xz
+-rw-r----- 1 rmuntean rmuntean-group 284M Jun 21 14:15 aligned_owner_2021-07-18.provision.json.xz
 ```
 
 All the files have to be compressed in the XZ format. To create a H5 file from scratch, we need to run:
@@ -102,7 +102,12 @@ At this stage, we should be able to find a new file at path `/cluster/scratch/<u
 
 To check if this new file is valid, we need to run:
 ```
-<TCVD git root>/build/run stats /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-04.h5
+(base) [rmuntean@eu-login-39 build]$ <TCVD git root>/build/run stats /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-04.h5
+
+Total number of saved snapshots: 2
+Size of 'data' field:2257850
+Snapshot 'aligned_owner_2021-06-27.provision.json' contains 2104885 treap nodes.
+Snapshot 'aligned_owner_2021-07-04.provision.json' contains 2212241 treap nodes.
 ```
 
 To append the remaining snapshots we need to run:
@@ -113,5 +118,25 @@ To append the remaining snapshots we need to run:
 
 To check one more time if the new generated file is valid and contains all the four snapshots, we need to run:
 ```
-<TCVD git root>/build/run stats /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-18.h5
+(base) [rmuntean@eu-login-39 build]$ <TCVD git root>/build/run stats /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-18.h5
+```
+
+## Run queries against the TCVD H5 file
+
+For running a `frequency base-pairs` (`bp_freq`) query on the latest snapshot for the `North America` location prefix:
+
+```
+(base) [rmuntean@eu-login-39 build]$ ./run query -q bp_freq -i /cluster/scratch/<user>/gisaid_data/aligned_owner_2021-07-18.h5 "North America"
+```
+
+For running a `frequency base-pairs` (`bp_freq`) query on the `2021-07-04` snapshot for the `North America` location prefix:
+
+```
+(base) [rmuntean@eu-login-39 build]$ ./run query -q bp_freq -i /cluster/scratch/<user>/gisaid_data/aligned_owner_2021-07-04.h5 --snapshot "aligned_owner_2021-07-04.provision.json" "North America"
+```
+
+For running a `count indels` (`cnt_indels`) query on all the four snapshots for "North America", "Europe" and "Europe Switzerland" location prefixes:
+
+```
+(base) [rmuntean@eu-login-39 build]$ ./run query -q cnt_indels -i /cluster/scratch/<user>/gisaid_data/aligned_owner_2021-07-04.h5 --snapshot "aligned_owner_2021-06-27.provision.json,aligned_owner_2021-07-04.provision.json,aligned_owner_2021-07-11.provision.json,aligned_owner_2021-07-18.provision.json" "North America" "Europe" "Europe / Switzerland"
 ```
