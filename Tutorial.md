@@ -33,7 +33,7 @@ vim <TCVD git root>/scripts/constants.py
 
 Modify line 13 with the proper `Euler username` in:
 ```
-vim <TCVD git root>/euler_data/GISAID_preprocessing
+vim <TCVD git root>/euler_data/GISAID_preprocessing.sh
 ```
 
 Next, we need to provide the GISAID snapshot files in the `/cluster/scratch/<user>/gisaid_data/` directory.
@@ -60,4 +60,58 @@ cd <TCVD git root>/euler_data/
 
 This last command can take around 4 hours for one GISAID snapshot of 100GB. 
 
-## 
+## Merge multiple snapshots in one HDF5 file
+
+For merging together multiple GISAID snapshots we need to set the `Euler Username` in the following two scripts:
+
+```
+vim <TCVD git root>/euler_data/create_append_h5.sh  # line 6
+vim <TCVD git root>/euler_data/h5_plus_append.sh    # line 6
+```
+
+Then, we need to create a new directory where to save the temporary data during snapshot merging:
+
+```
+mkdir /cluster/scratch/<user>/gisaid_data/create_append
+```
+
+To compile the tool we need to:
+```
+mkdir <TCVD git root>/build
+cd <TCVD git root>/build
+cmake -D CMAKE_BUILD_TYPE=Debug ..
+make
+```
+
+Now, let's suppose that `ls -lah /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/` returns:
+
+```
+-rw-r----- 1 rmuntean rmuntean-group  61G Jun 21 12:54 aligned_owner_2021-06-27.provision.json.xz
+-rw-r----- 1 rmuntean rmuntean-group  11G Jun 21 12:58 aligned_owner_2021-07-04.provision.json.xz
+-rw-r----- 1 rmuntean rmuntean-group  67G Jun 21 12:06 aligned_owner_2021-07-11.provision.json.xz
+-rw-r----- 1 rmuntean rmuntean-group  70G Jun 21 12:06 aligned_owner_2021-07-18.provision.json.xz
+```
+
+All the files have to be compressed in the XZ format. To create a H5 file from scratch, we need to run:
+
+```
+<TCVD git root>/euler_data/create_append_h5.sh /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-06-27.provision.json.xz /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-04.provision.json.xz 
+```
+
+At this stage, we should be able to find a new file at path `/cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-04.h5` that merges together the `2021-06-27` and `2021-07-04` GISAID snapshots.
+
+To check if this new file is valid, we need to run:
+```
+<TCVD git root>/build/run stats /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-04.h5
+```
+
+To append the remaining snapshots we need to run:
+
+```
+<TCVD git root>/euler_data/h5_plus_append.sh /cluster/scratch/<user>/gisaid_data/aligned_owner_2021-07-04.h5 /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-11.provision.json.xz /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-18.provision.json.xz 
+```
+
+To check one more time if the new generated file is valid and contains all the four snapshots, we need to run:
+```
+<TCVD git root>/build/run stats /cluster/scratch/<user>/gisaid_data/gisaid_preproc_results/aligned_owner_2021-07-18.h5
+```
