@@ -44,6 +44,8 @@ make
 python ../integration_tests/main.py
 ```
 
+# OLD readme
+
 ## Run cli cmd
 
 ```

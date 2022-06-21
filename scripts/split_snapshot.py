@@ -6,12 +6,12 @@
 # Usage example:
 #       python split_snapshot.py -i 2021-06-27.provision.json -o tmp/aux_align -n 128 --lookup_hash_align <file.json>
 
-# Will create 128 small which sum up to the initial "2021-06-27.provision.json".
+# Will create 128 small chunked files that sum up to the initial "2021-06-27.provision.json".
 # For each module there will be 2 files created:
 #  #  x.fasta which is used by nextalign
 #  #  x.noseq_provision.json which will be further used to store the same json snapshot format for the aligned sequence
 
-# The additional 'lookup_align.json.xz' file contains a lookup from sequence hashes (in sha256 format) to sequence alignment content (string arrays of size ~40000). 
+# The additional 'lookup_align.json.xz' file contains a lookup table with a sequence hashes (in sha256 format) as the KEY and the sequence alignment content (string arrays of size ~30000) as the VALUE. 
 #    This file will be used for improving the runtime by not aligning the same sequence multiple times.
 
 import constants
@@ -54,7 +54,6 @@ def main(argv):
     # Create temporary directory:
     if (not outputdir.endswith("/")):
         outputdir = outputdir + "/"
-    # os.mkdir(outputdir)
 
     # Decompress 'lookup_hash_align_filepath' to the temporary location:
 
