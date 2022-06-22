@@ -39,6 +39,7 @@ set(SOURCES
 
             src/queries/freq_bp.cpp
             src/queries/count_indels.cpp
+            src/queries/count_hosts.cpp
 
             src/common/json_helper.cpp
             src/common/h5_helper.cpp

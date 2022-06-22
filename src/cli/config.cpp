@@ -60,7 +60,7 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
             fprintf(stderr, "Usage: %s query [options] -q <query_type> -i <DB*> [location_prefix] \n"
                             "\t The input DB file must be a '.h5' file specific for this tool\n", prog_name.c_str());
 
-            fprintf(stderr, "\n\nAvailable query tyes: 'bp_freq', 'cnt_indels'");
+            fprintf(stderr, "\n\nAvailable query tyes: 'bp_freq', 'cnt_indels', 'cnt_hosts'");
 
             fprintf(stderr, "\nAvailable options for query bp_freq:\n");
             fprintf(stderr, "\t   --snapshot [str] \t Indicate what snapshot to use as target for the query.\n");
@@ -70,6 +70,9 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
 
             fprintf(stderr, "\nAvailable options for query cnt_indels:\n");
             fprintf(stderr, "\t   --snapshot [str,str,..] \t Compute one column for each requested snapshot (e.g. '--snapshot snap1,snap2,snap3' with no spaces).\n");
+
+            fprintf(stderr, "\nAvailable options for query cnt_hosts:\n");
+            fprintf(stderr, "\t   --snapshot [str,str,..] \t Compute one line for each requested prefix + snapshot (e.g. '--snapshot snap1,snap2,snap3' with no spaces).\n");
 
             break;
             
@@ -140,6 +143,8 @@ Config::Config(int argc, char *argv[]) {
                 query_type = QueryType::FREQ_BP;
             } else if (aux == "cnt_indels") {
                 query_type = QueryType::CNT_INDELS;
+            } else if (aux == "cnt_hosts") {
+                query_type = QueryType::CNT_HOSTS;
             } else {
                 print_helper(argv[0], module);
                 Logger::error("\nERROR: Unknown query type " + aux + "\n\n");

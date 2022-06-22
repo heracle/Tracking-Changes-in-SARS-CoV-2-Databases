@@ -15,6 +15,7 @@
 #include "../queries/base_query.hpp"
 #include "../queries/freq_bp.hpp"
 #include "../queries/count_indels.hpp"
+#include "../queries/count_hosts.hpp"
 
 using namespace treap_types;
 
@@ -56,6 +57,8 @@ int query(Config *config) {
         query = new query_ns::FreqBpQuery(config->compute_total_owner_cnt, config->num_to_print);
     } else if (config->query_type == CNT_INDELS) {
         query = new query_ns::CountIndelsQuery(snapshot_list.size());
+    } else if (config->query_type == CNT_HOSTS){
+        query = new query_ns::CountHostsQuery(snapshot_list.size());
     } else {
         Logger::error("Query type not recognised.");
         exit(1);
