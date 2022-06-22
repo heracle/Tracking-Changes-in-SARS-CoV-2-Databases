@@ -27,7 +27,14 @@ TreeDirectionToGo CountHostsQuery::first_enter_into_node(const std::string &targ
     }
 
     if (lcp == target_location_prefix.size()) {
-        std::string host_type = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("covv_host")]; 
+        std::string host_type;
+        // Consider the static field `is_human_host` to reduce the number of DB requests, because those are much slower than an 'elem' access.
+        // So, in the case of 'elem->is_human_host' true, we will set the host_type to 'Human' without any DB access.
+        if (elem->is_human_host) {
+            host_type = "Human";
+        } else {
+            host_type = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("covv_host")];
+        } 
         total_host_occurrences[snapshot_idx][host_type] ++;
     }
     

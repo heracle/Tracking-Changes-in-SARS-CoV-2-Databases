@@ -74,7 +74,7 @@ TEST(FreqBpQuery, TestResultOneSnapshot) {
         std::vector<std::unique_ptr<BaseSortedTreap>> seq_list;
         for (const std::pair<std::string, std::vector<uint64_t>> &seq_data : test.treap_data) {
             std::vector<uint64_t> alterations = get_alter_from(seq_data.second);
-            seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, 0, alterations));
+            seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, 0, alterations, 0));
         }
         treap->insert(seq_list);
         ASSERT_EQ(test.target_prefixes.size(), test.expected_answers.size());
@@ -110,7 +110,7 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
     std::vector<std::unique_ptr<BaseSortedTreap>> seq_list;
     for (const std::pair<std::string, std::vector<uint64_t>> &seq_data : first_insert5) {
         std::vector<uint64_t> alterations = get_alter_from(seq_data.second);
-        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, 0, alterations));
+        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, 0, alterations, 0));
     }
     treap->insert(seq_list);
     treap->save_snapshot("first");
@@ -124,7 +124,7 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
     seq_list.clear();
     for (const std::pair<std::string, std::vector<uint64_t>> &seq_data : second_insert3) {
         std::vector<uint64_t> alterations = get_alter_from(seq_data.second);
-        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, 0, alterations));
+        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, 0, alterations, 0));
     }
 
     treap->insert(seq_list);
@@ -141,7 +141,7 @@ TEST(FreqBpQuery, TestResultMultipleSnapshots) {
     seq_list.clear();
     for (const std::pair<std::string, std::vector<uint64_t>> &seq_data : fourth_insert2) {
         std::vector<uint64_t> alterations = get_alter_from(seq_data.second);
-        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, 0, alterations));
+        seq_list.push_back(std::make_unique<LocationSorted>(seq_data.first, 0, 0, alterations, 0));
     }
     treap->insert(seq_list);
     treap->save_snapshot("fourth");

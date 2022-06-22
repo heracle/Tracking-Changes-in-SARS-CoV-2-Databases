@@ -11,7 +11,7 @@ TEST(TnodeLocation, RecomputeStatistics) {
     Tnode *left = new LocationTnode(2000, 100, 0, 0, 0);
     Tnode *right = new LocationTnode(4000, 200, 0, 0, 0);
 
-    LocationSorted *curr_static = new LocationSorted("key", 0, 8, std::vector<uint64_t>());
+    LocationSorted *curr_static = new LocationSorted("key", 0, 8, std::vector<uint64_t>(), 0);
 
     Tnode *tnode = new LocationTnode(0, 0, 0, 0, 0);
 

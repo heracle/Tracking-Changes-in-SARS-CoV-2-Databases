@@ -21,7 +21,7 @@ TEST(CountIndelsQuery, TestCntIndels) {
     std::vector<std::string> seq_keys = {"dcbae", "dcbac", "dcc", "da", "dcbadf", "dcbb", "dcd", "a", "dcbab", "dcbade", "dcbadg", "dcbaz", "dcbba", "dccaa", "ddaaa"};
 
     for (uint64_t i = 0; i < 15; ++i) {
-        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>());
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>(), 0);
         treap->static_data.push_back(std::move(unique_node));
     }
 
@@ -169,7 +169,7 @@ TEST(CountIndelsQuery, TestDeletionsTreap) {
     std::vector<std::string> seq_keys = {"dcbae", "dcbac", "dcc", "dcaa", "eee"}; // first 3 are normal sequences, the last 2 are deletions.
 
     for (uint64_t i = 0; i < 3; ++i) {
-        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>());
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>(), 0);
         treap->static_data.push_back(std::move(unique_node));
     }
 
@@ -190,7 +190,7 @@ TEST(CountIndelsQuery, TestDeletionsTreap) {
 
 
     for (uint64_t i = 3; i < 5; ++i) {
-        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>());
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 1<<(i+1), std::vector<uint64_t>(), 0);
         deletions_treap->static_data.push_back(std::move(unique_node));
     }
 
