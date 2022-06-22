@@ -46,4 +46,8 @@ python ../integration_tests/main.py
 
 ## TCVD Tutorial
 
-A [tutorial](Tutorial.md) is available for getting an overview on how to use the tool.
+A [tutorial](Tutorial.md) is available for getting an overview on how to construct the tool HDF5 file for the GISAID SARS-CoV-2 database.
+
+One example [PR 52](https://gitlab.ethz.ch/rmuntean/tracking-changes/-/merge_requests/52) is provided as a guideline for implementing a new query and adding a new field to the TCVD database.
+
+Another example [PR 53](https://gitlab.ethz.ch/rmuntean/tracking-changes/-/merge_requests/53) is a second guideline about how to use the treap static field to improve the query runtime.

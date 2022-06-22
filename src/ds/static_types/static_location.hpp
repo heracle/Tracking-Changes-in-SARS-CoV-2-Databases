@@ -14,13 +14,14 @@ class LocationSorted : public BaseSortedTreap {
     static uint64_t next_alteration_SeqElem_id;
   public:
     std::vector<uint64_t> bp_alterations;
-
+    bool is_human_host;
     uint64_t num_sequence_versions;
 
     LocationSorted(const std::string &req_key, 
                    const uint64_t req_database_id,
                    const uint64_t req_num_seq_versions,
-                   const std::vector<uint64_t> &req_bp_alterations);
+                   const std::vector<uint64_t> &req_bp_alterations,
+                   const bool req_is_human_host);
     ~LocationSorted();
 
     /*
@@ -38,6 +39,7 @@ class LocationSorted : public BaseSortedTreap {
     static std::vector<uint64_t> alteration_sizes;
     static std::vector<uint64_t> merged_alterations;
     static std::vector<uint64_t> num_seq_vers_h5;
+    static std::vector<uint64_t> is_human_host_list_SeqElem;
     static uint64_t next_node_id;
     static uint64_t next_merged_id;
 

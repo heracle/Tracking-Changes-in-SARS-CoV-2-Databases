@@ -36,7 +36,7 @@ TEST(CountHostsQuery, TestCntHosts) {
         
         db->insert_element(curr_seq_elem);
 
-        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 0, std::vector<uint64_t>());
+        unique_node = std::make_unique<LocationSorted>(seq_keys[i], i, 0, std::vector<uint64_t>(), 0);
         treap->static_data.push_back(std::move(unique_node));
     }
     db->write_buff_data();
