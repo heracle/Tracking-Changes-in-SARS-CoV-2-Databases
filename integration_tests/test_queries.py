@@ -566,4 +566,69 @@ Modified:	0	4	6"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
+
+    def test_cnt_hosts(self):
+        create_command = '{exe} create -o {outfile} {input}'.format(
+            exe=CTC,
+            outfile=self.tempdir.name + '/first',
+            input=TEST_DATA_DIR + 'cnt_host_test_v1.provision.json'
+        )
+        res = subprocess.run([create_command], shell=True)
+        self.assertEqual(res.returncode, 0)
+
+        append_command = '{exe} append -i {input_h5} -o {output_h5} {snapshots}'.format(
+            exe=CTC,
+            input_h5=self.tempdir.name + '/first.h5',
+            output_h5=self.tempdir.name + '/second.h5',
+            snapshots=TEST_DATA_DIR + 'cnt_host_test_v2.provision.json'
+        )
+        res = subprocess.run([append_command], shell=True)
+        self.assertEqual(res.returncode, 0)
+
+        stats_command = '{exe} stats {input_h5}'.format(
+            exe=CTC,
+            input_h5=self.tempdir.name + '/second.h5'
+        )
+        res = subprocess.run([stats_command], shell=True, stdout=PIPE)
+        self.assertEqual(res.returncode, 0)
+
+        expected_stdout = """Total number of saved snapshots: 2
+Size of 'data' field:5
+Snapshot 'cnt_host_test_v1.provision.json' contains 3 treap nodes.
+Snapshot 'cnt_host_test_v2.provision.json' contains 5 treap nodes."""
+        stdout_pipe = res.stdout.decode().rstrip()
+        self.assertEqual(stdout_pipe, expected_stdout)
+
+        # --------  Query 0 for cnt_indel for the third snapshot -----------------------------------------------------
+
+        stats_command = '{exe} query -q cnt_hosts -i {input_h5} --snapshot {snapshot} "" "Europe" "Oceania" "Void"'.format(
+            exe=CTC,
+            input_h5=self.tempdir.name + '/second.h5',
+            snapshot="cnt_host_test_v1.provision.json,cnt_host_test_v2.provision.json"
+        )
+        res = subprocess.run([stats_command], shell=True, stdout=PIPE)
+        self.assertEqual(res.returncode, 0)
+
+        expected_stdout = """Snapshots:
+0.	cnt_host_test_v1.provision.json
+1.	cnt_host_test_v2.provision.json
+
+Target key ''
+Total host occurrences:	label=0 Human:2	Cat:1	
+label=1 Dog:1	Human:3	Cat:1	
+
+Target key 'Europe'
+Total host occurrences:	label=0 
+label=1 Dog:1	Human:1	
+
+Target key 'Oceania'
+Total host occurrences:	label=0 Human:2	Cat:1	
+label=1 Human:2	Cat:1	
+
+Target key 'Void'
+Total host occurrences:	label=0 
+label=1"""
+
+        stdout_pipe = res.stdout.decode().rstrip()
+        self.assertEqual(stdout_pipe, expected_stdout)
         
