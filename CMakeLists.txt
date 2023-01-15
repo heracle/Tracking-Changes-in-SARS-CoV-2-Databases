@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
 
 # Pieces of code taken from:
 # http://derekmolloy.ie/hello-world-introductions-to-cmake/
@@ -7,12 +7,25 @@ cmake_minimum_required(VERSION 3.11)
 # set the project name
 project(SequenceComparison)
 
+IF(NOT DEFINED ENV{HDF5_ROOT})
+  message( FATAL_ERROR "Env variable HDF5_ROOT does not point to a valid path." )
+ENDIF()
+
+set (LIB_TYPE SHARED)
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+string(TOLOWER ${LIB_TYPE} SEARCH_TYPE)
+set(LD_LIBRARY_PATH "$LD_LIBRARY_PATH:${HDF5_ROOT}/lib")
+set(HDF5_PLUGIN_PATH "${HDF5_ROOT}/lib/plugin")
+
+set (FIND_HDF_COMPONENTS C CXX HL HLCXX  static)
+find_package (HDF5 NAMES "hdf5" COMPONENTS ${FIND_HDF_COMPONENTS} ${SEARCH_TYPE})
+
 set(CMAKE_CXX_STANDARD 17 )
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # -Wall -Wextra print all warning at compile time. 
 # TODO move back to O3
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -lcurl -Wall -Wextra -lhdf5 -lhdf5_cpp -mavx2")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -lcurl -Wall -Wextra -mavx2")
 
 set(CURL_LIBRARY "-lcurl") 
 find_package(CURL REQUIRED)
@@ -78,9 +91,15 @@ include_directories(src/external_libraries/xx_hash/)
 # Executable
 #------------------
 
+message(STATUS "HDF5_INCLUDE_DIR=${HDF5_INCLUDE_DIR}")
+include_directories(${HDF5_INCLUDE_DIRS})
+
+set (LINK_LIBS ${LINK_LIBS} ${HDF5_C_${LIB_TYPE}_LIBRARY} ${HDF5_CXX_${LIB_TYPE}_LIBRARY})
 
 # add the executable
 add_executable(run ${SOURCES})
+target_include_directories(run PUBLIC ${HDF5_INCLUDE_DIRS})
+target_link_libraries (run PRIVATE ${LINK_LIBS})
 
 #-------------------
 # Unit Tests
@@ -91,6 +110,8 @@ add_executable(run ${SOURCES})
 list(FILTER SOURCES EXCLUDE REGEX ".*main.cpp")
 list(FILTER SOURCES EXCLUDE REGEX ".*/cli/.*")
 add_library(seqcmp-core STATIC ${SOURCES})
+target_include_directories(seqcmp-core PUBLIC ${HDF5_INCLUDE_DIRS})
+target_link_libraries(seqcmp-core PRIVATE ${LINK_LIBS})
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/external_libraries/googletest EXCLUDE_FROM_ALL)
 target_compile_options(gtest_main PRIVATE -w)
@@ -116,7 +137,7 @@ link_directories(
 add_executable(unit_tests ${unit_tests_files})
 target_include_directories(unit_tests PRIVATE "${PROJECT_SOURCE_DIR}")
 target_compile_definitions(unit_tests PRIVATE TEST_DATA_DIR="${PROJECT_SOURCE_DIR}/tests/data")
-target_link_libraries(unit_tests gtest_main gtest gmock seqcmp-core)
+target_link_libraries(unit_tests gtest_main gtest gmock ${LINK_LIBS} seqcmp-core)
 
 target_compile_options(unit_tests PRIVATE -Wno-undefined-var-template ${DEATH_TEST_FLAG})
 
@@ -130,4 +151,3 @@ set(CMAKE_SHARED_LINKER_FLAGS_PROFILE "-pg -g")
 #-------------------
 
 # find_package(Python3 3.8.5 REQUIRED COMPONENTS Interpreter)
-
