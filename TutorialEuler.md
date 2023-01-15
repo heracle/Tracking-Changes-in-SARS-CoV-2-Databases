@@ -1,4 +1,4 @@
-# TCVD Introduction Tutorial
+# TCVD Introduction Tutorial for Euler
 
 This tutorial has the purpose of presenting an overview of the TCVD tool capabilities. The small number of steps that will be listed will let the user get the basic experience to understand how and when to use this tool.
 
@@ -12,7 +12,7 @@ Firstly, the tool works with JSON viral snapshots that contain the following fie
 
 ## GISAID preprocessing
 
-We need to run several preprocessing steps to add the `owner` and the `aligned sequence` fields to the standard GISAID SARS-CoV-2 snapshot. To facilitate the usage in the `Euler` cluster environment, a couple of scrips are already available to generate the proper TCVD snapshot file.
+We need to run several preprocessing steps to add the `owner` and the `aligned sequence` fields to the standard GISAID SARS-CoV-2 snapshot. To facilitate the usage in the `Euler` cluster environment, a couple of scripts are already available to generate a TCVD snapshot file.
 
 On the `Euler` cluster, we need to run the following commands:
 
@@ -20,9 +20,9 @@ On the `Euler` cluster, we need to run the following commands:
 mkdir /cluster/scratch/<user>/gisaid_data/
 cd /cluster/scratch/<user>/gisaid_data/
 mkdir gisaid_preproc_results/
-wget https://polybox.ethz.ch/index.php/s/YhiY3ptw5LF6OzJ/download # lookup table: sequence hash to align sequence
-wget https://polybox.ethz.ch/index.php/s/okkZtnCqhBinPUy/download # submitter information
-<TCVD gir root>/src/external_libraries/nextclade-Linux-x86_64 dataset get --name 'sars-cov-2' --output-dir 'ref_sars-cov-2'
+wget --content-disposition https://polybox.ethz.ch/index.php/s/YhiY3ptw5LF6OzJ/download # lookup table: sequence hash to align sequence
+wget --content-disposition https://polybox.ethz.ch/index.php/s/okkZtnCqhBinPUy/download # submitter information
+<TCVD git root>/src/external_libraries/nextclade-Linux-x86_64 dataset get --name 'sars-cov-2' --output-dir 'ref_sars-cov-2'
 bsub unxz lookup_2022-03-13.json.xz
 ```
 

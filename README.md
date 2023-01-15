@@ -1,5 +1,20 @@
 # Tool for Tracking Changes in Viral Databases (TCVD)
 
+## Docker Available
+
+If you don't have access to the Euler Cluster at ETH, the easiest option would be to use the available docker image.
+
+You need to build the image
+```
+sudo docker build -t ctc_docker:v1 .
+```
+
+And run it into a docker container
+```
+sudo docker run -i -t ctc_docker:v1 /bin/bash
+```
+
+
 ## How to install
 
 ### Clone this repository
