@@ -133,6 +133,7 @@ def main(argv):
             strain = str(row['strain'])
             if (strain not in strain_to_aligned) or (strain_to_aligned[strain] == ""):
                 continue
+            # TODO correct NaN for "covv_collection_date" and "covv_host" (about line 395 in Europe Switzerland). 
             seq_json["covv_accession_id"] = row["gisaid_epi_isl"]
             seq_json["covv_collection_date"] = row["date"]
             seq_json["covv_location"] = row["region"] + \
