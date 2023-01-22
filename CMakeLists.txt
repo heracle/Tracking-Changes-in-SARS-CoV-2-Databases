@@ -7,6 +7,11 @@ cmake_minimum_required(VERSION 3.12)
 # set the project name
 project(SequenceComparison)
 
+IF(DEFINED ENV{EULER_LDAP})
+  set (HDF5_ROOT "/cluster/home/${EULER_LDAP}/anaconda3/")
+  set (ADDITIONAL_CMAKE_CXX_FLAGS " -lhdf5 -lhdf5_cpp")
+ENDIF()
+
 IF(NOT DEFINED ENV{HDF5_ROOT})
   message( FATAL_ERROR "Env variable HDF5_ROOT does not point to a valid path." )
 ENDIF()
@@ -25,7 +30,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # -Wall -Wextra print all warning at compile time. 
 # TODO move back to O3
-set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -lcurl -Wall -Wextra -mavx2")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -lcurl -Wall -Wextra -mavx2 ${ADDITIONAL_CMAKE_CXX_FLAGS}")
 
 set(CURL_LIBRARY "-lcurl") 
 find_package(CURL REQUIRED)

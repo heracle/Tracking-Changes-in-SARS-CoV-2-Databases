@@ -6,6 +6,8 @@ See the [full text](https://doi.org/10.3929/ethz-b-000555485) of my Master's The
 
 # How to install
 
+<details>
+  <summary markdown="span"> Manual install of all dependencies </summary>
 Ensure that all the following packages are installed:
 
 ```
@@ -40,31 +42,56 @@ Run the available tests and check if everything works well:
 python3 ../integration_tests/main.py
 
 ```
+</details>
 
-## Docker Available
+<details>
+  <summary markdown="span"> Build the docker container </summary>
 
-All these steps have already been added inside a docker file to be easier to get the tool available on any machine.
+All the manual steps to install and link the dependencies have already been added inside a docker file. This facilitates the process to get the tool ready to run on any machine.
 
-Build the image:
+
+Build the docker image:
 ```
-sudo docker build -t ctc_docker:v1 .
-```
-
-Use the tool from the docker container:
-```
-sudo docker run -i -t ctc_docker:v1 /bin/bash
+docker build -t ctc_docker:v1 .
 ```
 
-## Installation on ETH Euler Cluster 
+And run it inside a docker container:
+```
+docker run -i -t ctc_docker:v1 /bin/bash
+```
+</details>
 
-All these dependency steps are not in case of using the Euler Cluster available to ETH staff. Instead, you would need only to load the following modules:
+<details>
+  <summary markdown="span"> Installation on ETH Euler Cluster  </summary> 
+
+All these dependency steps are not needed in case of using the Euler Cluster available to ETH staff. Instead, you would need only to load the following modules:
 
 ```
-module load cmake/3.11.0 libtool/2.4
+module load cmake/3.11.0
+module load libtool/2.4.6
 module load gcc/8.2.0
 module load python/3.8.5
 module load hdf5
 ```
+
+Clone and build this git repository with all submodules:
+
+```
+git clone --recurse-submodules https://gitlab.ethz.ch/rmuntean/tracking-changes.git
+mkdir tracking-changes/build
+cd tracking-changes/build
+EULER_LDAP="rmuntean" cmake -D CMAKE_BUILD_TYPE=Release ..
+make
+```
+
+Run the available tests and check if everything works well:
+
+```
+./unit_tests --gtest_brief=0 --gtest_filter="*"
+python3 ../integration_tests/main.py
+
+```
+</details>
 
 ## TCVD Tutorial
 

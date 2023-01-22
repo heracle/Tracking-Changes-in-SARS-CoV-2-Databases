@@ -26,14 +26,18 @@ docker run -i -t ctc_docker:v1 /bin/bash
 
 ## Get the Amazonaws data
 
-For having this tutorial run fast, we will take into account only a very limited amount of sequences that are not representative for any viral analysis. For analysis, please see the other [RunFull_Amazonaws Tutorial](RunFull_Amazonaws.md) which will take much longer to run. 
+To ensure that the setup in this tutorial does not take too much time, we will take into account only a limited and unrepresentative viral cohort. If you prefer to do the setup for a real analysis on the entire amount of data available, just remove the `--limit` flag and, to not restrict to Europe only, set `--region=""` (that means worldwide sequences). Then, all the next steps from the tutorial will be the same for both limited and non-limited cases. 
 
-From 3 terminal tabs run the following 3 commands:
+Create the directories where the setup processes and saves the sequences:
 
 ```
 mkdir /tmp/aws_data
 mkdir ../data
+```
 
+From 3 terminal tabs run the following 3 commands:
+
+```
 <git_root>/scripts$ python3 aws_download_aligned_and_metadata.py -d 2021-08-11 --limit 2700 --region Europe --tmp_dir /tmp/aws_data -o ../data/aws_europe_aligned_lim2700
 
 <git_root>/scripts$ python3 aws_download_aligned_and_metadata.py -d 2021-11-11 --limit 3000 --region Europe --tmp_dir /tmp/aws_data -o ../data/aws_europe_aligned_lim3000
@@ -41,11 +45,11 @@ mkdir ../data
 <git_root>/scripts$ python3 aws_download_aligned_and_metadata.py -d 2022-01-11 --limit 3100 --region Europe --tmp_dir /tmp/aws_data -o ../data/aws_europe_aligned_lim3100
 ```
 
-Now, we have three files in the required JSON viral format that can be used by the tracking changes tool.
+When these finish to run, we will have three sets/snapshots of sequences in the proper format to be used by the tracking changes tool.
 
 ## Append all the snapshots to one Tool Data Structure
 
-Running the following commands:
+Run the following commands to compose an `.h5` file that gets together all the three snapshots:
 
 ```
 <git_root>/build_docker$ ./run create -o ../data/aws1_2021-08-11.h5 ../data/aws_europe_aligned_lim2700_2021-08-11.json
