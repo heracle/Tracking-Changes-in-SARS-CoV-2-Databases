@@ -152,7 +152,7 @@ Run the following commands to compose an `.h5` file that gets together all the t
 
 <git_root>/build_docker$ ./run append -i ../data/tcvd1_2021-08-11.h5 -o ../data/tcvd2_2021-11-11.h5 "${tcvd_snapshot2}"
 
-<git_root>/build_docker$ ./run append -i ../data/tcvd2_2021-11-11.h5 -o ../data/tcvd3_2022-01-11.h5 "${tcvd_snapshot2}"
+<git_root>/build_docker$ ./run append -i ../data/tcvd2_2021-11-11.h5 -o ../data/tcvd3_2022-01-11.h5 "${tcvd_snapshot3}"
 ```
 
 Will create one file `<git_root>/data/tcvd3_2022-01-11.h5` that contains non-duplicateded data from all the three given snapshots. To see how many nodes each snapshot has, run:
