@@ -104,10 +104,10 @@ TEST(JsonHelper, SeqElemReaderGetElemInorder) {
         {
             reader->get_elem(7);
         }
-        catch( const std::range_error& e )
+        catch( const std::runtime_error& e )
         {
             EXPECT_STREQ( "ERROR -> Elem reader requests elems in not ascending order.", e.what() );
             throw;
         }
-    }, std::range_error);
+    }, std::runtime_error);
 }

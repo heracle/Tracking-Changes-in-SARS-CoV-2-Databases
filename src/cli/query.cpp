@@ -36,17 +36,14 @@ int query(Config *config) {
 
     std::vector<std::string> snapshot_list;
     std::string curr_snapshot = "";
-    std::cout << "Snapshots:\n";
     for (uint64_t i = 0; i < config->snapshot.size(); ++i) {
         if (config->snapshot[i] == ',') {
-            std::cout << snapshot_list.size() << ".\t" << curr_snapshot << "\n";
             snapshot_list.push_back(curr_snapshot);
             curr_snapshot.clear();
         } else {
             curr_snapshot.push_back(config->snapshot[i]);
         }
     }
-    std::cout << snapshot_list.size() << ".\t" << curr_snapshot << "\n";
     snapshot_list.push_back(curr_snapshot);
 
     query_ns::BaseQuery *query;
@@ -66,11 +63,13 @@ int query(Config *config) {
 
     const std::string treap_name = query->get_treap_name();
 
+    std::string json_output = "";
     for (uint64_t i = 0; i < config->fnames.size(); ++i) {
-        std::cout << "\nTarget key '" << config->fnames[i] << "'\n";
+        json_output += "{\n  \"" + config->fnames[i] + "\": ";
         
         query->reset();
         for (query->snapshot_idx = 0; query->snapshot_idx < snapshot_list.size(); ++query->snapshot_idx) {
+            query->snapshot_current_name = snapshot_list[query->snapshot_idx];
             query->set_deletion_mode(false);
 
             ctc->treaps[treap_name].treap->query_callback_subtree(
@@ -94,8 +93,10 @@ int query(Config *config) {
                 );
             }
         }
-        query->print_results();
+        query->post_process();
+        json_output += query->saved_data.GetJsonStr(1) + "},\n";
     }
+    std::cout << json_output << "\n";
 
     delete ctc;
     delete query;

@@ -12,9 +12,6 @@
 namespace query_ns {
 
 CountIndelsQuery::CountIndelsQuery(const uint64_t num_total_snapshots) {
-    total_inserted_sequences.resize(num_total_snapshots);
-    total_modified_sequences.resize(num_total_snapshots);
-    total_deleted_sequences.resize(num_total_snapshots);
     reset();
 }
 
@@ -37,6 +34,7 @@ TreeDirectionToGo CountIndelsQuery::first_enter_into_node(const std::string &tar
         }
     }
     bool go_directly_to_right = false;
+    auto &saved = saved_data(snapshot_current_name);
 
     if (lca_tnode == NULL && lcp == target_location_prefix.size()) {
         lca_tnode = tnode;
@@ -45,31 +43,45 @@ TreeDirectionToGo CountIndelsQuery::first_enter_into_node(const std::string &tar
         if (tnode->r != NULL) {
             const LocationTnode *right_tnode = static_cast<const LocationTnode*>(tnode->r);
             if (deletions_mode) {
-                total_deleted_sequences[snapshot_idx] += right_tnode->total_nodes_in_subtree;
+                saved("deleted").SetValInt(
+                    saved("deleted").GetValInt() + right_tnode->total_nodes_in_subtree
+                );
             } else {
-                total_inserted_sequences[snapshot_idx] += right_tnode->total_nodes_in_subtree;
+                saved("inserted").SetValInt(
+                    saved("inserted").GetValInt() + right_tnode->total_nodes_in_subtree
+                );
             }
-            total_modified_sequences[snapshot_idx] += right_tnode->total_versions_in_subtree;
+            saved("modified").SetValInt(
+                saved("modified").GetValInt() + right_tnode->total_versions_in_subtree
+            );
         }
     } else if (before_lca_tnode == false && lcp == target_location_prefix.size()) {
         if (tnode->l != NULL) {
             const LocationTnode *left_tnode = static_cast<const LocationTnode*>(tnode->l);
             if (deletions_mode) {
-                total_deleted_sequences[snapshot_idx] += left_tnode->total_nodes_in_subtree;
+                saved("deleted").SetValInt(
+                    saved("deleted").GetValInt() + left_tnode->total_nodes_in_subtree
+                );
             } else {
-                total_inserted_sequences[snapshot_idx] += left_tnode->total_nodes_in_subtree;
+                saved("inserted").SetValInt(
+                    saved("inserted").GetValInt() + left_tnode->total_nodes_in_subtree
+                );
             }
-            total_modified_sequences[snapshot_idx] += left_tnode->total_versions_in_subtree;
+            saved("modified").SetValInt(
+                saved("modified").GetValInt() + left_tnode->total_versions_in_subtree
+            );
         }
         go_directly_to_right = true;
     }
     if (lcp == target_location_prefix.size()) {
         if (deletions_mode) {
-            total_deleted_sequences[snapshot_idx]++;
+            saved("deleted").SetValInt(saved("deleted").GetValInt() + 1);
         } else {
-            total_inserted_sequences[snapshot_idx]++;
+            saved("inserted").SetValInt(saved("inserted").GetValInt() + 1);
         }
-        total_modified_sequences[snapshot_idx] += elem->num_sequence_versions;
+        saved("modified").SetValInt(
+            saved("modified").GetValInt() + elem->num_sequence_versions
+        );
     }
 
     if (go_directly_to_right) {
@@ -102,35 +114,8 @@ TreeDirectionToGo CountIndelsQuery::second_enter_into_node(const std::string &ta
     return RightChild;
 }
 
-void CountIndelsQuery::print_results() {
-    std::cout << "Insertions:\t";
-
-    for (uint64_t i = 0; i < total_inserted_sequences.size(); ++i) {
-        std::cout << total_inserted_sequences[i] << "\t";
-    }
-
-    std::cout << "\nDeletions:\t";
-    for (uint64_t i = 0; i < total_deleted_sequences.size(); ++i) {
-        std::cout << total_deleted_sequences[i] << "\t";
-    }
-
-    std::cout << "\nModified:\t";
-    for (uint64_t i = 0; i < total_modified_sequences.size(); ++i) {
-        std::cout << total_modified_sequences[i] << "\t";
-    }
-    std::cout << std::endl;
-}
-
-void CountIndelsQuery::reset() {    
-    for (uint64_t i = 0; i < total_inserted_sequences.size(); ++i) {
-        total_inserted_sequences[i] = 0;
-    }
-    for (uint64_t i = 0; i < total_modified_sequences.size(); ++i) {
-        total_modified_sequences[i] = 0;
-    }
-    for (uint64_t i = 0; i < total_deleted_sequences.size(); ++i) {
-        total_deleted_sequences[i] = 0;
-    }
+void CountIndelsQuery::reset() {
+    saved_data.ClearData();
 }
 
 void CountIndelsQuery::set_deletion_mode(const bool is_deletion_mode) {

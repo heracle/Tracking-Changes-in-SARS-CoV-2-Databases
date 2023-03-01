@@ -10,6 +10,7 @@ import os
 CTC = './run'
 TEST_DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + '/../test_data/'
 
+# TODO: create multiple test_query_<name>.py files, one for each different query.
 class TestQueries(unittest.TestCase):
     def setUp(self):
         self.tempdir = TemporaryDirectory()
@@ -66,50 +67,121 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	modified_sequence_v2.provision.json
-
-Target key ''
-
-
-top 34 bp:
-basepair index = 112	 total number of edits = 4
-owner distribution per bp --> #owners=3 #edits=4:
-	50% (2) 	 owner=ow3
-		T>G 50% (1) 
-		A>C 50% (1) 
-	25% (1) 	 owner=ow4
-		G>A 100% (1) 
-	25% (1) 	 owner=ow1
-		A>G 100% (1) 
-
-
-basepair index = 42	 total number of edits = 2
-owner distribution per bp --> #owners=2 #edits=2:
-	50% (1) 	 owner=ow4
-		G>T 100% (1) 
-	50% (1) 	 owner=ow3
-		T>C 100% (1) 
-
-
-basepair index = 157	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-	100% (1) 	 owner=ow3
-		A>C 100% (1) 
-
-
-basepair index = 177	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-	100% (1) 	 owner=ow3
-		A>T 100% (1) 
-
-
-
-
-top 34 owners:
-2	ow3
-1	ow1
-1	ow4"""
+        expected_stdout = """{
+  "": {
+    "modified_sequence_v2.provision.json": {
+      "bp0": {
+        "bp index": 112,
+        "number edits": 4,
+        "number owners": 3,
+        "owner0": {
+          "number of edits": 2,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>G",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "50%",
+        },
+        "owner1": {
+          "number of edits": 1,
+          "owner name": "ow4",
+          "per bp distribution 0": {
+            "kind": "G>A",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "25%",
+        },
+        "owner2": {
+          "number of edits": 1,
+          "owner name": "ow1",
+          "per bp distribution 0": {
+            "kind": "A>G",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "25%",
+        },
+      },
+      "bp1": {
+        "bp index": 42,
+        "number edits": 2,
+        "number owners": 2,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow4",
+          "per bp distribution 0": {
+            "kind": "G>T",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "50%",
+        },
+        "owner1": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>C",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "50%",
+        },
+      },
+      "bp2": {
+        "bp index": 157,
+        "number edits": 1,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "bp3": {
+        "bp index": 177,
+        "number edits": 1,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "A>T",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "list only top X bp": 34,
+      "list only top X owners": 34,
+      "owner0": {
+        "name": "ow3",
+        "number of edits": 2,
+      },
+      "owner1": {
+        "name": "ow1",
+        "number of edits": 1,
+      },
+      "owner2": {
+        "name": "ow4",
+        "number of edits": 1,
+      },
+    },
+  },
+},"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -125,50 +197,124 @@ top 34 owners:
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	modified_sequence_v2.provision.json
-
-Target key ''
-
-
-top 50 bp:
-basepair index = 112	 total number of edits = 4
-owner distribution per bp --> #owners=3 #edits=4:
-	50% (2) 	 owner=ow3
-		T>G 50% (1) 
-		A>C 50% (1) 
-	25% (1) 	 owner=ow4
-		G>A 100% (1) 
-	25% (1) 	 owner=ow1
-		A>G 100% (1) 
-
-
-basepair index = 42	 total number of edits = 2
-owner distribution per bp --> #owners=2 #edits=2:
-	50% (1) 	 owner=ow4
-		G>T 100% (1) 
-	50% (1) 	 owner=ow3
-		T>C 100% (1) 
-
-
-basepair index = 157	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-	100% (1) 	 owner=ow3
-		A>C 100% (1) 
-
-
-basepair index = 177	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-	100% (1) 	 owner=ow3
-		A>T 100% (1) 
-
-
-
-
-top 50 owners:
-2	2	ow3
-1	1	ow1
-1	1	ow4"""
+        expected_stdout = """{
+  "": {
+    "modified_sequence_v2.provision.json": {
+      "bp0": {
+        "bp index": 112,
+        "number edits": 4,
+        "number owners": 3,
+        "owner0": {
+          "number of edits": 2,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>G",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "50%",
+        },
+        "owner1": {
+          "number of edits": 1,
+          "owner name": "ow4",
+          "per bp distribution 0": {
+            "kind": "G>A",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "25%",
+        },
+        "owner2": {
+          "number of edits": 1,
+          "owner name": "ow1",
+          "per bp distribution 0": {
+            "kind": "A>G",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "25%",
+        },
+      },
+      "bp1": {
+        "bp index": 42,
+        "number edits": 2,
+        "number owners": 2,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow4",
+          "per bp distribution 0": {
+            "kind": "G>T",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "50%",
+        },
+        "owner1": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>C",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "50%",
+        },
+      },
+      "bp2": {
+        "bp index": 157,
+        "number edits": 1,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "bp3": {
+        "bp index": 177,
+        "number edits": 1,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "A>T",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "list only top X bp": 50,
+      "list only top X owners": 50,
+      "owner0": {
+        "name": "ow3",
+        "number of edits": 2,
+        "number of uploads": 2,
+      },
+      "owner1": {
+        "name": "ow1",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+      "owner2": {
+        "name": "ow4",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+    },
+  },
+},"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -184,38 +330,79 @@ top 50 owners:
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	modified_sequence_v2.provision.json
-
-Target key 'Oceania'
-
-
-top 50 bp:
-basepair index = 112	 total number of edits = 2
-owner distribution per bp --> #owners=2 #edits=2:
-	50% (1) 	 owner=ow3
-		A>C 100% (1) 
-	50% (1) 	 owner=ow1
-		A>G 100% (1) 
-
-
-basepair index = 42	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-	100% (1) 	 owner=ow3
-		T>C 100% (1) 
-
-
-basepair index = 157	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-	100% (1) 	 owner=ow3
-		A>C 100% (1) 
-
-
-
-
-top 50 owners:
-1	1	ow1
-1	1	ow3"""
+        expected_stdout = """{
+  "Oceania": {
+    "modified_sequence_v2.provision.json": {
+      "bp0": {
+        "bp index": 112,
+        "number edits": 2,
+        "number owners": 2,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "50%",
+        },
+        "owner1": {
+          "number of edits": 1,
+          "owner name": "ow1",
+          "per bp distribution 0": {
+            "kind": "A>G",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "50%",
+        },
+      },
+      "bp1": {
+        "bp index": 42,
+        "number edits": 1,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>C",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "bp2": {
+        "bp index": 157,
+        "number edits": 1,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "list only top X bp": 50,
+      "list only top X owners": 50,
+      "owner0": {
+        "name": "ow1",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+      "owner1": {
+        "name": "ow3",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+    },
+  },
+},"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -231,45 +418,86 @@ top 50 owners:
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	modified_sequence_v2.provision.json
-
-Target key 'Europe'
-
-
-top 50 bp:
-basepair index = 112	 total number of edits = 2
-owner distribution per bp --> #owners=2 #edits=2:
-	50% (1) 	 owner=ow4
-		G>A 100% (1) 
-	50% (1) 	 owner=ow3
-		T>G 100% (1) 
-
-
-basepair index = 42	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-	100% (1) 	 owner=ow4
-		G>T 100% (1) 
-
-
-basepair index = 177	 total number of edits = 1
-owner distribution per bp --> #owners=1 #edits=1:
-	100% (1) 	 owner=ow3
-		A>T 100% (1) 
-
-
-
-
-top 50 owners:
-1	1	ow3
-1	1	ow4"""
+        expected_stdout = """{
+  "Europe": {
+    "modified_sequence_v2.provision.json": {
+      "bp0": {
+        "bp index": 112,
+        "number edits": 2,
+        "number owners": 2,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow4",
+          "per bp distribution 0": {
+            "kind": "G>A",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "50%",
+        },
+        "owner1": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>G",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "50%",
+        },
+      },
+      "bp1": {
+        "bp index": 42,
+        "number edits": 1,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow4",
+          "per bp distribution 0": {
+            "kind": "G>T",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "bp2": {
+        "bp index": 177,
+        "number edits": 1,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 1,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "A>T",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "list only top X bp": 50,
+      "list only top X owners": 50,
+      "owner0": {
+        "name": "ow3",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+      "owner1": {
+        "name": "ow4",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+    },
+  },
+},"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
 
         # -------------------- query 4:  "America"  --------------------------------------------------------
 
-        stats_command = '{exe} query -q bp_freq --compute-total-owner-cnt -i {input_h5} --snapshot {snapshot} --exclude-deleted "America"'.format(
+        stats_command = '{exe} query -q bp_freq --compute-total-owner-cnt -i {input_h5} --snapshot {snapshot} --exclude-deleted "Void"'.format(
             exe=CTC,
             input_h5=self.tempdir.name + '/second.h5',
             snapshot="modified_sequence_v2.provision.json"
@@ -277,16 +505,14 @@ top 50 owners:
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	modified_sequence_v2.provision.json
-
-Target key 'America'
-
-
-top 50 bp:
-
-
-top 50 owners:"""
+        expected_stdout = """{
+  "Void": {
+    "modified_sequence_v2.provision.json": {
+      "list only top X bp": 50,
+      "list only top X owners": 50,
+    },
+  },
+},"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
@@ -300,51 +526,129 @@ top 50 owners:"""
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	
-
-Target key ''
-
-
-top 23 bp:
-basepair index = 112	 total number of edits = 6
-owner distribution per bp --> #owners=2 #edits=6:
-	66.6667% (4) 	 owner=ow3
-		T>G 25% (1) 
-		G>T 25% (1) 
-		C>A 25% (1) 
-		A>C 25% (1) 
-	33.3333% (2) 	 owner=ow1
-		G>A 50% (1) 
-		A>G 50% (1) 
-
-
-basepair index = 42	 total number of edits = 2
-owner distribution per bp --> #owners=1 #edits=2:
-	100% (2) 	 owner=ow3
-		T>C 50% (1) 
-		C>T 50% (1) 
-
-
-basepair index = 157	 total number of edits = 2
-owner distribution per bp --> #owners=1 #edits=2:
-	100% (2) 	 owner=ow3
-		C>A 50% (1) 
-		A>C 50% (1) 
-
-
-basepair index = 177	 total number of edits = 2
-owner distribution per bp --> #owners=1 #edits=2:
-	100% (2) 	 owner=ow3
-		T>A 50% (1) 
-		A>T 50% (1) 
-
-
-
-
-top 23 owners:
-2	2	ow3
-1	1	ow1"""
+        expected_stdout = """{
+  "": {
+    "": {
+      "bp0": {
+        "bp index": 112,
+        "number edits": 6,
+        "number owners": 2,
+        "owner0": {
+          "number of edits": 4,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>G",
+            "number of edits": 1,
+            "percent of current owner edits": "25%",
+          },
+          "per bp distribution 1": {
+            "kind": "G>T",
+            "number of edits": 1,
+            "percent of current owner edits": "25%",
+          },
+          "per bp distribution 2": {
+            "kind": "C>A",
+            "number of edits": 1,
+            "percent of current owner edits": "25%",
+          },
+          "per bp distribution 3": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "25%",
+          },
+          "percent of current bp edits": "66%",
+        },
+        "owner1": {
+          "number of edits": 2,
+          "owner name": "ow1",
+          "per bp distribution 0": {
+            "kind": "G>A",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "A>G",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "33%",
+        },
+      },
+      "bp1": {
+        "bp index": 42,
+        "number edits": 2,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 2,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>C",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "C>T",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "bp2": {
+        "bp index": 157,
+        "number edits": 2,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 2,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "C>A",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "bp3": {
+        "bp index": 177,
+        "number edits": 2,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 2,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>A",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "A>T",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "list only top X bp": 23,
+      "list only top X owners": 23,
+      "owner0": {
+        "name": "ow3",
+        "number of edits": 2,
+        "number of uploads": 2,
+      },
+      "owner1": {
+        "name": "ow1",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+    },
+  },
+},"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -358,56 +662,154 @@ top 23 owners:
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	
-
-Target key ''
-
-
-top 50 bp:
-basepair index = 112	 total number of edits = 7
-owner distribution per bp --> #owners=3 #edits=7:
-	57.1429% (4) 	 owner=ow3
-		T>G 25% (1) 
-		G>T 25% (1) 
-		C>A 25% (1) 
-		A>C 25% (1) 
-	28.5714% (2) 	 owner=ow1
-		G>A 50% (1) 
-		A>G 50% (1) 
-	14.2857% (1) 	 owner=ow4
-		G>A 100% (1) 
-
-
-basepair index = 42	 total number of edits = 3
-owner distribution per bp --> #owners=2 #edits=3:
-	66.6667% (2) 	 owner=ow3
-		T>C 50% (1) 
-		C>T 50% (1) 
-	33.3333% (1) 	 owner=ow4
-		G>T 100% (1) 
-
-
-basepair index = 157	 total number of edits = 2
-owner distribution per bp --> #owners=1 #edits=2:
-	100% (2) 	 owner=ow3
-		C>A 50% (1) 
-		A>C 50% (1) 
-
-
-basepair index = 177	 total number of edits = 2
-owner distribution per bp --> #owners=1 #edits=2:
-	100% (2) 	 owner=ow3
-		T>A 50% (1) 
-		A>T 50% (1) 
-
-
-
-
-top 50 owners:
-2	2	ow3
-1	1	ow1
-1	1	ow4"""
+        expected_stdout = """{
+  "": {
+    "": {
+      "bp0": {
+        "bp index": 112,
+        "number edits": 7,
+        "number owners": 3,
+        "owner0": {
+          "number of edits": 4,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>G",
+            "number of edits": 1,
+            "percent of current owner edits": "25%",
+          },
+          "per bp distribution 1": {
+            "kind": "G>T",
+            "number of edits": 1,
+            "percent of current owner edits": "25%",
+          },
+          "per bp distribution 2": {
+            "kind": "C>A",
+            "number of edits": 1,
+            "percent of current owner edits": "25%",
+          },
+          "per bp distribution 3": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "25%",
+          },
+          "percent of current bp edits": "57%",
+        },
+        "owner1": {
+          "number of edits": 2,
+          "owner name": "ow1",
+          "per bp distribution 0": {
+            "kind": "G>A",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "A>G",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "28%",
+        },
+        "owner2": {
+          "number of edits": 1,
+          "owner name": "ow4",
+          "per bp distribution 0": {
+            "kind": "G>A",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "14%",
+        },
+      },
+      "bp1": {
+        "bp index": 42,
+        "number edits": 3,
+        "number owners": 2,
+        "owner0": {
+          "number of edits": 2,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>C",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "C>T",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "66%",
+        },
+        "owner1": {
+          "number of edits": 1,
+          "owner name": "ow4",
+          "per bp distribution 0": {
+            "kind": "G>T",
+            "number of edits": 1,
+            "percent of current owner edits": "100%",
+          },
+          "percent of current bp edits": "33%",
+        },
+      },
+      "bp2": {
+        "bp index": 157,
+        "number edits": 2,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 2,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "C>A",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "A>C",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "bp3": {
+        "bp index": 177,
+        "number edits": 2,
+        "number owners": 1,
+        "owner0": {
+          "number of edits": 2,
+          "owner name": "ow3",
+          "per bp distribution 0": {
+            "kind": "T>A",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "per bp distribution 1": {
+            "kind": "A>T",
+            "number of edits": 1,
+            "percent of current owner edits": "50%",
+          },
+          "percent of current bp edits": "100%",
+        },
+      },
+      "list only top X bp": 50,
+      "list only top X owners": 50,
+      "owner0": {
+        "name": "ow3",
+        "number of edits": 2,
+        "number of uploads": 2,
+      },
+      "owner1": {
+        "name": "ow1",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+      "owner2": {
+        "name": "ow4",
+        "number of edits": 1,
+        "number of uploads": 1,
+      },
+    },
+  },
+},"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -464,30 +866,60 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	modified_sequence_v1.provision.json
-1.	modified_sequence_v2.provision.json
-2.	modified_sequence_v3.provision.json
-
-Target key ''
-Insertions:	5	5	4	
-Deletions:	0	0	1	
-Modified:	0	4	7	
-
-Target key 'Europe'
-Insertions:	2	2	1	
-Deletions:	0	0	1	
-Modified:	0	2	3	
-
-Target key 'Oceania'
-Insertions:	3	3	3	
-Deletions:	0	0	0	
-Modified:	0	2	4	
-
-Target key 'Void'
-Insertions:	0	0	0	
-Deletions:	0	0	0	
-Modified:	0	0	0"""
+        expected_stdout = """{
+  "": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 5,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 5,
+      "modified": 4,
+    },
+    "modified_sequence_v3.provision.json": {
+      "deleted": 1,
+      "inserted": 4,
+      "modified": 7,
+    },
+  },
+},
+{
+  "Europe": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 2,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 2,
+      "modified": 2,
+    },
+    "modified_sequence_v3.provision.json": {
+      "deleted": 1,
+      "inserted": 1,
+      "modified": 3,
+    },
+  },
+},
+{
+  "Oceania": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 3,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 3,
+      "modified": 2,
+    },
+    "modified_sequence_v3.provision.json": {
+      "inserted": 3,
+      "modified": 4,
+    },
+  },
+},
+{
+  "Void": {
+  },
+},"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -502,30 +934,59 @@ Modified:	0	0	0"""
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	modified_sequence_v1.provision.json
-1.	modified_sequence_v2.provision.json
-2.	modified_sequence_v3.provision.json
-
-Target key 'Void'
-Insertions:	0	0	0	
-Deletions:	0	0	0	
-Modified:	0	0	0	
-
-Target key 'Oceania'
-Insertions:	3	3	3	
-Deletions:	0	0	0	
-Modified:	0	2	4	
-
-Target key 'Europe'
-Insertions:	2	2	1	
-Deletions:	0	0	1	
-Modified:	0	2	3	
-
-Target key ''
-Insertions:	5	5	4	
-Deletions:	0	0	1	
-Modified:	0	4	7"""
+        expected_stdout = """{
+  "Void": "",
+},
+{
+  "Oceania": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 3,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 3,
+      "modified": 2,
+    },
+    "modified_sequence_v3.provision.json": {
+      "inserted": 3,
+      "modified": 4,
+    },
+  },
+},
+{
+  "Europe": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 2,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 2,
+      "modified": 2,
+    },
+    "modified_sequence_v3.provision.json": {
+      "deleted": 1,
+      "inserted": 1,
+      "modified": 3,
+    },
+  },
+},
+{
+  "": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 5,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 5,
+      "modified": 4,
+    },
+    "modified_sequence_v3.provision.json": {
+      "deleted": 1,
+      "inserted": 4,
+      "modified": 7,
+    },
+  },
+},"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -539,31 +1000,57 @@ Modified:	0	4	7"""
         )
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
-        expected_stdout = """Snapshots:
-0.	modified_sequence_v1.provision.json
-1.	modified_sequence_v2.provision.json
-2.	modified_sequence_v3.provision.json
-
-Target key 'Void'
-Insertions:	0	0	0	
-Deletions:	0	0	0	
-Modified:	0	0	0	
-
-Target key 'Oceania'
-Insertions:	3	3	3	
-Deletions:	0	0	0	
-Modified:	0	2	4	
-
-Target key 'Europe'
-Insertions:	2	2	1	
-Deletions:	0	0	0	
-Modified:	0	2	2	
-
-Target key ''
-Insertions:	5	5	4	
-Deletions:	0	0	0	
-Modified:	0	4	6"""
-
+        expected_stdout = """{
+  "Void": "",
+},
+{
+  "Oceania": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 3,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 3,
+      "modified": 2,
+    },
+    "modified_sequence_v3.provision.json": {
+      "inserted": 3,
+      "modified": 4,
+    },
+  },
+},
+{
+  "Europe": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 2,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 2,
+      "modified": 2,
+    },
+    "modified_sequence_v3.provision.json": {
+      "inserted": 1,
+      "modified": 2,
+    },
+  },
+},
+{
+  "": {
+    "modified_sequence_v1.provision.json": {
+      "inserted": 5,
+      "modified": 0,
+    },
+    "modified_sequence_v2.provision.json": {
+      "inserted": 5,
+      "modified": 4,
+    },
+    "modified_sequence_v3.provision.json": {
+      "inserted": 4,
+      "modified": 6,
+    },
+  },
+},"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
@@ -609,26 +1096,43 @@ Snapshot 'cnt_host_test_v2.provision.json' contains 5 treap nodes."""
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
 
-        expected_stdout = """Snapshots:
-0.	cnt_host_test_v1.provision.json
-1.	cnt_host_test_v2.provision.json
-
-Target key ''
-Total host occurrences:	label=0 Human:2	Cat:1	
-label=1 Dog:1	Human:3	Cat:1	
-
-Target key 'Europe'
-Total host occurrences:	label=0 
-label=1 Dog:1	Human:1	
-
-Target key 'Oceania'
-Total host occurrences:	label=0 Human:2	Cat:1	
-label=1 Human:2	Cat:1	
-
-Target key 'Void'
-Total host occurrences:	label=0 
-label=1"""
-
+        expected_stdout = """{
+  "": {
+    "cnt_host_test_v1.provision.json": {
+      "Cat": 1,
+      "Human": 2,
+    },
+    "cnt_host_test_v2.provision.json": {
+      "Cat": 1,
+      "Dog": 1,
+      "Human": 3,
+    },
+  },
+},
+{
+  "Europe": {
+    "cnt_host_test_v2.provision.json": {
+      "Dog": 1,
+      "Human": 1,
+    },
+  },
+},
+{
+  "Oceania": {
+    "cnt_host_test_v1.provision.json": {
+      "Cat": 1,
+      "Human": 2,
+    },
+    "cnt_host_test_v2.provision.json": {
+      "Cat": 1,
+      "Human": 2,
+    },
+  },
+},
+{
+  "Void": {
+  },
+},"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
         

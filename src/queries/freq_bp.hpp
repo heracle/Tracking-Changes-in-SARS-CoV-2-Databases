@@ -34,7 +34,7 @@ class FreqBpQuery : public BaseQuery {
     std::string get_treap_name();
     TreeDirectionToGo first_enter_into_node(const std::string &, Tnode *, const BaseSortedTreap *, const ds::DB *);
     TreeDirectionToGo second_enter_into_node(const std::string &, Tnode *, const BaseSortedTreap *, const ds::DB *);
-    void print_results();
+    void post_process();
 };
 
 } // namespace query_ns

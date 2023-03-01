@@ -16,7 +16,7 @@ void Logger::warn(const std::string &msg) {
 
 void Logger::error(const std::string &msg) {
     // std::cerr << "ERROR -> " << msg << "\n" << std::endl;
-    throw std::range_error("ERROR -> " + msg);
+    throw std::runtime_error("ERROR -> " + msg);
 }
 
 void Logger::set_verbose(const bool vb) {

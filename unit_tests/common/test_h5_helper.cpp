@@ -172,48 +172,48 @@ TEST(H5Helper, GetSetElem_ext_h5dataset) {
         {
             H5Helper::get_from_extendable_h5_dataset(5, 6, tmp_group, dataset_name);
         }
-        catch( const std::range_error& e )
+        catch( const std::runtime_error& e )
         {
             EXPECT_STREQ( "ERROR -> internal error: request id that exceds the current size of extandable dataset", e.what() );
             throw;
         }
-    }, std::range_error);
+    }, std::runtime_error);
 
     EXPECT_THROW({
         try
         {
             H5Helper::get_from_extendable_h5_dataset(3, 6, tmp_group, dataset_name);
         }
-        catch( const std::range_error& e )
+        catch( const std::runtime_error& e )
         {
             EXPECT_STREQ( "ERROR -> internal error: request id that exceds the current size of extandable dataset", e.what() );
             throw;
         }
-    }, std::range_error);
+    }, std::runtime_error);
 
     EXPECT_THROW({
         try
         {
             H5Helper::get_from_extendable_h5_dataset(0, 1, tmp_group, "empty");
         }
-        catch( const std::range_error& e )
+        catch( const std::runtime_error& e )
         {
             EXPECT_STREQ( "ERROR -> internal error: request id that exceds the current size of extandable dataset", e.what() );
             throw;
         }
-    }, std::range_error);
+    }, std::runtime_error);
 
     EXPECT_THROW({
         try
         {
             H5Helper::get_from_extendable_h5_dataset(0, 1, tmp_group, "empty_insert");
         }
-        catch( const std::range_error& e )
+        catch( const std::runtime_error& e )
         {
             EXPECT_STREQ( "ERROR -> internal error: request id that exceds the current size of extandable dataset", e.what() );
             throw;
         }
-    }, std::range_error);
+    }, std::runtime_error);
 
     tmp_group.close();
     h5_file.close();

@@ -148,6 +148,7 @@ TEST(CountHostsQuery, TestCntHosts) {
     query_ns::CountHostsQuery *query = new query_ns::CountHostsQuery(tests.size());
 
     for (CntIndelsTestStr test : tests) {
+        query->snapshot_current_name = std::to_string(query->snapshot_idx);
         treap->query_callback_subtree(query, test.target_prefix, db);
         query->snapshot_idx++;
         query->set_deletion_mode(false);
@@ -155,10 +156,10 @@ TEST(CountHostsQuery, TestCntHosts) {
 
     for (uint64_t i = 0; i < tests.size(); ++i) {
         const CntIndelsTestStr &test = tests[i];
-        EXPECT_EQ(test.test_id + std::to_string(query->total_host_occurrences[i].size()), test.test_id + std::to_string(test.hosts_distribution.size()));
+        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(i).GetNumChildren()), test.test_id + std::to_string(test.hosts_distribution.size()));
 
-        for (const auto it : query->total_host_occurrences[i]) {
-            EXPECT_EQ(test.test_id + it.first + "_" + std::to_string(it.second), test.test_id + it.first + "_" + std::to_string(test.hosts_distribution.at(it.first)));
+        for (const auto &it : test.hosts_distribution) {
+            EXPECT_EQ(test.test_id + it.first + "_" + std::to_string(query->saved_data(i)(it.first).GetValInt()), test.test_id + it.first + "_" + std::to_string(it.second));
         }
     }
 }
