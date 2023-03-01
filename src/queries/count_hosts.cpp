@@ -35,7 +35,7 @@ TreeDirectionToGo CountHostsQuery::first_enter_into_node(const std::string &targ
         } else {
             host_type = db->get_element(elem->database_id).covv_data[common::SEQ_FIELDS_TO_ID.at("covv_host")];
         } 
-        total_host_occurrences[snapshot_idx][host_type] ++;
+        saved_data(snapshot_current_name)(host_type).SetValInt(1 + saved_data(snapshot_current_name)(host_type).GetValInt());
     }
     
     return LeftChild;
@@ -50,7 +50,6 @@ TreeDirectionToGo CountHostsQuery::second_enter_into_node(const std::string &tar
 }
 
 CountHostsQuery::CountHostsQuery(const uint64_t num_total_snapshots) {
-    total_host_occurrences.resize(num_total_snapshots);
     reset();
 }
 
@@ -58,22 +57,8 @@ std::string CountHostsQuery::get_treap_name() {
     return "location_treap";
 }
 
-void CountHostsQuery::print_results() {
-    std::cout << "Total host occurrences:\t";
-
-    for (uint64_t i = 0; i < total_host_occurrences.size(); ++i) {
-        std::cout << "label=" << i << " ";
-        for (const auto &it : total_host_occurrences[i]) {
-            std::cout << it.first << ":" << it.second << "\t";
-        }
-        std::cout << std::endl;
-    }
-}
-
 void CountHostsQuery::reset() {
-    for (uint32_t i = 0; i < total_host_occurrences.size(); ++i) {
-        total_host_occurrences[i].clear();
-    } 
+    saved_data.ClearData();
 }
 
 void CountHostsQuery::set_deletion_mode(const bool is_deletion_mode) {

@@ -108,7 +108,7 @@ TreeDirectionToGo FreqBpQuery::second_enter_into_node(const std::string &target_
     return RightChild;
 }
 
-void FreqBpQuery::print_results() {
+void FreqBpQuery::post_process() {
     std::vector<std::pair<uint64_t, uint64_t>> top_bp_idx;
 
     for (uint64_t i = 0; i < common::ALIGNED_SEQ_SIZE; ++i) {
@@ -121,42 +121,47 @@ void FreqBpQuery::print_results() {
         }
         return a.first < b.first;
     });
-
-    std::cout << "\n\ntop " << num_to_print << " bp:\n";
+    saved_data(snapshot_current_name)("list only top X bp").SetValInt(num_to_print);
     for (uint64_t i = 0; i < num_to_print; ++i) {
         if (top_bp_idx[i].second == 0) {
             break;
         }
         uint64_t bp_idx = top_bp_idx[i].first;
-        std::cout << "basepair index = " << bp_idx << "\t total number of edits = " << top_bp_idx[i].second << std::endl;
+        auto &data = saved_data(snapshot_current_name)("bp" + std::to_string(i));
+        data("bp index").SetValInt(top_bp_idx[i].first);
+        data("number edits").SetValInt(top_bp_idx[i].second);
         std::vector<std::pair<uint64_t, std::string>> owners_list;
         uint64_t num_owners = 0, total_edits = 0;
-        for (const auto x : owner_distrib_per_bp[bp_idx]) {
+        for (const auto &x : owner_distrib_per_bp[bp_idx]) {
             owners_list.push_back({x.second, x.first});
             ++num_owners;
             total_edits += x.second;
         }
-        std::sort(owners_list.begin(), owners_list.end());
-        std::cout << "owner distribution per bp --> #owners=" << num_owners << " #edits=" << total_edits <<":\n";
-        for (int64_t i = owners_list.size() - 1; i >= 0; --i) {
-            std::cout << "\t" << 100.0 * owners_list[i].first / total_edits << "% (" << owners_list[i].first << ") \t owner=" << owners_list[i].second << "\n";
+        std::sort(owners_list.begin(), owners_list.end(), std::greater <>());
+        data("number owners").SetValInt(num_owners);
+        for (uint64_t i = 0; i < owners_list.size(); ++i) {
+            auto &owner_data = data("owner" + std::to_string(i));
+            owner_data("percent of current bp edits").SetValStr(std::to_string((int)100.0 * owners_list[i].first / total_edits) + "%");
+            owner_data("number of edits").SetValInt(owners_list[i].first);
+            owner_data("owner name").SetValStr(owners_list[i].second);
 
             std::vector<std::pair<uint64_t, std::string>> bp_distrib;
 
             uint64_t num_char_to_char_types = 0;
             uint64_t total_owner_edits = 0;
-            for (const auto x : char_to_char_distrib_per_bp_per_owner[bp_idx][owners_list[i].second]) {
+            for (const auto &x : char_to_char_distrib_per_bp_per_owner[bp_idx][owners_list[i].second]) {
                 bp_distrib.push_back({x.second, x.first});
                 ++num_char_to_char_types;
                 total_owner_edits += x.second;
             }
-            std::sort(bp_distrib.begin(), bp_distrib.end());
-            // std::cout << "char to char distribution per bp --> #char_to_char_types=" << num_char_to_char_types << " #edits=" << total_edits << ":\n";
-            for (int64_t i = bp_distrib.size() - 1; i >= 0; --i) {
-                std::cout << "\t\t" << bp_distrib[i].second << " " << 100.0 * bp_distrib[i].first / total_owner_edits << "% (" << bp_distrib[i].first << ") " << "\n";
+            std::sort(bp_distrib.begin(), bp_distrib.end(), std::greater <>());
+            for (uint64_t j = 0; j < bp_distrib.size(); ++j) {
+                auto &bp_owner_data = owner_data("per bp distribution " + std::to_string(j));
+                bp_owner_data("kind").SetValStr(bp_distrib[j].second);
+                bp_owner_data("percent of current owner edits").SetValStr(std::to_string((int)100.0 * bp_distrib[j].first / total_owner_edits) + "%");
+                bp_owner_data("number of edits").SetValInt(bp_distrib[j].first);
             }
         }
-        std::cout << "\n" << std::endl;
     }
 
     struct OwnerDetails {
@@ -177,14 +182,15 @@ void FreqBpQuery::print_results() {
         }
         return a.name < b.name;
     });
-
-    std::cout << "\n\ntop " << num_to_print << " owners:\n";
+    saved_data(snapshot_current_name)("list only top X owners").SetValInt(num_to_print);
     for (uint64_t i = 0; i < owners.size() && i < num_to_print; ++i) {
-        std::cout << owners[i].edits << "\t";
+        auto &owner_data = saved_data(snapshot_current_name)("owner" + std::to_string(i));
+        owner_data("name").SetValStr(owners[i].name);
+        owner_data("number of edits").SetValInt(owners[i].edits);
+
         if (this->compute_total_owner_cnt) {
-            std::cout << owners[i].uploads << "\t";
+            owner_data("number of uploads").SetValInt(owners[i].uploads);
         }
-        std::cout << owners[i].name << std::endl;
     }
 }
 

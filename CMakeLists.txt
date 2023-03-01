@@ -55,6 +55,7 @@ set(SOURCES
             src/cli/stats.cpp
             src/cli/query.cpp
 
+            src/queries/base_query.cpp
             src/queries/freq_bp.cpp
             src/queries/count_indels.cpp
             src/queries/count_hosts.cpp

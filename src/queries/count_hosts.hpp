@@ -29,17 +29,12 @@ class CountHostsQuery : public BaseQuery {
     Tnode *lca_tnode = NULL;
     bool found_first = false;
     bool before_lca_tnode = true;
-    std::vector<tsl::hopscotch_map<std::string, uint64_t>> total_host_occurrences;
 
   public:    
     CountHostsQuery(const uint64_t num_total_snapshots);
     std::string get_treap_name();
     TreeDirectionToGo first_enter_into_node(const std::string &target_location_prefix, Tnode *, const BaseSortedTreap *, const ds::DB *);
     TreeDirectionToGo second_enter_into_node(const std::string &target_location_prefix, Tnode *, const BaseSortedTreap *, const ds::DB *);
-    /*
-        'print_results()' prints to the standard out all the SN results for the current query string.
-    */
-    void print_results();
     /*
         'reset()' has to be called after printing the results for one query string.
     */

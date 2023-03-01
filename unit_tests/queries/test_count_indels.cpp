@@ -146,6 +146,7 @@ TEST(CountIndelsQuery, TestCntIndels) {
     query_ns::CountIndelsQuery *query = new query_ns::CountIndelsQuery(tests.size());
 
     for (CntIndelsTestStr test : tests) {
+        query->snapshot_current_name = std::to_string(query->snapshot_idx);
         treap->query_callback_subtree(query, test.target_prefix, NULL);
         query->snapshot_idx++;
         query->set_deletion_mode(false);
@@ -153,8 +154,8 @@ TEST(CountIndelsQuery, TestCntIndels) {
 
     for (uint64_t i = 0; i < tests.size(); ++i) {
         const CntIndelsTestStr &test = tests[i];
-        EXPECT_EQ(test.test_id + std::to_string(query->total_inserted_sequences[i]), test.test_id + std::to_string(test.expected_num_sequences));
-        EXPECT_EQ(test.test_id + std::to_string(query->total_modified_sequences[i]), test.test_id + std::to_string(test.expected_sum_versions));
+        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(i)("inserted").GetValInt()), test.test_id + std::to_string(test.expected_num_sequences));
+        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(i)("modified").GetValInt()), test.test_id + std::to_string(test.expected_sum_versions));
     }
 }
 
@@ -210,31 +211,34 @@ TEST(CountIndelsQuery, TestDeletionsTreap) {
 
     query_ns::CountIndelsQuery *query = new query_ns::CountIndelsQuery(3);
 
+    query->snapshot_current_name="0";
     treap->query_callback_subtree(query, "", NULL);
     query->set_deletion_mode(true);
     deletions_treap->query_callback_subtree(query, "", NULL);
 
+    query->snapshot_current_name="1";
     query->set_deletion_mode(false);
     query->snapshot_idx++;
     treap->query_callback_subtree(query, "d", NULL);
     query->set_deletion_mode(true);
     deletions_treap->query_callback_subtree(query, "d", NULL);
 
+    query->snapshot_current_name="2";
     query->set_deletion_mode(false);
     query->snapshot_idx++;
     treap->query_callback_subtree(query, "e", NULL);
     query->set_deletion_mode(true);
     deletions_treap->query_callback_subtree(query, "e", NULL);
 
-    EXPECT_EQ(query->total_inserted_sequences[0], 3);
-    EXPECT_EQ(query->total_modified_sequences[0], 62);
-    EXPECT_EQ(query->total_deleted_sequences[0], 2);
+    EXPECT_EQ(query->saved_data(0)("inserted").GetValInt(), 3);
+    EXPECT_EQ(query->saved_data(0)("modified").GetValInt(), 62);
+    EXPECT_EQ(query->saved_data(0)("deleted").GetValInt(), 2);
 
-    EXPECT_EQ(query->total_inserted_sequences[1], 3);
-    EXPECT_EQ(query->total_modified_sequences[1], 30);
-    EXPECT_EQ(query->total_deleted_sequences[1], 1);
+    EXPECT_EQ(query->saved_data(1)("inserted").GetValInt(), 3);
+    EXPECT_EQ(query->saved_data(1)("modified").GetValInt(), 30);
+    EXPECT_EQ(query->saved_data(1)("deleted").GetValInt(), 1);
 
-    EXPECT_EQ(query->total_inserted_sequences[2], 0);
-    EXPECT_EQ(query->total_modified_sequences[2], 32);
-    EXPECT_EQ(query->total_deleted_sequences[2], 1);
+    EXPECT_EQ(query->saved_data(2)("inserted").GetValInt(), 0);
+    EXPECT_EQ(query->saved_data(2)("modified").GetValInt(), 32);
+    EXPECT_EQ(query->saved_data(2)("deleted").GetValInt(), 1);
 }
