@@ -83,15 +83,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             },
             {
               "number of edits": 1,
@@ -100,10 +100,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "25%"
+              "ratio of current bp edits": "0.25"
             },
             {
               "number of edits": 1,
@@ -112,10 +112,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "25%"
+              "ratio of current bp edits": "0.25"
             }
           ]
         },
@@ -131,10 +131,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             },
             {
               "number of edits": 1,
@@ -143,10 +143,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             }
           ]
         },
@@ -162,10 +162,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         },
@@ -181,10 +181,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         }
@@ -239,15 +239,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             },
             {
               "number of edits": 1,
@@ -256,10 +256,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "25%"
+              "ratio of current bp edits": "0.25"
             },
             {
               "number of edits": 1,
@@ -268,10 +268,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "25%"
+              "ratio of current bp edits": "0.25"
             }
           ]
         },
@@ -287,10 +287,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             },
             {
               "number of edits": 1,
@@ -299,10 +299,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             }
           ]
         },
@@ -318,10 +318,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         },
@@ -337,10 +337,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         }
@@ -398,10 +398,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             },
             {
               "number of edits": 1,
@@ -410,10 +410,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             }
           ]
         },
@@ -429,10 +429,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         },
@@ -448,10 +448,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         }
@@ -504,10 +504,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             },
             {
               "number of edits": 1,
@@ -516,10 +516,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "50%"
+              "ratio of current bp edits": "0.50"
             }
           ]
         },
@@ -535,10 +535,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         },
@@ -554,10 +554,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "A>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         }
@@ -630,25 +630,25 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "25%"
+                  "ratio of current owner edits": "0.25"
                 },
                 {
                   "kind": "G>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "25%"
+                  "ratio of current owner edits": "0.25"
                 },
                 {
                   "kind": "C>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "25%"
+                  "ratio of current owner edits": "0.25"
                 },
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "25%"
+                  "ratio of current owner edits": "0.25"
                 }
               ],
-              "percent of current bp edits": "66%"
+              "ratio of current bp edits": "0.67"
             },
             {
               "number of edits": 2,
@@ -657,15 +657,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "A>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "33%"
+              "ratio of current bp edits": "0.33"
             }
           ]
         },
@@ -681,15 +681,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "C>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         },
@@ -705,15 +705,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "C>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         },
@@ -729,15 +729,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "A>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         }
@@ -788,25 +788,25 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "25%"
+                  "ratio of current owner edits": "0.25"
                 },
                 {
                   "kind": "G>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "25%"
+                  "ratio of current owner edits": "0.25"
                 },
                 {
                   "kind": "C>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "25%"
+                  "ratio of current owner edits": "0.25"
                 },
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "25%"
+                  "ratio of current owner edits": "0.25"
                 }
               ],
-              "percent of current bp edits": "57%"
+              "ratio of current bp edits": "0.57"
             },
             {
               "number of edits": 2,
@@ -815,15 +815,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "A>G",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "28%"
+              "ratio of current bp edits": "0.29"
             },
             {
               "number of edits": 1,
@@ -832,10 +832,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "14%"
+              "ratio of current bp edits": "0.14"
             }
           ]
         },
@@ -851,15 +851,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "C>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "66%"
+              "ratio of current bp edits": "0.67"
             },
             {
               "number of edits": 1,
@@ -868,10 +868,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "G>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "100%"
+                  "ratio of current owner edits": "1.00"
                 }
               ],
-              "percent of current bp edits": "33%"
+              "ratio of current bp edits": "0.33"
             }
           ]
         },
@@ -887,15 +887,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "C>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "A>C",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         },
@@ -911,15 +911,15 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
                 {
                   "kind": "T>A",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 },
                 {
                   "kind": "A>T",
                   "number of edits": 1,
-                  "percent of current owner edits": "50%"
+                  "ratio of current owner edits": "0.50"
                 }
               ],
-              "percent of current bp edits": "100%"
+              "ratio of current bp edits": "1.00"
             }
           ]
         }

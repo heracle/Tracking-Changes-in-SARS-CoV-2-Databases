@@ -1,7 +1,9 @@
 #include "freq_bp.hpp"
 
-#include <iostream>
 #include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 #include "../ds/static_types/static_base.hpp"
 #include "../ds/static_types/static_location.hpp"
@@ -141,7 +143,9 @@ void FreqBpQuery::post_process() {
         data("number owners").SetValInt(num_owners);
         for (uint64_t i = 0; i < owners_list.size(); ++i) {
             auto &owner_data = data("owner")[i];
-            owner_data("percent of current bp edits").SetValStr(std::to_string((int)100.0 * owners_list[i].first / total_edits) + "%");
+            std::ostringstream streamObj;
+            streamObj << std::fixed << std::setprecision(2) << 1.0 * owners_list[i].first / total_edits; 
+            owner_data("ratio of current bp edits").SetValStr(streamObj.str());
             owner_data("number of edits").SetValInt(owners_list[i].first);
             owner_data("owner name").SetValStr(owners_list[i].second);
 
@@ -158,7 +162,9 @@ void FreqBpQuery::post_process() {
             for (uint64_t j = 0; j < bp_distrib.size(); ++j) {
                 auto &bp_owner_data = owner_data("per bp distribution")[j];
                 bp_owner_data("kind").SetValStr(bp_distrib[j].second);
-                bp_owner_data("percent of current owner edits").SetValStr(std::to_string((int)100.0 * bp_distrib[j].first / total_owner_edits) + "%");
+                std::ostringstream streamObj;
+                streamObj << std::fixed << std::setprecision(2) << 1.0 * bp_distrib[j].first / total_owner_edits; 
+                bp_owner_data("ratio of current owner edits").SetValStr(streamObj.str());
                 bp_owner_data("number of edits").SetValInt(bp_distrib[j].first);
             }
         }
