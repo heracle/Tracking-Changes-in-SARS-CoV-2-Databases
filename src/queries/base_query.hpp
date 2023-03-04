@@ -17,20 +17,20 @@ enum TreeDirectionToGo {
 
 class DataQueryObj {
   private:
-    enum Type {kLEAF_UNSET, kLEAF_INT, kLEAF_STR, kNON_LEAF};
+    enum Type {kLEAF_UNSET, kLEAF_INT, kLEAF_STR, kNODE_MAP, kNODE_ARR};
     Type type = kLEAF_UNSET;
-    tsl::hopscotch_map<std::string, DataQueryObj*> data;
-    std::vector<std::string> ordered_data_keys;
+    tsl::hopscotch_map<std::string, DataQueryObj*> data_map;
+    std::vector<std::string> ordered_datamap_keys;
+    std::vector<DataQueryObj*> data_arr;
     std::string val_str;
     int64_t val_int;
     static const uint64_t spacing = 2;
 
-    void CloseBracket(uint64_t level, std::string &s);
-    void AddDataLabelToStr(uint64_t level, const std::string &label, std::string &s);
+    void AddIndentToStr(uint64_t level, std::string &s);
     void AppendDataToStr(uint64_t level, std::string &s);
   public:
     DataQueryObj& operator()(const std::string &label);
-    DataQueryObj& operator()(const uint64_t &label);
+    DataQueryObj& operator[](const uint64_t &label);
     void SetValStr(const std::string &s);
     std::string GetValStr();
     void SetValInt(const int64_t &s);

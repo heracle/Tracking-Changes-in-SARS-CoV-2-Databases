@@ -70,118 +70,144 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         expected_stdout = """{
   "": {
     "modified_sequence_v2.provision.json": {
-      "bp0": {
-        "bp index": 112,
-        "number edits": 4,
-        "number owners": 3,
-        "owner0": {
-          "number of edits": 2,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>G",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "50%",
+      "bp": [
+        {
+          "bp index": 112,
+          "number edits": 4,
+          "number owners": 3,
+          "owner": [
+            {
+              "number of edits": 2,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow4",
+              "per bp distribution": [
+                {
+                  "kind": "G>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "25%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow1",
+              "per bp distribution": [
+                {
+                  "kind": "A>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "25%"
+            }
+          ]
         },
-        "owner1": {
-          "number of edits": 1,
-          "owner name": "ow4",
-          "per bp distribution 0": {
-            "kind": "G>A",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "25%",
+        {
+          "bp index": 42,
+          "number edits": 2,
+          "number owners": 2,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow4",
+              "per bp distribution": [
+                {
+                  "kind": "G>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            }
+          ]
         },
-        "owner2": {
-          "number of edits": 1,
-          "owner name": "ow1",
-          "per bp distribution 0": {
-            "kind": "A>G",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "25%",
+        {
+          "bp index": 157,
+          "number edits": 1,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
         },
-      },
-      "bp1": {
-        "bp index": 42,
-        "number edits": 2,
-        "number owners": 2,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow4",
-          "per bp distribution 0": {
-            "kind": "G>T",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "50%",
-        },
-        "owner1": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>C",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "50%",
-        },
-      },
-      "bp2": {
-        "bp index": 157,
-        "number edits": 1,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
-      "bp3": {
-        "bp index": 177,
-        "number edits": 1,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "A>T",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
+        {
+          "bp index": 177,
+          "number edits": 1,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "A>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
+        }
+      ],
       "list only top X bp": 34,
       "list only top X owners": 34,
-      "owner0": {
-        "name": "ow3",
-        "number of edits": 2,
-      },
-      "owner1": {
-        "name": "ow1",
-        "number of edits": 1,
-      },
-      "owner2": {
-        "name": "ow4",
-        "number of edits": 1,
-      },
-    },
-  },
-},"""
+      "owner": [
+        {
+          "name": "ow3",
+          "number of edits": 2
+        },
+        {
+          "name": "ow1",
+          "number of edits": 1
+        },
+        {
+          "name": "ow4",
+          "number of edits": 1
+        }
+      ]
+    }
+  }
+}"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -200,121 +226,147 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         expected_stdout = """{
   "": {
     "modified_sequence_v2.provision.json": {
-      "bp0": {
-        "bp index": 112,
-        "number edits": 4,
-        "number owners": 3,
-        "owner0": {
-          "number of edits": 2,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>G",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "50%",
+      "bp": [
+        {
+          "bp index": 112,
+          "number edits": 4,
+          "number owners": 3,
+          "owner": [
+            {
+              "number of edits": 2,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow4",
+              "per bp distribution": [
+                {
+                  "kind": "G>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "25%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow1",
+              "per bp distribution": [
+                {
+                  "kind": "A>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "25%"
+            }
+          ]
         },
-        "owner1": {
-          "number of edits": 1,
-          "owner name": "ow4",
-          "per bp distribution 0": {
-            "kind": "G>A",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "25%",
+        {
+          "bp index": 42,
+          "number edits": 2,
+          "number owners": 2,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow4",
+              "per bp distribution": [
+                {
+                  "kind": "G>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            }
+          ]
         },
-        "owner2": {
-          "number of edits": 1,
-          "owner name": "ow1",
-          "per bp distribution 0": {
-            "kind": "A>G",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "25%",
+        {
+          "bp index": 157,
+          "number edits": 1,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
         },
-      },
-      "bp1": {
-        "bp index": 42,
-        "number edits": 2,
-        "number owners": 2,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow4",
-          "per bp distribution 0": {
-            "kind": "G>T",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "50%",
-        },
-        "owner1": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>C",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "50%",
-        },
-      },
-      "bp2": {
-        "bp index": 157,
-        "number edits": 1,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
-      "bp3": {
-        "bp index": 177,
-        "number edits": 1,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "A>T",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
+        {
+          "bp index": 177,
+          "number edits": 1,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "A>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
+        }
+      ],
       "list only top X bp": 50,
       "list only top X owners": 50,
-      "owner0": {
-        "name": "ow3",
-        "number of edits": 2,
-        "number of uploads": 2,
-      },
-      "owner1": {
-        "name": "ow1",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-      "owner2": {
-        "name": "ow4",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-    },
-  },
-},"""
+      "owner": [
+        {
+          "name": "ow3",
+          "number of edits": 2,
+          "number of uploads": 2
+        },
+        {
+          "name": "ow1",
+          "number of edits": 1,
+          "number of uploads": 1
+        },
+        {
+          "name": "ow4",
+          "number of edits": 1,
+          "number of uploads": 1
+        }
+      ]
+    }
+  }
+}"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -333,76 +385,94 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         expected_stdout = """{
   "Oceania": {
     "modified_sequence_v2.provision.json": {
-      "bp0": {
-        "bp index": 112,
-        "number edits": 2,
-        "number owners": 2,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "50%",
+      "bp": [
+        {
+          "bp index": 112,
+          "number edits": 2,
+          "number owners": 2,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow1",
+              "per bp distribution": [
+                {
+                  "kind": "A>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            }
+          ]
         },
-        "owner1": {
-          "number of edits": 1,
-          "owner name": "ow1",
-          "per bp distribution 0": {
-            "kind": "A>G",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "50%",
+        {
+          "bp index": 42,
+          "number edits": 1,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
         },
-      },
-      "bp1": {
-        "bp index": 42,
-        "number edits": 1,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>C",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
-      "bp2": {
-        "bp index": 157,
-        "number edits": 1,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
+        {
+          "bp index": 157,
+          "number edits": 1,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
+        }
+      ],
       "list only top X bp": 50,
       "list only top X owners": 50,
-      "owner0": {
-        "name": "ow1",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-      "owner1": {
-        "name": "ow3",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-    },
-  },
-},"""
+      "owner": [
+        {
+          "name": "ow1",
+          "number of edits": 1,
+          "number of uploads": 1
+        },
+        {
+          "name": "ow3",
+          "number of edits": 1,
+          "number of uploads": 1
+        }
+      ]
+    }
+  }
+}"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -421,76 +491,94 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         expected_stdout = """{
   "Europe": {
     "modified_sequence_v2.provision.json": {
-      "bp0": {
-        "bp index": 112,
-        "number edits": 2,
-        "number owners": 2,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow4",
-          "per bp distribution 0": {
-            "kind": "G>A",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "50%",
+      "bp": [
+        {
+          "bp index": 112,
+          "number edits": 2,
+          "number owners": 2,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow4",
+              "per bp distribution": [
+                {
+                  "kind": "G>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "50%"
+            }
+          ]
         },
-        "owner1": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>G",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "50%",
+        {
+          "bp index": 42,
+          "number edits": 1,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow4",
+              "per bp distribution": [
+                {
+                  "kind": "G>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
         },
-      },
-      "bp1": {
-        "bp index": 42,
-        "number edits": 1,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow4",
-          "per bp distribution 0": {
-            "kind": "G>T",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
-      "bp2": {
-        "bp index": 177,
-        "number edits": 1,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 1,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "A>T",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
+        {
+          "bp index": 177,
+          "number edits": 1,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 1,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "A>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
+        }
+      ],
       "list only top X bp": 50,
       "list only top X owners": 50,
-      "owner0": {
-        "name": "ow3",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-      "owner1": {
-        "name": "ow4",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-    },
-  },
-},"""
+      "owner": [
+        {
+          "name": "ow3",
+          "number of edits": 1,
+          "number of uploads": 1
+        },
+        {
+          "name": "ow4",
+          "number of edits": 1,
+          "number of uploads": 1
+        }
+      ]
+    }
+  }
+}"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
@@ -509,10 +597,10 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
   "Void": {
     "modified_sequence_v2.provision.json": {
       "list only top X bp": 50,
-      "list only top X owners": 50,
-    },
-  },
-},"""
+      "list only top X owners": 50
+    }
+  }
+}"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
@@ -529,126 +617,148 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         expected_stdout = """{
   "": {
     "": {
-      "bp0": {
-        "bp index": 112,
-        "number edits": 6,
-        "number owners": 2,
-        "owner0": {
-          "number of edits": 4,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>G",
-            "number of edits": 1,
-            "percent of current owner edits": "25%",
-          },
-          "per bp distribution 1": {
-            "kind": "G>T",
-            "number of edits": 1,
-            "percent of current owner edits": "25%",
-          },
-          "per bp distribution 2": {
-            "kind": "C>A",
-            "number of edits": 1,
-            "percent of current owner edits": "25%",
-          },
-          "per bp distribution 3": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "25%",
-          },
-          "percent of current bp edits": "66%",
+      "bp": [
+        {
+          "bp index": 112,
+          "number edits": 6,
+          "number owners": 2,
+          "owner": [
+            {
+              "number of edits": 4,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "25%"
+                },
+                {
+                  "kind": "G>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "25%"
+                },
+                {
+                  "kind": "C>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "25%"
+                },
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "25%"
+                }
+              ],
+              "percent of current bp edits": "66%"
+            },
+            {
+              "number of edits": 2,
+              "owner name": "ow1",
+              "per bp distribution": [
+                {
+                  "kind": "G>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "A>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "33%"
+            }
+          ]
         },
-        "owner1": {
-          "number of edits": 2,
-          "owner name": "ow1",
-          "per bp distribution 0": {
-            "kind": "G>A",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "A>G",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "33%",
+        {
+          "bp index": 42,
+          "number edits": 2,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 2,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "C>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
         },
-      },
-      "bp1": {
-        "bp index": 42,
-        "number edits": 2,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 2,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>C",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "C>T",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "100%",
+        {
+          "bp index": 157,
+          "number edits": 2,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 2,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "C>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
         },
-      },
-      "bp2": {
-        "bp index": 157,
-        "number edits": 2,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 2,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "C>A",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
-      "bp3": {
-        "bp index": 177,
-        "number edits": 2,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 2,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>A",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "A>T",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
+        {
+          "bp index": 177,
+          "number edits": 2,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 2,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "A>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
+        }
+      ],
       "list only top X bp": 23,
       "list only top X owners": 23,
-      "owner0": {
-        "name": "ow3",
-        "number of edits": 2,
-        "number of uploads": 2,
-      },
-      "owner1": {
-        "name": "ow1",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-    },
-  },
-},"""
+      "owner": [
+        {
+          "name": "ow3",
+          "number of edits": 2,
+          "number of uploads": 2
+        },
+        {
+          "name": "ow1",
+          "number of edits": 1,
+          "number of uploads": 1
+        }
+      ]
+    }
+  }
+}"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -665,151 +775,177 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         expected_stdout = """{
   "": {
     "": {
-      "bp0": {
-        "bp index": 112,
-        "number edits": 7,
-        "number owners": 3,
-        "owner0": {
-          "number of edits": 4,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>G",
-            "number of edits": 1,
-            "percent of current owner edits": "25%",
-          },
-          "per bp distribution 1": {
-            "kind": "G>T",
-            "number of edits": 1,
-            "percent of current owner edits": "25%",
-          },
-          "per bp distribution 2": {
-            "kind": "C>A",
-            "number of edits": 1,
-            "percent of current owner edits": "25%",
-          },
-          "per bp distribution 3": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "25%",
-          },
-          "percent of current bp edits": "57%",
+      "bp": [
+        {
+          "bp index": 112,
+          "number edits": 7,
+          "number owners": 3,
+          "owner": [
+            {
+              "number of edits": 4,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "25%"
+                },
+                {
+                  "kind": "G>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "25%"
+                },
+                {
+                  "kind": "C>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "25%"
+                },
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "25%"
+                }
+              ],
+              "percent of current bp edits": "57%"
+            },
+            {
+              "number of edits": 2,
+              "owner name": "ow1",
+              "per bp distribution": [
+                {
+                  "kind": "G>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "A>G",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "28%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow4",
+              "per bp distribution": [
+                {
+                  "kind": "G>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "14%"
+            }
+          ]
         },
-        "owner1": {
-          "number of edits": 2,
-          "owner name": "ow1",
-          "per bp distribution 0": {
-            "kind": "G>A",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "A>G",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "28%",
+        {
+          "bp index": 42,
+          "number edits": 3,
+          "number owners": 2,
+          "owner": [
+            {
+              "number of edits": 2,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "C>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "66%"
+            },
+            {
+              "number of edits": 1,
+              "owner name": "ow4",
+              "per bp distribution": [
+                {
+                  "kind": "G>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "100%"
+                }
+              ],
+              "percent of current bp edits": "33%"
+            }
+          ]
         },
-        "owner2": {
-          "number of edits": 1,
-          "owner name": "ow4",
-          "per bp distribution 0": {
-            "kind": "G>A",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "14%",
+        {
+          "bp index": 157,
+          "number edits": 2,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 2,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "C>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "A>C",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
         },
-      },
-      "bp1": {
-        "bp index": 42,
-        "number edits": 3,
-        "number owners": 2,
-        "owner0": {
-          "number of edits": 2,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>C",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "C>T",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "66%",
-        },
-        "owner1": {
-          "number of edits": 1,
-          "owner name": "ow4",
-          "per bp distribution 0": {
-            "kind": "G>T",
-            "number of edits": 1,
-            "percent of current owner edits": "100%",
-          },
-          "percent of current bp edits": "33%",
-        },
-      },
-      "bp2": {
-        "bp index": 157,
-        "number edits": 2,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 2,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "C>A",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "A>C",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
-      "bp3": {
-        "bp index": 177,
-        "number edits": 2,
-        "number owners": 1,
-        "owner0": {
-          "number of edits": 2,
-          "owner name": "ow3",
-          "per bp distribution 0": {
-            "kind": "T>A",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "per bp distribution 1": {
-            "kind": "A>T",
-            "number of edits": 1,
-            "percent of current owner edits": "50%",
-          },
-          "percent of current bp edits": "100%",
-        },
-      },
+        {
+          "bp index": 177,
+          "number edits": 2,
+          "number owners": 1,
+          "owner": [
+            {
+              "number of edits": 2,
+              "owner name": "ow3",
+              "per bp distribution": [
+                {
+                  "kind": "T>A",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                },
+                {
+                  "kind": "A>T",
+                  "number of edits": 1,
+                  "percent of current owner edits": "50%"
+                }
+              ],
+              "percent of current bp edits": "100%"
+            }
+          ]
+        }
+      ],
       "list only top X bp": 50,
       "list only top X owners": 50,
-      "owner0": {
-        "name": "ow3",
-        "number of edits": 2,
-        "number of uploads": 2,
-      },
-      "owner1": {
-        "name": "ow1",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-      "owner2": {
-        "name": "ow4",
-        "number of edits": 1,
-        "number of uploads": 1,
-      },
-    },
-  },
-},"""
+      "owner": [
+        {
+          "name": "ow3",
+          "number of edits": 2,
+          "number of uploads": 2
+        },
+        {
+          "name": "ow1",
+          "number of edits": 1,
+          "number of uploads": 1
+        },
+        {
+          "name": "ow4",
+          "number of edits": 1,
+          "number of uploads": 1
+        }
+      ]
+    }
+  }
+}"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -870,56 +1006,57 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
   "": {
     "modified_sequence_v1.provision.json": {
       "inserted": 5,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 5,
-      "modified": 4,
+      "modified": 4
     },
     "modified_sequence_v3.provision.json": {
       "deleted": 1,
       "inserted": 4,
-      "modified": 7,
-    },
-  },
+      "modified": 7
+    }
+  }
 },
 {
   "Europe": {
     "modified_sequence_v1.provision.json": {
       "inserted": 2,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 2,
-      "modified": 2,
+      "modified": 2
     },
     "modified_sequence_v3.provision.json": {
       "deleted": 1,
       "inserted": 1,
-      "modified": 3,
-    },
-  },
+      "modified": 3
+    }
+  }
 },
 {
   "Oceania": {
     "modified_sequence_v1.provision.json": {
       "inserted": 3,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 3,
-      "modified": 2,
+      "modified": 2
     },
     "modified_sequence_v3.provision.json": {
       "inserted": 3,
-      "modified": 4,
-    },
-  },
+      "modified": 4
+    }
+  }
 },
 {
   "Void": {
-  },
-},"""
+
+  }
+}"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -935,58 +1072,58 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         self.assertEqual(res.returncode, 0)
 
         expected_stdout = """{
-  "Void": "",
+  "Void": ""
 },
 {
   "Oceania": {
     "modified_sequence_v1.provision.json": {
       "inserted": 3,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 3,
-      "modified": 2,
+      "modified": 2
     },
     "modified_sequence_v3.provision.json": {
       "inserted": 3,
-      "modified": 4,
-    },
-  },
+      "modified": 4
+    }
+  }
 },
 {
   "Europe": {
     "modified_sequence_v1.provision.json": {
       "inserted": 2,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 2,
-      "modified": 2,
+      "modified": 2
     },
     "modified_sequence_v3.provision.json": {
       "deleted": 1,
       "inserted": 1,
-      "modified": 3,
-    },
-  },
+      "modified": 3
+    }
+  }
 },
 {
   "": {
     "modified_sequence_v1.provision.json": {
       "inserted": 5,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 5,
-      "modified": 4,
+      "modified": 4
     },
     "modified_sequence_v3.provision.json": {
       "deleted": 1,
       "inserted": 4,
-      "modified": 7,
-    },
-  },
-},"""
+      "modified": 7
+    }
+  }
+}"""
 
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
@@ -1001,56 +1138,56 @@ Snapshot 'modified_sequence_v3.provision.json' contains 4 treap nodes."""
         res = subprocess.run([stats_command], shell=True, stdout=PIPE)
         self.assertEqual(res.returncode, 0)
         expected_stdout = """{
-  "Void": "",
+  "Void": ""
 },
 {
   "Oceania": {
     "modified_sequence_v1.provision.json": {
       "inserted": 3,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 3,
-      "modified": 2,
+      "modified": 2
     },
     "modified_sequence_v3.provision.json": {
       "inserted": 3,
-      "modified": 4,
-    },
-  },
+      "modified": 4
+    }
+  }
 },
 {
   "Europe": {
     "modified_sequence_v1.provision.json": {
       "inserted": 2,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 2,
-      "modified": 2,
+      "modified": 2
     },
     "modified_sequence_v3.provision.json": {
       "inserted": 1,
-      "modified": 2,
-    },
-  },
+      "modified": 2
+    }
+  }
 },
 {
   "": {
     "modified_sequence_v1.provision.json": {
       "inserted": 5,
-      "modified": 0,
+      "modified": 0
     },
     "modified_sequence_v2.provision.json": {
       "inserted": 5,
-      "modified": 4,
+      "modified": 4
     },
     "modified_sequence_v3.provision.json": {
       "inserted": 4,
-      "modified": 6,
-    },
-  },
-},"""
+      "modified": 6
+    }
+  }
+}"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
 
@@ -1100,39 +1237,40 @@ Snapshot 'cnt_host_test_v2.provision.json' contains 5 treap nodes."""
   "": {
     "cnt_host_test_v1.provision.json": {
       "Cat": 1,
-      "Human": 2,
+      "Human": 2
     },
     "cnt_host_test_v2.provision.json": {
       "Cat": 1,
       "Dog": 1,
-      "Human": 3,
-    },
-  },
+      "Human": 3
+    }
+  }
 },
 {
   "Europe": {
     "cnt_host_test_v2.provision.json": {
       "Dog": 1,
-      "Human": 1,
-    },
-  },
+      "Human": 1
+    }
+  }
 },
 {
   "Oceania": {
     "cnt_host_test_v1.provision.json": {
       "Cat": 1,
-      "Human": 2,
+      "Human": 2
     },
     "cnt_host_test_v2.provision.json": {
       "Cat": 1,
-      "Human": 2,
-    },
-  },
+      "Human": 2
+    }
+  }
 },
 {
   "Void": {
-  },
-},"""
+
+  }
+}"""
         stdout_pipe = res.stdout.decode().rstrip()
         self.assertEqual(stdout_pipe, expected_stdout)
         

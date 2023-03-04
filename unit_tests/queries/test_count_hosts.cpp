@@ -156,10 +156,10 @@ TEST(CountHostsQuery, TestCntHosts) {
 
     for (uint64_t i = 0; i < tests.size(); ++i) {
         const CntIndelsTestStr &test = tests[i];
-        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(i).GetNumChildren()), test.test_id + std::to_string(test.hosts_distribution.size()));
+        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(std::to_string(i)).GetNumChildren()), test.test_id + std::to_string(test.hosts_distribution.size()));
 
         for (const auto &it : test.hosts_distribution) {
-            EXPECT_EQ(test.test_id + it.first + "_" + std::to_string(query->saved_data(i)(it.first).GetValInt()), test.test_id + it.first + "_" + std::to_string(it.second));
+            EXPECT_EQ(test.test_id + it.first + "_" + std::to_string(query->saved_data(std::to_string(i))(it.first).GetValInt()), test.test_id + it.first + "_" + std::to_string(it.second));
         }
     }
 }
