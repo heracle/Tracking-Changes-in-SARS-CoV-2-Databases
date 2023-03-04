@@ -127,7 +127,7 @@ void FreqBpQuery::post_process() {
             break;
         }
         uint64_t bp_idx = top_bp_idx[i].first;
-        auto &data = saved_data(snapshot_current_name)("bp" + std::to_string(i));
+        auto &data = saved_data(snapshot_current_name)("bp")[i];
         data("bp index").SetValInt(top_bp_idx[i].first);
         data("number edits").SetValInt(top_bp_idx[i].second);
         std::vector<std::pair<uint64_t, std::string>> owners_list;
@@ -140,7 +140,7 @@ void FreqBpQuery::post_process() {
         std::sort(owners_list.begin(), owners_list.end(), std::greater <>());
         data("number owners").SetValInt(num_owners);
         for (uint64_t i = 0; i < owners_list.size(); ++i) {
-            auto &owner_data = data("owner" + std::to_string(i));
+            auto &owner_data = data("owner")[i];
             owner_data("percent of current bp edits").SetValStr(std::to_string((int)100.0 * owners_list[i].first / total_edits) + "%");
             owner_data("number of edits").SetValInt(owners_list[i].first);
             owner_data("owner name").SetValStr(owners_list[i].second);
@@ -156,7 +156,7 @@ void FreqBpQuery::post_process() {
             }
             std::sort(bp_distrib.begin(), bp_distrib.end(), std::greater <>());
             for (uint64_t j = 0; j < bp_distrib.size(); ++j) {
-                auto &bp_owner_data = owner_data("per bp distribution " + std::to_string(j));
+                auto &bp_owner_data = owner_data("per bp distribution")[j];
                 bp_owner_data("kind").SetValStr(bp_distrib[j].second);
                 bp_owner_data("percent of current owner edits").SetValStr(std::to_string((int)100.0 * bp_distrib[j].first / total_owner_edits) + "%");
                 bp_owner_data("number of edits").SetValInt(bp_distrib[j].first);
@@ -184,7 +184,7 @@ void FreqBpQuery::post_process() {
     });
     saved_data(snapshot_current_name)("list only top X owners").SetValInt(num_to_print);
     for (uint64_t i = 0; i < owners.size() && i < num_to_print; ++i) {
-        auto &owner_data = saved_data(snapshot_current_name)("owner" + std::to_string(i));
+        auto &owner_data = saved_data(snapshot_current_name)("owner")[i];
         owner_data("name").SetValStr(owners[i].name);
         owner_data("number of edits").SetValInt(owners[i].edits);
 

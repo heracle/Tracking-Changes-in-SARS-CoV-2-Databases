@@ -154,8 +154,8 @@ TEST(CountIndelsQuery, TestCntIndels) {
 
     for (uint64_t i = 0; i < tests.size(); ++i) {
         const CntIndelsTestStr &test = tests[i];
-        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(i)("inserted").GetValInt()), test.test_id + std::to_string(test.expected_num_sequences));
-        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(i)("modified").GetValInt()), test.test_id + std::to_string(test.expected_sum_versions));
+        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(std::to_string(i))("inserted").GetValInt()), test.test_id + std::to_string(test.expected_num_sequences));
+        EXPECT_EQ(test.test_id + std::to_string(query->saved_data(std::to_string(i))("modified").GetValInt()), test.test_id + std::to_string(test.expected_sum_versions));
     }
 }
 
@@ -230,15 +230,15 @@ TEST(CountIndelsQuery, TestDeletionsTreap) {
     query->set_deletion_mode(true);
     deletions_treap->query_callback_subtree(query, "e", NULL);
 
-    EXPECT_EQ(query->saved_data(0)("inserted").GetValInt(), 3);
-    EXPECT_EQ(query->saved_data(0)("modified").GetValInt(), 62);
-    EXPECT_EQ(query->saved_data(0)("deleted").GetValInt(), 2);
+    EXPECT_EQ(query->saved_data(std::to_string(0))("inserted").GetValInt(), 3);
+    EXPECT_EQ(query->saved_data(std::to_string(0))("modified").GetValInt(), 62);
+    EXPECT_EQ(query->saved_data(std::to_string(0))("deleted").GetValInt(), 2);
 
-    EXPECT_EQ(query->saved_data(1)("inserted").GetValInt(), 3);
-    EXPECT_EQ(query->saved_data(1)("modified").GetValInt(), 30);
-    EXPECT_EQ(query->saved_data(1)("deleted").GetValInt(), 1);
+    EXPECT_EQ(query->saved_data(std::to_string(1))("inserted").GetValInt(), 3);
+    EXPECT_EQ(query->saved_data(std::to_string(1))("modified").GetValInt(), 30);
+    EXPECT_EQ(query->saved_data(std::to_string(1))("deleted").GetValInt(), 1);
 
-    EXPECT_EQ(query->saved_data(2)("inserted").GetValInt(), 0);
-    EXPECT_EQ(query->saved_data(2)("modified").GetValInt(), 32);
-    EXPECT_EQ(query->saved_data(2)("deleted").GetValInt(), 1);
+    EXPECT_EQ(query->saved_data(std::to_string(2))("inserted").GetValInt(), 0);
+    EXPECT_EQ(query->saved_data(std::to_string(2))("modified").GetValInt(), 32);
+    EXPECT_EQ(query->saved_data(std::to_string(2))("deleted").GetValInt(), 1);
 }

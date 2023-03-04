@@ -94,7 +94,12 @@ int query(Config *config) {
             }
         }
         query->post_process();
-        json_output += query->saved_data.GetJsonStr(1) + "},\n";
+        json_output += query->saved_data.GetJsonStr(1) + "}";
+        // Do not print "," for the last element in an array;
+        if (i + 1 < config->fnames.size()) {
+            json_output += ",";
+        }
+        json_output += "\n";
     }
     std::cout << json_output << "\n";
 
