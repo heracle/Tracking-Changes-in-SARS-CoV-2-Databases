@@ -4,6 +4,14 @@ This project proposes a tool to highlight meaningful differences between SARS-Co
 
 See the [full text](https://doi.org/10.3929/ethz-b-000555485) of my Master's Thesys that underlines all tool's capabilities.
 
+# What can the tool do
+
+TODO fill in
+
+# How to use the tools
+
+TODO link to the other documentations.
+
 # How to install
 
 <details>

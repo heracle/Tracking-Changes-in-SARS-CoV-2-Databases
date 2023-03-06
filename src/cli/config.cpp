@@ -64,9 +64,9 @@ void Config::print_helper(const std::string &prog_name, ModuleType module) {
 
             fprintf(stderr, "\nAvailable options for query bp_freq:\n");
             fprintf(stderr, "\t   --snapshot [str] \t Indicate what snapshot to use as target for the query.\n");
-            fprintf(stderr, "\t   --compute-total-owner-cnt \t print how many uploads has each owner group.\n");
+            fprintf(stderr, "\t   --compute-total-owner-cnt [bool] \t print how many uploads has each owner group.\n");
             fprintf(stderr, "\t   --top-to-print [int] \t Set the number of results to print.\n");
-            fprintf(stderr, "\t   --exclude-deleted [int] \t Exclude the results from the previously deleted sequences.\n");
+            fprintf(stderr, "\t   --exclude-deleted [bool] \t Exclude the results from the previously deleted sequences.\n");
 
             fprintf(stderr, "\nAvailable options for query cnt_indels:\n");
             fprintf(stderr, "\t   --snapshot [str,str,..] \t Compute one column for each requested snapshot (e.g. '--snapshot snap1,snap2,snap3' with no spaces).\n");
